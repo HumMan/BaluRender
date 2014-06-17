@@ -30,7 +30,7 @@ void TBaluRender::TBitmapFont::Print(TBitmapFontId use_font,TVec2 pos,char* form
 	va_list ap;
 	if(text==NULL)return;
 	va_start(ap,format);
-	int chars_to_print=vsprintf(text,format,ap);
+	int chars_to_print=vsprintf_s(text,format,ap);
 	va_end(ap);
 	glRasterPos2fv((GLfloat*)&pos);
 	glListBase(r->bitmap_fonts[use_font.id].base-32);
@@ -43,7 +43,7 @@ void TBaluRender::TBitmapFont::Print(TBitmapFontId use_font,TVec3 pos,char* form
 	va_list ap;
 	if(text==NULL)return;
 	va_start(ap,format);
-	int chars_to_print=vsprintf(text,format,ap);
+	int chars_to_print=vsprintf_s(text,format,ap);
 	va_end(ap);
 	glRasterPos3fv((GLfloat*)&pos);
 	glListBase(r->bitmap_fonts[use_font.id].base-32);

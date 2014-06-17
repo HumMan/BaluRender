@@ -1,6 +1,6 @@
 #pragma once
 
-#include "baluLib.h"
+#include <baluLib.h>
 
 #include "..\Source\images.h"
 

@@ -1,4 +1,4 @@
-﻿#include "baluRender.h"
+﻿#include <baluRender.h>
 
 
 extern TFileData log_file("log.txt","w+");
@@ -166,14 +166,15 @@ bool TokenExists(char* use_string,char* use_token)
 
 void TBaluRender::InitInfo()
 {
-	sprintf(log_buff,"OpenGL INFO START:\n");log_file.Write(log_buff);
+	sprintf_s(log_buff,"OpenGL INFO START:\n");log_file.Write(log_buff);
 
 	int ext_len=strlen((char *)glGetString(GL_EXTENSIONS));
 	char* ext=new char[ext_len+1]; 
-	strcpy (ext,(char *)glGetString(GL_EXTENSIONS)); 
+	char* gl_ext_string = (char *)glGetString(GL_EXTENSIONS);
+	strcpy_s(ext, ext_len+1,gl_ext_string);
 
 	const char* version = (const char*)glGetString( GL_VERSION );
-    sscanf( version, "%d.%d", &major, &minor );
+    sscanf_s( version, "%d.%d", &major, &minor );
 	log_file.Write(version);
 
 	log_file.Write((const char*)glGetString( GL_RENDERER));
@@ -185,7 +186,7 @@ void TBaluRender::InitInfo()
 	{
 		//TODO убрать комментарии!!!!!
 		//glGetIntegerv(GL_MAX_TEXTURE_UNITS,&max_texture_units);
-		sprintf(log_buff,"Max texture units = %i\n",max_texture_units);log_file.Write(log_buff);
+		sprintf_s(log_buff,"Max texture units = %i\n",max_texture_units);log_file.Write(log_buff);
 	}
 
 	Support.vertex_array			=(major*10+minor>=11);
@@ -200,7 +201,7 @@ void TBaluRender::InitInfo()
 	if(Support.anisotropic_filter)
 	{
 		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,&max_aniso);
-		sprintf(log_buff,"Max aniso = %i\n",max_aniso);log_file.Write(log_buff);
+		sprintf_s(log_buff,"Max aniso = %i\n",max_aniso);log_file.Write(log_buff);
 	}
 
 	Support.npot_texture			=TokenExists(ext,"GL_ARB_texture_non_power_of_two");
@@ -220,12 +221,12 @@ void TBaluRender::InitInfo()
 
 	delete[] ext;
 
-	sprintf(log_buff,"\nOpenGL INFO END:\n");log_file.Write(log_buff);
+	sprintf_s(log_buff,"\nOpenGL INFO END:\n");log_file.Write(log_buff);
 }
 
 void TBaluRender::Initialize(TVec2i use_size)
 {
-	sprintf(log_buff,"Initialization...");log_file.Write(log_buff);
+	sprintf_s(log_buff,"Initialization...");log_file.Write(log_buff);
 	CheckGLError();
 	Set.r=this;
 	Texture.r=this;
@@ -242,7 +243,7 @@ void TBaluRender::Initialize(TVec2i use_size)
 
 	glgInit();
 	glgInitExts();
-	sprintf(log_buff," passed\n");log_file.Write(log_buff);
+	sprintf_s(log_buff," passed\n");log_file.Write(log_buff);
 
 	InitInfo();
 
@@ -264,7 +265,7 @@ TBaluRender::TBaluRender(TVec2i use_size)
 
 TBaluRender::TBaluRender(HWND use_window_handle,TVec2i use_size)
 {
-	sprintf(log_buff,"Context creation...");log_file.Write(log_buff);
+	sprintf_s(log_buff,"Context creation...");log_file.Write(log_buff);
 
 	hWnd=use_window_handle;
 	hDC = GetDC (hWnd);
@@ -284,7 +285,7 @@ TBaluRender::TBaluRender(HWND use_window_handle,TVec2i use_size)
 	CheckGLError();
 	if(!wglMakeCurrent(hDC,hRC))assert(false);
 	CheckGLError();
-	sprintf(log_buff," passed\n");log_file.Write(log_buff);
+	sprintf_s(log_buff," passed\n");log_file.Write(log_buff);
 
 	Initialize(use_size);
 }

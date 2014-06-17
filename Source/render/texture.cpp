@@ -14,7 +14,7 @@ const GLuint tex_filters[][2]=
 
 TTextureId TBaluRender::TTexture::Create(char* fname)
 {
-	sprintf(log_buff,"Texture loading (%s)...",fname);log_file.Write(log_buff);
+	sprintf_s(log_buff,"Texture loading (%s)...",fname);log_file.Write(log_buff);
 	TTextureId result;
 	TImage img;
 
@@ -92,7 +92,7 @@ TTextureId TBaluRender::TTexture::Create(char* fname)
 	desc.used  = true;
 	desc.filter = TTexFilter::Bilinear;
 	
-	sprintf(log_buff," passed\n");log_file.Write(log_buff);
+	sprintf_s(log_buff," passed\n");log_file.Write(log_buff);
 	return result;
 }
 

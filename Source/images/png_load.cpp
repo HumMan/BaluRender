@@ -96,7 +96,7 @@ bool TImage::load_PNG(const char *fname){
 	delete [] ppbRowPointers;
 
 	if (colorType == PNG_COLOR_TYPE_PALETTE){
-		png_colorp palette;
+		png_colorp palette=NULL;
 		int num_palette;
 		png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette);
 
