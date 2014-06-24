@@ -241,8 +241,14 @@ void TBaluRender::Initialize(TVec2i use_size)
 
 	screen_size=use_size;
 
-	glgInit();
-	glgInitExts();
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+		/* Problem: glewInit failed, something is seriously wrong. */
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+	}
+	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+
 	sprintf_s(log_buff," passed\n");log_file.Write(log_buff);
 
 	InitInfo();

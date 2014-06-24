@@ -18,9 +18,6 @@
     <ClCompile Include="Source\baluRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\glgen.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\images\bmp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -143,12 +140,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\gl.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\glgen.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Source\images.h">
       <Filter>Source Files</Filter>
     </ClInclude>

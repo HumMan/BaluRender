@@ -6,9 +6,10 @@
 
 #include "windows.h"
 
-#include "..\Source\gl.h"
-#include <GL\glu.h>
-#include "..\Source\glgen.h"
+#define GLEW_STATIC
+#include <GL\glew.h>
+#include <GL\wglew.h>
+//#include <GL\glu.h>
 
 //TODO גס‏ מדכ סעויע ג מעהוכüםûי פאיכ
 extern TFileData log_file;
