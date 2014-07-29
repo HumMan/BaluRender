@@ -2,9 +2,9 @@
 
 TBitmapFontId TBaluRender::TBitmapFont::Create()
 {
-	r->bitmap_fonts.Inc(1);
+	r->bitmap_fonts.emplace_back();
 
-	unsigned int &base=r->bitmap_fonts.GetTop(0).base;
+	unsigned int &base=r->bitmap_fonts.back().base;
 
 	HFONT  font;           
 	base = glGenLists(96);
@@ -15,7 +15,7 @@ TBitmapFontId TBaluRender::TBitmapFont::Create()
 	SelectObject((HDC)r->hDC, font);
 	wglUseFontBitmaps((HDC)r->hDC, 32, 96, base);
 	TBitmapFontId result;
-	result.id=r->bitmap_fonts.GetHigh();
+	result.id=r->bitmap_fonts.size()+1;
 	return result;
 }
 

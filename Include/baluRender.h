@@ -262,15 +262,15 @@ class TBaluRender
 		int tex;
 		TTexFontDesc():used(false){}
 	};
-	TVector<TFrameBufferDesc>			frame_buffers;
+	std::vector<TFrameBufferDesc>			frame_buffers;
 
-	TVector<TVertexBufferDesc>			vertex_buffers;
-	TIndexedArray<TVertexBufferDesc>	vertex_buffers_emul;
+	std::vector<TVertexBufferDesc>			vertex_buffers;
+	BaluLib::TIndexedArray<TVertexBufferDesc>vertex_buffers_emul;
 
-	TVector<TTextureDesc>				textures;
-	TVector<TShaderDesc>				shaders;
-	TVector<TBitmapFontDesc>			bitmap_fonts;
-	TVector<TTexFontDesc>			tex_fonts;
+	std::vector<TTextureDesc>				textures;
+	std::vector<TShaderDesc>				shaders;
+	std::vector<TBitmapFontDesc>			bitmap_fonts;
+	std::vector<TTexFontDesc>			tex_fonts;
 
 	void Initialize(TVec2i use_size);
 public:
@@ -633,7 +633,7 @@ struct TQuad
 	TVec<T,size> v[4];
 	TVec<T,size>& operator[](int id)
 	{
-		assert(id>=0&&id<2);
+		assert(id>=0&&id<4);
 		return v[id];
 	}
 	void Set(const TVec2 &pos,TVec2 half_size, float z)

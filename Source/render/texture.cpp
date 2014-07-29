@@ -34,7 +34,7 @@ TTextureId TBaluRender::TTexture::Create(char* fname)
 
 	glGenTextures(1,(GLuint*)&result.id);
 
-	if(r->textures.GetHigh()<result.id)r->textures.SetHigh(result.id);
+	if(r->textures.size()<=result.id)r->textures.resize(result.id+1);
 	TTextureDesc& desc=r->textures[result.id];
 
 	glBindTexture(target,result.id);
@@ -179,7 +179,7 @@ TTextureId TBaluRender::TTexture::CreateTarget()
 
 	glGenTextures(1,(GLuint*)&result.id);
 
-	if(r->textures.GetHigh()<result.id)r->textures.SetHigh(result.id);
+	if(r->textures.size()<=result.id)r->textures.resize(result.id+1);
 	TTextureDesc& desc=r->textures[result.id];
 
 	glBindTexture(target,result.id);

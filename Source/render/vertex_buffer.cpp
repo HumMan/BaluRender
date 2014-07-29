@@ -41,7 +41,7 @@ TVertexBufferId TBaluRender::TVertexBuffer::Create(
 
 		glGenBuffersARB(1,&buff_id);
 
-		if(r->vertex_buffers.GetHigh()<(int)buff_id)r->vertex_buffers.SetHigh(buff_id);
+		if(r->vertex_buffers.size()<=(int)buff_id)r->vertex_buffers.resize(buff_id+1);
 		TVertexBufferDesc& desc=r->vertex_buffers[buff_id];
 		desc.buff_type = use_type;
 		desc.buff_usage=use_usage;

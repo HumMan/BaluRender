@@ -31,33 +31,33 @@ struct TGlyphPacker
 	};
 	struct TRow
 	{
-		TVector<TGlyph> glyph;
+		std::vector<TGlyph> glyph;
 		int curr_width;
 		TRow():curr_width(0){}
 		TVec2i PushGlyph(int curr_heigth,TVec2i size)
 		{
 			curr_width+=size[0]+1;
-			glyph.Push(TGlyph(TVec2i(curr_width,curr_heigth),size));
-			return glyph.GetTop(0).pos;
+			glyph.push_back(TGlyph(TVec2i(curr_width,curr_heigth),size));
+			return glyph.back().pos;
 		}
 	};
 	int max_heigh;
 	int curr_height;
-	TVector<TRow> rows;
+	std::vector<TRow> rows;
 	TGlyphPacker():max_heigh(0),curr_height(0){}
 	TVec2i PushGlyph(TVec2i size)
 	{
-		if(rows.GetHigh()<0||rows.GetTop(0).curr_width+size[0]>tex_size)
+		if(rows.size()==0||rows.back().curr_width+size[0]>tex_size)
 		{
-			if(rows.GetCount()!=0)
+			if(rows.size()!=0)
 			{
 				curr_height+=max_heigh+1;
 				max_heigh=0;
 			}
-			rows.Inc(1);
+			rows.emplace_back();
 		}
 		if(size[1]>max_heigh)max_heigh=size[1];
-		return rows.GetTop(0).PushGlyph(curr_height,size);
+		return rows.back().PushGlyph(curr_height,size);
 
 	}
 }glyph_packer;
@@ -151,8 +151,8 @@ TTexFontId TBaluRender::TTexFont::Create()
 	glBindTexture(GL_TEXTURE_2D,0);
 
 	CheckGLError();
-	r->tex_fonts.Inc(1);
-	r->tex_fonts.GetTop(0).tex=tex_id;
+	r->tex_fonts.emplace_back();
+	r->tex_fonts.back().tex=tex_id;
 	TTexFontId result;
 
 	delete buff;

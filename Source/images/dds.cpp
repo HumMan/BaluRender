@@ -7,7 +7,7 @@ using namespace std;
 #define MCHAR4(a, b, c, d) (a | (b << 8) | (c << 16) | (d << 24))
 
 #pragma pack (push, 1)
-struct DDS_PIXELFORMAT
+struct TDDS_PIXELFORMAT
 {
         unsigned long dwSize;
         unsigned long dwFlags;
@@ -29,7 +29,7 @@ struct DDS_HEADER
         unsigned long dwDepth;
         unsigned long dwMipMapCount;
         unsigned long dwReserved1[11];
-        DDS_PIXELFORMAT ddspf;
+        TDDS_PIXELFORMAT ddspf;
         unsigned long dwCaps1;
         unsigned long dwCaps2;
         unsigned long dwReserved2[3];
