@@ -416,8 +416,20 @@ public:
 		friend class TBaluRender;
 		TBaluRender* r;
 	public:
+		enum TDepthFunc
+		{
+			DF_ALWAYS,
+			DF_NEVER,
+			DF_LEQUAL,
+			DF_LESS,
+			DF_EQUAL,
+			DF_NOTEQUAL,
+			DF_GEQUAL,
+			DF_GREATER
+		};
 		void Test(bool enable);
 		void Func(char* func);//funcs: "1","0","<","<=","==",">=",">","!="
+		void Func(TDepthFunc func);
 		void Mask(bool enable);
 		void PolygonOffset(bool use_offset,TPolygonMode::Enum poly,float factor=0, float units=0);
 	}Depth;
@@ -478,6 +490,20 @@ public:
 		int curr_op;
 		TVec4 curr_blend_color;
 	public:
+		enum TBlendFunc
+		{
+			BF_ADD,
+			BF_SUBTRACT
+		};
+		enum TBlendEquation
+		{
+			BE_SRC_COLOR,
+			BE_SRC_ALPHA,
+			BE_DST_COLOR,
+			BE_DST_ALPHA,
+			BE_CONSTANT_COLOR,
+			BE_CONSTANT_ALPHA
+		};
 		void Enable(bool enable);
 		void Func(char* func);
 		//SetFunc: задает функцию смешивания
@@ -502,14 +528,27 @@ public:
 		//"sc*cc"
 		//"dc*sa"
 		void Func(TVec4 blend_color,char* func);
+		void Func(TBlendEquation left, TBlendFunc op, TBlendEquation right);
 	}Blend;
 
 	class TAlphaTest
 	{
 		friend class TBaluRender;TBaluRender* r;
 	public:
+		enum TAlphaTestFunc
+		{
+			AT_ALWAYS,
+			AT_NEVER,
+			AT_LEQUAL,
+			AT_LESS,
+			AT_EQUAL,
+			AT_NOTEQUAL,
+			AT_GEQUAL,
+			AT_GREATER
+		};
 		void Enable(bool enable);
 		void Func(char* func,float val);//funcs: "1","0","<","<=","==",">=",">","!="
+		void Func(TAlphaTestFunc func, float val);
 	}AlphaTest;
 
 	//TODO ввести примитив pushAttrib чтобы не делать после каждого блока enable disable чтобы движок сам определял что изменилось и восстанавливал

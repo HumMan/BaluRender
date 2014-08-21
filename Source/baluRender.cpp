@@ -62,7 +62,46 @@ const GLenum internal_polygon_offset[]=
 	GL_POLYGON_OFFSET_FILL
 };
 
+const GLenum depth_funcs[]=
+{
+	GL_ALWAYS,
+	GL_NEVER,
+	GL_LEQUAL,
+	GL_LESS,
+	GL_EQUAL,
+	GL_NOTEQUAL,
+	GL_GEQUAL,
+	GL_GREATER
+};
 
+const GLenum alpha_test_funcs[] =
+{
+	GL_ALWAYS,
+	GL_NEVER,
+	GL_LEQUAL,
+	GL_LESS,
+	GL_EQUAL,
+	GL_NOTEQUAL,
+	GL_GEQUAL,
+	GL_GREATER
+};
+
+static const GLenum blend_equations[6] =
+{
+	GL_SRC_COLOR,
+	GL_SRC_ALPHA,
+	GL_DST_COLOR,
+	GL_DST_ALPHA,
+	GL_CONSTANT_COLOR,
+	GL_CONSTANT_ALPHA
+};
+
+//TODO добавить другие функции https://www.khronos.org/opengles/sdk/docs/man/xhtml/glBlendFunc.xml
+static const GLenum blend_funcs[6] =
+{
+	GL_ADD,
+	GL_SUBTRACT
+};
 
 const char* GetGLErrorString(GLenum errorCode){
 	if (errorCode == 0) {
@@ -601,6 +640,11 @@ void TBaluRender::TDepth::Func(char* func)
 	}
 }
 
+void TBaluRender::TDepth::Func(TDepth::TDepthFunc func)
+{
+	glDepthFunc(depth_funcs[func]);
+}
+
 
 void TBaluRender::TSet::PointSize(float size)
 {
@@ -631,24 +675,16 @@ void TBaluRender::TBlend::GetToken(TTokenType token)
 }
 void TBaluRender::TBlend::Factor(int &factor)
 {
-	static const GLenum glblendfuncs[6]=
-	{
-		GL_SRC_COLOR,
-		GL_SRC_ALPHA,
-		GL_DST_COLOR,
-		GL_DST_ALPHA,
-		GL_CONSTANT_COLOR,
-		GL_CONSTANT_ALPHA
-	};
+	
 	switch(tokens[c])
 	{
 	case T_LPARENTH:
 		c++;GetToken(T_ONE);GetToken(T_MINUS);
-		factor=glblendfuncs[tokens[c]]+1;
+		factor=blend_equations[tokens[c]]+1;
 		c++;
 		GetToken(T_RPARENTH);
 		break;
-	default: factor=glblendfuncs[tokens[c]];c++;
+	default: factor = blend_equations[tokens[c]]; c++;
 	}
 }
 
@@ -745,6 +781,12 @@ void TBaluRender::TBlend::Func(TVec4 blend_color,char* func){
 	Func(func);
 }
 
+void TBaluRender::TBlend::Func(TBlendEquation left, TBlendFunc op, TBlendEquation right)
+{
+	glBlendEquation(blend_funcs[op]);
+	glBlendFunc(blend_equations[left], blend_equations[right]);
+}
+
 void TBaluRender::TAlphaTest::Enable(bool enable)
 {
 	if(enable)glEnable(GL_ALPHA_TEST);else glDisable(GL_ALPHA_TEST);
@@ -775,4 +817,9 @@ void TBaluRender::TAlphaTest::Func(char* func,float val)
 		glAlphaFunc(GL_NOTEQUAL,val);break;
 	default:assert(false);//ошибка в строке func
 	}
+}
+
+void TBaluRender::TAlphaTest::Func(TAlphaTestFunc func, float val)
+{
+	glAlphaFunc(alpha_test_funcs[func], val);
 }
