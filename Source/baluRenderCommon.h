@@ -1,0 +1,24 @@
+
+#define GLEW_STATIC
+#include <GL\glew.h>
+#include <GL\wglew.h>
+
+const GLuint targets[] =
+{
+	GL_TEXTURE_1D,
+	GL_TEXTURE_2D,
+	GL_TEXTURE_3D,
+	GL_TEXTURE_CUBE_MAP
+};
+
+const GLuint formats[] =
+{
+	GL_RGB,
+	GL_RGBA,
+	GL_LUMINANCE,
+	GL_RGB16F_ARB,
+	GL_DEPTH_COMPONENT24,
+	GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+	GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+	GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+};

@@ -4,36 +4,7 @@
 
 #include "..\Source\images.h"
 
-#include "windows.h"
-
-#define GLEW_STATIC
-#include <GL\glew.h>
-#include <GL\wglew.h>
-//#include <GL\glu.h>
-
-//TODO גס‏ מדכ סעויע ג מעהוכüםûי פאיכ
-extern TFileData log_file;
-static char log_buff[1024];
-
-const GLuint targets[] =
-{
-	GL_TEXTURE_1D,
-	GL_TEXTURE_2D,
-	GL_TEXTURE_3D,
-	GL_TEXTURE_CUBE_MAP
-};
-
-const GLuint formats[] =	
-{
-	GL_RGB,
-	GL_RGBA,
-	GL_LUMINANCE,
-	GL_RGB16F_ARB,
-	GL_DEPTH_COMPONENT24,
-	GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
-	GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
-	GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
-};
+#include <windows.h>
 
 namespace TDataType
 {
@@ -201,7 +172,9 @@ class TBaluRender
 	HGLRC hRC;
 	HWND hWnd;
 	int pixel_format;
-	//
+
+	
+
 	TVec2i screen_size;
 	TMatrix4 modelview;
 	TMatrix4 projection;
@@ -274,6 +247,9 @@ class TBaluRender
 
 	void Initialize(TVec2i use_size);
 public:
+	TFileData log_file;
+	char log_buff[102];
+
 	TBaluRender(TVec2i use_size);
 	TBaluRender(HWND use_window_handle,TVec2i use_size);
 	~TBaluRender();

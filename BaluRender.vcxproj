@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\baluRender.h" />
+    <ClInclude Include="Source\baluRenderCommon.h" />
     <ClInclude Include="Source\images.h" />
     <ClInclude Include="Source\png\png.h" />
     <ClInclude Include="Source\png\pngconf.h" />

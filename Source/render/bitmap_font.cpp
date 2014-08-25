@@ -1,5 +1,7 @@
 #include "../../Include/baluRender.h"
 
+#include "../baluRenderCommon.h"
+
 TBitmapFontId TBaluRender::TBitmapFont::Create()
 {
 	r->bitmap_fonts.emplace_back();

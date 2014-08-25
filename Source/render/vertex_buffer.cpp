@@ -1,5 +1,7 @@
 #include "../../Include/baluRender.h"
 
+#include "../baluRenderCommon.h"
+
 const GLuint vert_buf_types[]=
 {
 	GL_ARRAY_BUFFER_ARB,

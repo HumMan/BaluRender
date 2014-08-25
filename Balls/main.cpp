@@ -68,7 +68,7 @@ TStreamsDesc streams;
 void Init()
 {
 
-	sprintf_s(log_buff, "Creating threads..."); log_file.Write(log_buff);
+	sprintf_s(render->log_buff, "Creating threads..."); render->log_file.Write(render->log_buff);
 	{
 		threads[0].offset = 0;
 		threads[0].is_main_thread = true;
@@ -84,9 +84,9 @@ void Init()
 			_beginthread(BroadPhase, 0, &threads[i]);
 		}
 	}
-	sprintf_s(log_buff, " passed\n"); log_file.Write(log_buff);
+	sprintf_s(render->log_buff, " passed\n"); render->log_file.Write(render->log_buff);
 
-	sprintf_s(log_buff, "Render setup..."); log_file.Write(log_buff);
+	sprintf_s(render->log_buff, "Render setup..."); render->log_file.Write(render->log_buff);
 	render->Set.VSync(false);
 
 	render->Set.ClearColor(0, 0, 0);
@@ -102,7 +102,7 @@ void Init()
 	//render->Set.PointSize(point_size);
 	//render->Set.PointSmooth(true);
 
-	sprintf_s(log_buff, " passed\n"); log_file.Write(log_buff);
+	sprintf_s(render->log_buff, " passed\n"); render->log_file.Write(render->log_buff);
 
 	tex = render->Texture.Create("frame_3.png");
 
@@ -122,7 +122,7 @@ void Init()
 		}
 	}
 
-	sprintf_s(log_buff, "VBuffers creation..."); log_file.Write(log_buff);
+	sprintf_s(render->log_buff, "VBuffers creation..."); render->log_file.Write(render->log_buff);
 	pos_buff = render->VertexBuffer.Create(TVBType::Array, balls_count*sizeof(TVec<short, 2>), TVBRefresh::Stream, TVBUsage::Draw);
 	TVec<short, 2>* points = (TVec<short, 2>*)render->VertexBuffer.Map(pos_buff, TVBAccess::Write);
 	SendBallsPos(points);
@@ -143,7 +143,7 @@ void Init()
 	}
 	render->VertexBuffer.Unmap(color_buff);
 #endif
-	sprintf_s(log_buff, " passed\n"); log_file.Write(log_buff);
+	sprintf_s(render->log_buff, " passed\n"); render->log_file.Write(render->log_buff);
 
 
 #ifdef USE_COLOR
@@ -237,7 +237,6 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	LPSTR lpCmdLine,
 	int iCmdShow)
 {
-	sprintf_s(log_buff, "Window creation..."); log_file.Write(log_buff);
 	MSG msg;
 	/* register window class */
 	WNDCLASS wc = { 0 };
@@ -263,9 +262,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 
-	sprintf_s(log_buff, " passed\n"); log_file.Write(log_buff);
-
-	sprintf_s(log_buff, "Render creation..."); log_file.Write(log_buff);
+	//sprintf_s(render->log_buff, "Render creation..."); render->log_file.Write(render->log_buff);
 
 	render = new TBaluRender(hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top));
 

@@ -1,7 +1,6 @@
 ﻿#include <baluRender.h>
 
-
-extern TFileData log_file("log.txt","w+");
+#include "baluRenderCommon.h"
 
 static const char *glErrorStrings[GL_OUT_OF_MEMORY - GL_INVALID_ENUM + 1] = {
 	"Invalid enumerant",
@@ -11,10 +10,6 @@ static const char *glErrorStrings[GL_OUT_OF_MEMORY - GL_INVALID_ENUM + 1] = {
 	"Stack underflow",
 	"Out of memory",
 };
-
-#ifndef _DEBUG
-#define _DEBUG 0
-#endif
 
 const GLuint data_types[] =
 {
@@ -303,12 +298,12 @@ void TBaluRender::Initialize(TVec2i use_size)
 	CheckGLError();
 }
 
-TBaluRender::TBaluRender(TVec2i use_size)
+TBaluRender::TBaluRender(TVec2i use_size) :log_file("log.txt", "w+")
 {
 	Initialize(use_size);
 }
 
-TBaluRender::TBaluRender(HWND use_window_handle,TVec2i use_size)
+TBaluRender::TBaluRender(HWND use_window_handle, TVec2i use_size) : log_file("log.txt", "w+")
 {
 	sprintf_s(log_buff,"Context creation...");log_file.Write(log_buff);
 

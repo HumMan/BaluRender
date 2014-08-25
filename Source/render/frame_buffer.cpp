@@ -1,5 +1,7 @@
 #include "../../Include/baluRender.h"
 
+#include "../baluRenderCommon.h"
+
 const GLuint attach_types[]=
 {
 	GL_COLOR_ATTACHMENT0_EXT,

@@ -1,5 +1,7 @@
 #include "../../Include/baluRender.h"
 
+#include "../baluRenderCommon.h"
+
 const bool mag_filter=0;      
 const bool min_filter=1;
 const GLuint tex_filters[][2]=
@@ -14,7 +16,7 @@ const GLuint tex_filters[][2]=
 
 TTextureId TBaluRender::TTexture::Create(char* fname)
 {
-	sprintf_s(log_buff,"Texture loading (%s)...",fname);log_file.Write(log_buff);
+	sprintf_s(r->log_buff, "Texture loading (%s)...", fname); r->log_file.Write(r->log_buff);
 	TTextureId result;
 	TImage img;
 
@@ -92,7 +94,7 @@ TTextureId TBaluRender::TTexture::Create(char* fname)
 	desc.used  = true;
 	desc.filter = TTexFilter::Bilinear;
 	
-	sprintf_s(log_buff," passed\n");log_file.Write(log_buff);
+	sprintf_s(r->log_buff, " passed\n"); r->log_file.Write(r->log_buff);
 	return result;
 }
 

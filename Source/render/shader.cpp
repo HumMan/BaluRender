@@ -1,5 +1,7 @@
 #include "../../Include/baluRender.h"
 
+#include "../baluRenderCommon.h"
+
 const GLenum asm_shader_type[]=
 {
 	GL_VERTEX_PROGRAM_ARB,

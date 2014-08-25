@@ -13,177 +13,192 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\png">
+      <UniqueIdentifier>{0a0d8384-67fd-4411-98e0-eb5a50270815}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\images">
+      <UniqueIdentifier>{bed28410-e536-4670-8a65-0e9d3aa64705}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\render">
+      <UniqueIdentifier>{1dad11cd-3fba-4476-a3ff-f65930fe047c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\zlib">
+      <UniqueIdentifier>{239eef8c-ab1f-4771-a89a-480bc7528bd2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\baluRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\images\bmp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\images\dds.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\images\png_load.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\images.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\images\dds.cpp">
+      <Filter>Source Files\images</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\images\bmp.cpp">
+      <Filter>Source Files\images</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\images\png_load.cpp">
+      <Filter>Source Files\images</Filter>
+    </ClCompile>
     <ClCompile Include="Source\png\png.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngerror.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pnggccrd.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngget.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngmem.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngpread.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngread.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngrio.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngrtran.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngrutil.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngset.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngtrans.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngvcrd.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngwio.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngwrite.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngwtran.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\png\pngwutil.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\render\bitmap_font.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\render\frame_buffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\render\shader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\render\texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\render\tex_font.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\render\vertex_buffer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\png</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\adler32.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\compress.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\crc32.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\deflate.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\gzio.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\infback.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\inffast.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\inflate.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\inftrees.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\minigzip.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\trees.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\uncompr.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
     </ClCompile>
     <ClCompile Include="Source\zlib\zutil.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\zlib</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\render\bitmap_font.cpp">
+      <Filter>Source Files\render</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\render\frame_buffer.cpp">
+      <Filter>Source Files\render</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\render\tex_font.cpp">
+      <Filter>Source Files\render</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\render\texture.cpp">
+      <Filter>Source Files\render</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\render\vertex_buffer.cpp">
+      <Filter>Source Files\render</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\render\shader.cpp">
+      <Filter>Source Files\render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\images.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\png\png.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\png\pngconf.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\crc32.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\deflate.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\inffast.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\inffixed.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\inflate.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\inftrees.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\trees.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\zconf.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\zconf.in.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\zlib.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\zlib\zutil.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\baluRender.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\png\png.h">
+      <Filter>Source Files\png</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\png\pngconf.h">
+      <Filter>Source Files\png</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\crc32.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\deflate.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\inffast.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\inffixed.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\inflate.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\inftrees.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\trees.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\zconf.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\zconf.in.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\zutil.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\zlib\zlib.h">
+      <Filter>Source Files\zlib</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\baluRenderCommon.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
