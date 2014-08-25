@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BaluRender", "BaluRender.vcxproj", "{304DB1F5-BE0B-481A-A517-B97EEB2EE68F}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -10,10 +10,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BaluRender", "BaluRender.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Balls", "Balls\Balls.vcxproj", "{B9982665-B167-4D46-AB7A-95891DDA87CA}"
 	ProjectSection(ProjectDependencies) = postProject
+		{163F0EDD-FED4-4FF9-B34A-1A2626A7DFBA} = {163F0EDD-FED4-4FF9-B34A-1A2626A7DFBA}
 		{304DB1F5-BE0B-481A-A517-B97EEB2EE68F} = {304DB1F5-BE0B-481A-A517-B97EEB2EE68F}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BaluLib", "..\BaluLib\BaluLib.vcxproj", "{163F0EDD-FED4-4FF9-B34A-1A2626A7DFBA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RayCollisionTest", "RayCollisionTest\RayCollisionTest.vcxproj", "{4BB4C3CC-B31C-4AB6-9E90-79636BDF9C69}"
+	ProjectSection(ProjectDependencies) = postProject
+		{163F0EDD-FED4-4FF9-B34A-1A2626A7DFBA} = {163F0EDD-FED4-4FF9-B34A-1A2626A7DFBA}
+		{304DB1F5-BE0B-481A-A517-B97EEB2EE68F} = {304DB1F5-BE0B-481A-A517-B97EEB2EE68F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +40,10 @@ Global
 		{163F0EDD-FED4-4FF9-B34A-1A2626A7DFBA}.Debug|Win32.Build.0 = Debug|Win32
 		{163F0EDD-FED4-4FF9-B34A-1A2626A7DFBA}.Release|Win32.ActiveCfg = Release|Win32
 		{163F0EDD-FED4-4FF9-B34A-1A2626A7DFBA}.Release|Win32.Build.0 = Release|Win32
+		{4BB4C3CC-B31C-4AB6-9E90-79636BDF9C69}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4BB4C3CC-B31C-4AB6-9E90-79636BDF9C69}.Debug|Win32.Build.0 = Debug|Win32
+		{4BB4C3CC-B31C-4AB6-9E90-79636BDF9C69}.Release|Win32.ActiveCfg = Release|Win32
+		{4BB4C3CC-B31C-4AB6-9E90-79636BDF9C69}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
