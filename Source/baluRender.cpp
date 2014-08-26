@@ -111,8 +111,10 @@ const char* GetGLErrorString(GLenum errorCode){
 void CheckGLError()
 {
 	GLenum err;
-	if((err=glGetError())!=GL_NO_ERROR){
-		MessageBoxA(0,GetGLErrorString(err),"OpenGL error!",MB_OK|MB_ICONERROR);
+	if((err=glGetError())!=GL_NO_ERROR)
+	{
+		const char* err_string = GetGLErrorString(err);
+		MessageBoxA(0, err_string, "OpenGL error!", MB_OK | MB_ICONERROR);
 		assert(0);
 	}
 }
