@@ -350,7 +350,7 @@ public:
 	{
 		friend class TBaluRender;TBaluRender* r;
 	public:
-		TTextureId Create(char* fname);
+		TTextureId Create(const char* fname);
 		TTextureId Create(TTexType::Enum use_type, TFormat::Enum use_format,
 			int use_width, int use_height, TTexFilter::Enum use_filter=TTexFilter::Bilinear);
 		void Delete(TTextureId use_tex);
@@ -540,6 +540,7 @@ private:
 	int id;
 public:
 	TTextureId():id(0){}
+	bool IsNull(){ return id != 0; }
 };
 
 struct TVertexBufferId//TODO дл€ буферов нужно иметь полную эмул€цию при их отсутствии и т.п. дл€ отрисовки массивов

@@ -14,7 +14,7 @@ const GLuint tex_filters[][2]=
 	{GL_LINEAR,    GL_LINEAR_MIPMAP_LINEAR }
 };
 
-TTextureId TBaluRender::TTexture::Create(char* fname)
+TTextureId TBaluRender::TTexture::Create(const char* fname)
 {
 	sprintf_s(r->log_buff, "Texture loading (%s)...", fname); r->log_file.Write(r->log_buff);
 	TTextureId result;
