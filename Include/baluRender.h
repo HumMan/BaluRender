@@ -1,10 +1,10 @@
 #pragma once
 
+#include <memory>
+
 #include <baluLib.h>
 
 #include "..\Source\images.h"
-
-#include <windows.h>
 
 namespace TDataType
 {
@@ -165,25 +165,11 @@ template <class T, int size> struct TLine;
 template <class T, int size> struct TQuad;
 
 void CheckGLError();
-
+class TBaluRenderInternal;
 class TBaluRender
 {
-	HDC hDC;
-	HGLRC hRC;
-	HWND hWnd;
-	int pixel_format;
+	std::unique_ptr<TBaluRenderInternal> p;
 
-	
-
-	TVec2i screen_size;
-	TMatrix4 modelview;
-	TMatrix4 projection;
-
-	//render info
-	int max_aniso;
-	int max_texture_units;
-	int major,minor;
-	//
 	void InitInfo();
 
 	struct TFrameBufferDesc
@@ -251,7 +237,7 @@ public:
 	char log_buff[102];
 
 	TBaluRender(TVec2i use_size);
-	TBaluRender(HWND use_window_handle,TVec2i use_size);
+	TBaluRender(int use_window_handle,TVec2i use_size);
 	~TBaluRender();
 
 	void BeginScene();

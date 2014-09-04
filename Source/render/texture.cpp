@@ -159,7 +159,7 @@ void TBaluRender::TTexture::SetFilter(TTextureId use_tex,TTexFilter::Enum use_fi
 	if(use_filter>=TTexFilter::BilinearAniso&&desc.type==TTexType::TEX_2D
 		&&r->Support.anisotropic_filter)
 	{
-		glTexParameteri(targets[desc.type],GL_TEXTURE_MAX_ANISOTROPY_EXT,use_aniso<=r->max_aniso?(use_aniso>0?use_aniso:1):r->max_aniso);
+		glTexParameteri(targets[desc.type], GL_TEXTURE_MAX_ANISOTROPY_EXT, use_aniso <= r->p->max_aniso ? (use_aniso>0 ? use_aniso : 1) : r->p->max_aniso);
 	}
 	CheckGLError();
 }

@@ -14,8 +14,8 @@ TBitmapFontId TBaluRender::TBitmapFont::Create()
 	font = CreateFontA(  -24,0,0,0,FW_BOLD,FALSE,FALSE,FALSE,
 		ANSI_CHARSET,OUT_TT_PRECIS,CLIP_DEFAULT_PRECIS,
 		PROOF_QUALITY,FF_DONTCARE|DEFAULT_PITCH,"Courier New");   
-	SelectObject((HDC)r->hDC, font);
-	wglUseFontBitmaps((HDC)r->hDC, 32, 96, base);
+	SelectObject((HDC)r->p->hDC, font);
+	wglUseFontBitmaps((HDC)r->p->hDC, 32, 96, base);
 	TBitmapFontId result;
 	result.id=r->bitmap_fonts.size()+1;
 	return result;

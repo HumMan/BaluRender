@@ -210,7 +210,7 @@ void TBaluRender::InitInfo()
 	strcpy_s(ext, ext_len+1,gl_ext_string);
 
 	const char* version = (const char*)glGetString( GL_VERSION );
-    sscanf_s( version, "%d.%d", &major, &minor );
+	sscanf_s(version, "%d.%d", &p->major, &p->minor);
 	log_file.Write(version);
 
 	log_file.Write((const char*)glGetString( GL_RENDERER));
@@ -222,10 +222,10 @@ void TBaluRender::InitInfo()
 	{
 		//TODO убрать комментарии!!!!!
 		//glGetIntegerv(GL_MAX_TEXTURE_UNITS,&max_texture_units);
-		sprintf_s(log_buff,"Max texture units = %i\n",max_texture_units);log_file.Write(log_buff);
+		sprintf_s(log_buff, "Max texture units = %i\n", p->max_texture_units); log_file.Write(log_buff);
 	}
 
-	Support.vertex_array			=(major*10+minor>=11);
+	Support.vertex_array = (p->major * 10 + p->minor >= 11);
 	Support.vertex_buffer			=TokenExists(ext,"GL_ARB_vertex_buffer_object");
 	Support.frame_buffer			=TokenExists(ext,"GL_ARB_framebuffer_object");
 	Support.vertex_program			=TokenExists(ext,"GL_ARB_vertex_program");
@@ -236,8 +236,8 @@ void TBaluRender::InitInfo()
 
 	if(Support.anisotropic_filter)
 	{
-		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT,&max_aniso);
-		sprintf_s(log_buff,"Max aniso = %i\n",max_aniso);log_file.Write(log_buff);
+		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &p->max_aniso);
+		sprintf_s(log_buff, "Max aniso = %i\n", p->max_aniso); log_file.Write(log_buff);
 	}
 
 	Support.npot_texture			=TokenExists(ext,"GL_ARB_texture_non_power_of_two");
@@ -275,7 +275,7 @@ void TBaluRender::Initialize(TVec2i use_size)
 
 	vertex_buffers_emul.New();//because in OpenGL indices start from 1
 
-	screen_size=use_size;
+	p->screen_size = use_size;
 
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
@@ -289,28 +289,31 @@ void TBaluRender::Initialize(TVec2i use_size)
 
 	InitInfo();
 
-	glViewport(0,0,screen_size[0],screen_size[1]);
+	glViewport(0, 0, p->screen_size[0], p->screen_size[1]);
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	projection.SetIdentity();
+	p->projection.SetIdentity();
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
-	modelview.SetIdentity();
+	p->modelview.SetIdentity();
 	CheckGLError();
 }
 
 TBaluRender::TBaluRender(TVec2i use_size) :log_file("log.txt", "w+")
 {
+	p.reset(new TBaluRenderInternal());
 	Initialize(use_size);
 }
 
-TBaluRender::TBaluRender(HWND use_window_handle, TVec2i use_size) : log_file("log.txt", "w+")
+TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size) : log_file("log.txt", "w+")
 {
+	p.reset(new TBaluRenderInternal());
+
 	sprintf_s(log_buff,"Context creation...");log_file.Write(log_buff);
 
-	hWnd=use_window_handle;
-	hDC = GetDC (hWnd);
+	p->hWnd=*(HWND*)&use_window_handle;
+	p->hDC = GetDC(p->hWnd);
 	PIXELFORMATDESCRIPTOR pfd;
 	ZeroMemory (&pfd, sizeof (pfd));
 	pfd.nSize = sizeof (pfd);
@@ -320,12 +323,12 @@ TBaluRender::TBaluRender(HWND use_window_handle, TVec2i use_size) : log_file("lo
 	pfd.cColorBits = 32;
 	pfd.cDepthBits = 24;
 	pfd.iLayerType = PFD_MAIN_PLANE;
-	pixel_format = ChoosePixelFormat (hDC, &pfd);
-	SetPixelFormat (hDC, pixel_format, &pfd);
-	hRC = wglCreateContext((HDC)hDC);
-	if(!wglMakeCurrent(hDC,hRC))assert(false);
+	p->pixel_format = ChoosePixelFormat(p->hDC, &pfd);
+	SetPixelFormat(p->hDC, p->pixel_format, &pfd);
+	p->hRC = wglCreateContext((HDC)p->hDC);
+	if (!wglMakeCurrent(p->hDC, p->hRC))assert(false);
 	CheckGLError();
-	if(!wglMakeCurrent(hDC,hRC))assert(false);
+	if (!wglMakeCurrent(p->hDC, p->hRC))assert(false);
 	CheckGLError();
 	sprintf_s(log_buff," passed\n");log_file.Write(log_buff);
 
@@ -335,34 +338,34 @@ TBaluRender::TBaluRender(HWND use_window_handle, TVec2i use_size) : log_file("lo
 TBaluRender::~TBaluRender()
 {
 	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext((HGLRC)hRC);
-	ReleaseDC((HWND)hWnd, (HDC)hDC);
+	wglDeleteContext((HGLRC)p->hRC);
+	ReleaseDC((HWND)p->hWnd, (HDC)p->hDC);
 }
 
 void TBaluRender::BeginScene()
 {
-	if(!wglMakeCurrent((HDC)hDC,(HGLRC)hRC))assert(false);
+	if (!wglMakeCurrent((HDC)p->hDC, (HGLRC)p->hRC))assert(false);
 	CheckGLError();
 }
 void TBaluRender::EndScene()
 {
-	SwapBuffers((HDC)hDC);
+	SwapBuffers((HDC)p->hDC);
 }
 
 TVec2i TBaluRender::ScreenSize(){
-	return screen_size;
+	return p->screen_size;
 }
 
 TVec2 TBaluRender::ScreenToClipSpace(int x,int y){
-	tagPOINT p;
-	p.x=x;
-	p.y=y;
-	ScreenToClient((HWND)hWnd,&p);
-	return TVec2(p.x/float(screen_size[0]),1.0-p.y/float(screen_size[1]))*2.0-TVec2(1.0,1.0);
+	tagPOINT point;
+	point.x = x;
+	point.y = y;
+	ScreenToClient((HWND)p->hWnd, &point);
+	return TVec2(point.x / float(p->screen_size[0]), 1.0 - point.y / float(p->screen_size[1]))*2.0 - TVec2(1.0, 1.0);
 }
 
 TVec2 TBaluRender::WindowToClipSpace(int x,int y){
-	return TVec2(x/float(screen_size[0]),1.0-y/float(screen_size[1]))*2.0-TVec2(1.0,1.0);
+	return TVec2(x / float(p->screen_size[0]), 1.0 - y / float(p->screen_size[1]))*2.0 - TVec2(1.0, 1.0);
 }
 
 void TBaluRender::Clear(bool color, bool depth)
@@ -542,7 +545,7 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive::Enum use_prim
 
 void TBaluRender::TSet::Viewport(TVec2i use_size)
 {
-	r->screen_size=use_size;
+	r->p->screen_size = use_size;
 	glViewport(0,0,use_size[0],use_size[1]);
 }
 

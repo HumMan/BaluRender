@@ -22,3 +22,23 @@ const GLuint formats[] =
 	GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
 	GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
 };
+
+#include <windows.h>
+
+class TBaluRenderInternal
+{
+public:
+	HDC hDC;
+	HGLRC hRC;
+	HWND hWnd;
+	int pixel_format;
+
+	TVec2i screen_size;
+	TMatrix4 modelview;
+	TMatrix4 projection;
+
+	//render info
+	int max_aniso;
+	int max_texture_units;
+	int major, minor;
+};
