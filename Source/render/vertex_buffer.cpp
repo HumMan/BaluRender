@@ -2,6 +2,8 @@
 
 #include "../baluRenderCommon.h"
 
+using namespace TBaluRenderEnums;
+
 const GLuint vert_buf_types[]=
 {
 	GL_ARRAY_BUFFER_ARB,
@@ -29,17 +31,17 @@ const GLuint vert_buf_usage[]=
 };
 
 TVertexBufferId TBaluRender::TVertexBuffer::Create(
-	TVBType::Enum use_type, 
+	TVBType use_type, 
 	int use_size, 
-	TVBRefresh::Enum use_refresh, 
-	TVBUsage::Enum use_usage)
+	TVBRefresh use_refresh, 
+	TVBUsage use_usage)
 {
 	TVertexBufferId result;
 	if(r->Support.vertex_buffer)
 	{
 		GLuint buff_id;
-		GLuint usage=vert_buf_usage[use_refresh*3+use_usage];
-		GLuint buff_type=vert_buf_types[use_type];
+		GLuint usage = vert_buf_usage[(int)use_refresh * 3 + (int)use_usage];
+		GLuint buff_type = vert_buf_types[(int)use_type];
 
 		glGenBuffersARB(1,&buff_id);
 
@@ -64,14 +66,14 @@ TVertexBufferId TBaluRender::TVertexBuffer::Create(
 	}
 }
 
-void* TBaluRender::TVertexBuffer::Map(TVertexBufferId use_id, TVBAccess::Enum use_access)
+void* TBaluRender::TVertexBuffer::Map(TVertexBufferId use_id, TVBAccess use_access)
 {
 	if(r->Support.vertex_buffer)
 	{
 		TVertexBufferDesc& desc=r->vertex_buffers[use_id.id];
-		GLuint buff_type=vert_buf_types[desc.buff_type];
+		GLuint buff_type = vert_buf_types[(int)desc.buff_type];
 		glBindBufferARB(buff_type,use_id.id);
-		void* result=glMapBufferARB(buff_type,vert_buf_access[use_access]);
+		void* result = glMapBufferARB(buff_type, vert_buf_access[(int)use_access]);
 		CheckGLError();
 		glBindBufferARB(buff_type,0);
 		return result;
@@ -87,7 +89,7 @@ void TBaluRender::TVertexBuffer::Unmap(TVertexBufferId use_id)
 	if(r->Support.vertex_buffer)
 	{
 		TVertexBufferDesc& desc=r->vertex_buffers[use_id.id];
-		GLuint buff_type=vert_buf_types[desc.buff_type];
+		GLuint buff_type = vert_buf_types[(int)desc.buff_type];
 		glBindBufferARB(buff_type,use_id.id);
 		glUnmapBufferARB(buff_type);
 		glBindBufferARB(buff_type,0);
@@ -101,7 +103,7 @@ void TBaluRender::TVertexBuffer::SubData(TVertexBufferId use_id,int use_offset,i
 	if(r->Support.vertex_buffer)
 	{
 		TVertexBufferDesc& desc=r->vertex_buffers[use_id.id];
-		GLuint buff_type=vert_buf_types[desc.buff_type];
+		GLuint buff_type = vert_buf_types[(int)desc.buff_type];
 		glBindBufferARB(buff_type,use_id.id);
 		CheckGLError();
 		glBufferSubDataARB(buff_type,use_offset,use_size,use_new_data);
@@ -120,9 +122,9 @@ void TBaluRender::TVertexBuffer::Data(TVertexBufferId use_id,int use_size,void* 
 	if(r->Support.vertex_buffer)
 	{
 		TVertexBufferDesc& desc=r->vertex_buffers[use_id.id];
-		GLuint buff_type=vert_buf_types[desc.buff_type];
+		GLuint buff_type = vert_buf_types[(int)desc.buff_type];
 		glBindBufferARB(buff_type,use_id.id);
-		glBufferDataARB(buff_type,use_size,use_new_data,vert_buf_usage[desc.buff_usage]);
+		glBufferDataARB(buff_type, use_size, use_new_data, vert_buf_usage[(int)desc.buff_usage]);
 		CheckGLError();
 		glBindBufferARB(buff_type,0);
 		CheckGLError();

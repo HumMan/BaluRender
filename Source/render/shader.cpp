@@ -2,6 +2,8 @@
 
 #include "../baluRenderCommon.h"
 
+using namespace TBaluRenderEnums;
+
 const GLenum asm_shader_type[]=
 {
 	GL_VERTEX_PROGRAM_ARB,
@@ -13,9 +15,9 @@ TShaderId TBaluRender::TShader::Create(const char* use_file_name,const char* use
 	return TShaderId();
 }
 
-void TBaluRender::TShader::LoadShaderASM(const int& id, const TShaderType::Enum use_type,const char* use_source,const char* use_defines)
+void TBaluRender::TShader::LoadShaderASM(const int& id, const TShaderType use_type,const char* use_source,const char* use_defines)
 {
-	GLenum type = asm_shader_type[use_type];
+	GLenum type = asm_shader_type[(int)use_type];
 	glGenProgramsARB ( 1, (GLenum*)&id );
 	glBindProgramARB(type,id);
     glProgramStringARB ( type, GL_PROGRAM_FORMAT_ASCII_ARB,
@@ -23,7 +25,7 @@ void TBaluRender::TShader::LoadShaderASM(const int& id, const TShaderType::Enum 
     if ( glGetError () == GL_INVALID_OPERATION )
     {
 		char s[100];
-		sprintf_s(s,100,"%s shader compile error",use_type==0?"Vertex":"Fragment");
+		sprintf_s(s, 100, "%s shader compile error", (int)use_type == 0 ? "Vertex" : "Fragment");
         MessageBoxA(0,(char*)glGetString ( GL_PROGRAM_ERROR_STRING_ARB ),s,MB_OK);
 		exit(0);
     }

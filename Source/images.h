@@ -5,32 +5,30 @@
 
 #include <string>
 
-namespace TFormat
+
+enum class TFormat
 {
-	enum Enum
-	{
-		RGB8,
-		RGBA8,
-		LUMINANCE,
-		RGB16F,   
-		DEPTH24,  
-		DXT1,
-		DXT3,
-		DXT5
-	};
-}
+	RGB8,
+	RGBA8,
+	LUMINANCE,
+	RGB16F,
+	DEPTH24,
+	DXT1,
+	DXT3,
+	DXT5
+};
 
 class TImage
 {
 	char* pixels;
 	int mip_maps_count;
-	int width,height,depth;
-	TFormat::Enum format;
+	int width, height, depth;
+	TFormat format;
 public:
-	TImage():pixels(NULL){}
+	TImage() :pixels(NULL){}
 	~TImage()
 	{
-		if(!pixels)delete pixels;
+		if (!pixels)delete pixels;
 	};
 	void Load(const char* fname);
 	void* GetPixels()
@@ -53,7 +51,7 @@ public:
 	{
 		return mip_maps_count;
 	};
-	TFormat::Enum GetFormat()
+	TFormat GetFormat()
 	{
 		return format;
 	};

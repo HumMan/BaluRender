@@ -2,6 +2,8 @@
 
 #include "../baluRenderCommon.h"
 
+using namespace TBaluRenderEnums;
+
 const GLuint attach_types[]=
 {
 	GL_COLOR_ATTACHMENT0_EXT,
@@ -11,21 +13,21 @@ const GLuint attach_types[]=
 	GL_DEPTH_ATTACHMENT_EXT
 };
 
-int CreateRenderBuffer(TFormat::Enum format,int width,int height)
+int CreateRenderBuffer(TFormat format,int width,int height)
 {
 	//TODO вроде проверяется ARB а не EXT
 	GLuint r=0;
 	glGenRenderbuffersEXT(1,&r);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT,r);
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,formats[format],width,height);
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, formats[(int)format], width, height);
 	return r;
 }
 
-int ResizeRenderBuffer(GLuint render_buf,TFormat::Enum format,int width,int height)
+int ResizeRenderBuffer(GLuint render_buf,TFormat format,int width,int height)
 {
 	int r=0;
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT,render_buf);
-	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT,formats[format],width,height);
+	glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, formats[(int)format], width, height);
 	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT,0);
 	return r;
 }

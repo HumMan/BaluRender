@@ -2,6 +2,8 @@
 
 #include "baluRenderCommon.h"
 
+using namespace TBaluRenderEnums;
+
 static const char *glErrorStrings[GL_OUT_OF_MEMORY - GL_INVALID_ENUM + 1] = {
 	"Invalid enumerant",
 	"Invalid value",
@@ -119,8 +121,8 @@ void CheckGLError()
 	}
 }
 
-void TStreamsDesc::AddStream(TStream::Enum use_stream,
-							 int use_tex_unit,TDataType::Enum use_type,
+void TStreamsDesc::AddStream(TStream use_stream,
+							 int use_tex_unit,TDataType use_type,
 							 int use_size, void* use_data, TVertexBufferId use_buf)
 {
 	TStreamDesc t;
@@ -150,22 +152,22 @@ void TStreamsDesc::AddStream(TStream::Enum use_stream,
 	}
 }
 
-void TStreamsDesc::AddStream(TStream::Enum use_stream,int use_tex_unit,TDataType::Enum use_type, int use_size, void* use_data)
+void TStreamsDesc::AddStream(TStream use_stream,int use_tex_unit,TDataType use_type, int use_size, void* use_data)
 {
 	AddStream(use_stream,use_tex_unit,use_type,use_size,use_data,TVertexBufferId());
 }
 
-void TStreamsDesc::AddStream(TStream::Enum use_stream,int use_tex_unit,TDataType::Enum use_type, TVertexBufferId use_buf)
+void TStreamsDesc::AddStream(TStream use_stream,int use_tex_unit,TDataType use_type, TVertexBufferId use_buf)
 {
 	AddStream(use_stream,use_tex_unit,use_type,0,0,use_buf);
 }
 
-void TStreamsDesc::AddStream(TStream::Enum use_stream,TDataType::Enum use_type, int use_size, void* use_data)
+void TStreamsDesc::AddStream(TStream use_stream,TDataType use_type, int use_size, void* use_data)
 {
 	AddStream(use_stream,0,use_type,use_size,use_data,TVertexBufferId());
 }
 
-void TStreamsDesc::AddStream(TStream::Enum use_stream,TDataType::Enum use_type, int use_size, TVertexBufferId use_buf)
+void TStreamsDesc::AddStream(TStream use_stream,TDataType use_type, int use_size, TVertexBufferId use_buf)
 {
 	AddStream(use_stream,0,use_type,use_size,0,use_buf);//TODO проверять размер
 }
@@ -376,7 +378,7 @@ void TBaluRender::Clear(bool color, bool depth)
 		);
 }
 
-void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive::Enum use_primitive, int use_vertices_count)
+void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive use_primitive, int use_vertices_count)
 {
 	if(Support.vertex_buffer)
 	{
@@ -385,21 +387,21 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive::Enum use_prim
 			glEnableClientState(GL_VERTEX_ARRAY);
 			if(use_streams.vertex.vert_buf.id!=0)
 				glBindBufferARB(GL_ARRAY_BUFFER,use_streams.vertex.vert_buf.id);
-			glVertexPointer(use_streams.vertex.size,data_types[use_streams.vertex.type],0,use_streams.vertex.data);
+			glVertexPointer(use_streams.vertex.size, data_types[(int)use_streams.vertex.type], 0, use_streams.vertex.data);
 		}
 		if(use_streams.normal.data||use_streams.normal.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_NORMAL_ARRAY);
 			if(use_streams.normal.vert_buf.id!=0)
 				glBindBufferARB(GL_ARRAY_BUFFER,use_streams.normal.vert_buf.id);
-			glNormalPointer(data_types[use_streams.normal.type],0,use_streams.normal.data);
+			glNormalPointer(data_types[(int)use_streams.normal.type], 0, use_streams.normal.data);
 		}
 		if(use_streams.color.data||use_streams.color.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_COLOR_ARRAY);
 			if(use_streams.color.vert_buf.id!=0)
 				glBindBufferARB(GL_ARRAY_BUFFER,use_streams.color.vert_buf.id);
-			glColorPointer(use_streams.color.size,data_types[use_streams.color.type],0,use_streams.color.data);
+			glColorPointer(use_streams.color.size, data_types[(int)use_streams.color.type], 0, use_streams.color.data);
 		}
 		if(Support.multitexturing)
 		{
@@ -411,7 +413,7 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive::Enum use_prim
 					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 					if(use_streams.tex[i].vert_buf.id!=0)
 						glBindBufferARB(GL_ARRAY_BUFFER,use_streams.tex[i].vert_buf.id);
-					glTexCoordPointer(use_streams.tex[i].size,data_types[use_streams.tex[i].type],0,use_streams.tex[i].data);
+					glTexCoordPointer(use_streams.tex[i].size, data_types[(int)use_streams.tex[i].type], 0, use_streams.tex[i].data);
 				}
 			}
 		}else
@@ -421,21 +423,21 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive::Enum use_prim
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				if(use_streams.tex[0].vert_buf.id!=0)
 					glBindBufferARB(GL_ARRAY_BUFFER,use_streams.tex[0].vert_buf.id);
-				glTexCoordPointer(use_streams.tex[0].size,data_types[use_streams.tex[0].type],0,use_streams.tex[0].data);
+				glTexCoordPointer(use_streams.tex[0].size, data_types[(int)use_streams.tex[0].type], 0, use_streams.tex[0].data);
 			}
 		}
 		CheckGLError();
 		if(use_streams.index.data)
 		{
-			glDrawElements(primitive[use_primitive],use_vertices_count,data_types[use_streams.index.type],use_streams.index.data);
+			glDrawElements(primitive[(int)use_primitive], use_vertices_count, data_types[(int)use_streams.index.type], use_streams.index.data);
 		}
 		else if(use_streams.index.vert_buf.id!=0)
 		{
 			glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER,use_streams.index.vert_buf.id);
-			glDrawElements(primitive[use_primitive],use_vertices_count,data_types[use_streams.index.type],0);
+			glDrawElements(primitive[(int)use_primitive], use_vertices_count, data_types[(int)use_streams.index.type], 0);
 		}
 		else
-			glDrawArrays(primitive[use_primitive],0,use_vertices_count);
+			glDrawArrays(primitive[(int)use_primitive], 0, use_vertices_count);
 
 		CheckGLError();
 		glBindBufferARB(GL_ARRAY_BUFFER,0);
@@ -468,25 +470,25 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive::Enum use_prim
 		{
 			glEnableClientState(GL_VERTEX_ARRAY);
 			if(use_streams.vertex.vert_buf.id!=0)
-				glVertexPointer(use_streams.vertex.size,data_types[use_streams.vertex.type],0,vertex_buffers_emul[use_streams.vertex.vert_buf.id].data_pointer);
+				glVertexPointer(use_streams.vertex.size, data_types[(int)use_streams.vertex.type], 0, vertex_buffers_emul[use_streams.vertex.vert_buf.id].data_pointer);
 			else
-				glVertexPointer(use_streams.vertex.size,data_types[use_streams.vertex.type],0,use_streams.vertex.data);
+				glVertexPointer(use_streams.vertex.size, data_types[(int)use_streams.vertex.type], 0, use_streams.vertex.data);
 		}
 		if(use_streams.normal.data||use_streams.normal.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_NORMAL_ARRAY);
 			if(use_streams.normal.vert_buf.id!=0)
-				glNormalPointer(data_types[use_streams.normal.type],0,vertex_buffers_emul[use_streams.normal.vert_buf.id].data_pointer);
+				glNormalPointer(data_types[(int)use_streams.normal.type], 0, vertex_buffers_emul[use_streams.normal.vert_buf.id].data_pointer);
 			else
-				glNormalPointer(data_types[use_streams.normal.type],0,use_streams.normal.data);
+				glNormalPointer(data_types[(int)use_streams.normal.type], 0, use_streams.normal.data);
 		}
 		if(use_streams.color.data||use_streams.color.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_COLOR_ARRAY);
 			if(use_streams.color.vert_buf.id!=0)
-				glColorPointer(use_streams.color.size,data_types[use_streams.color.type],0,vertex_buffers_emul[use_streams.color.vert_buf.id].data_pointer);
+				glColorPointer(use_streams.color.size, data_types[(int)use_streams.color.type], 0, vertex_buffers_emul[use_streams.color.vert_buf.id].data_pointer);
 			else
-				glColorPointer(use_streams.color.size,data_types[use_streams.color.type],0,use_streams.color.data);
+				glColorPointer(use_streams.color.size, data_types[(int)use_streams.color.type], 0, use_streams.color.data);
 		}
 		if(Support.multitexturing)
 		{
@@ -497,9 +499,9 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive::Enum use_prim
 					glClientActiveTextureARB(GL_TEXTURE0+i);
 					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 					if(use_streams.tex[i].vert_buf.id!=0)
-						glTexCoordPointer(use_streams.tex[i].size,data_types[use_streams.tex[i].type],0,vertex_buffers_emul[use_streams.tex[i].vert_buf.id].data_pointer);
+						glTexCoordPointer(use_streams.tex[i].size, data_types[(int)use_streams.tex[i].type], 0, vertex_buffers_emul[use_streams.tex[i].vert_buf.id].data_pointer);
 					else
-						glTexCoordPointer(use_streams.tex[i].size,data_types[use_streams.tex[i].type],0,use_streams.tex[i].data);
+						glTexCoordPointer(use_streams.tex[i].size, data_types[(int)use_streams.tex[i].type], 0, use_streams.tex[i].data);
 				}
 			}
 		}else
@@ -508,16 +510,16 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive::Enum use_prim
 			{
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				if(use_streams.tex[0].vert_buf.id!=0)
-					glTexCoordPointer(use_streams.tex[0].size,data_types[use_streams.tex[0].type],0,vertex_buffers_emul[use_streams.tex[0].vert_buf.id].data_pointer);
+					glTexCoordPointer(use_streams.tex[0].size, data_types[(int)use_streams.tex[0].type], 0, vertex_buffers_emul[use_streams.tex[0].vert_buf.id].data_pointer);
 				else
-					glTexCoordPointer(use_streams.tex[0].size,data_types[use_streams.tex[0].type],0,use_streams.tex[0].data);
+					glTexCoordPointer(use_streams.tex[0].size, data_types[(int)use_streams.tex[0].type], 0, use_streams.tex[0].data);
 			}
 		}
 		CheckGLError();
 		if(use_streams.index.data)
-			glDrawElements(primitive[use_primitive],use_vertices_count,data_types[use_streams.index.type],use_streams.index.data);
+			glDrawElements(primitive[(int)use_primitive], use_vertices_count, data_types[(int)use_streams.index.type], use_streams.index.data);
 		else
-			glDrawArrays(primitive[use_primitive],0,use_vertices_count);
+			glDrawArrays(primitive[(int)use_primitive], 0, use_vertices_count);
 		CheckGLError();
 		if(use_streams.vertex.data||use_streams.vertex.vert_buf.id!=0)
 			glDisableClientState(GL_VERTEX_ARRAY);
@@ -605,14 +607,14 @@ void TBaluRender::TDepth::Mask(bool enable)
 	glDepthMask(enable);
 }
 
-void TBaluRender::TDepth::PolygonOffset(bool use_offset,TPolygonMode::Enum poly,float factor, float units)
+void TBaluRender::TDepth::PolygonOffset(bool use_offset,TPolygonMode poly,float factor, float units)
 {
 	if(use_offset)
 	{
-		glEnable ( internal_polygon_offset[poly] );
+		glEnable(internal_polygon_offset[(int)poly]);
 		glPolygonOffset(factor,units);
 	}
-	else glDisable (  internal_polygon_offset[poly] );
+	else glDisable(internal_polygon_offset[(int)poly]);
 }
 
 void TBaluRender::TDepth::Func(char* func)
@@ -658,14 +660,14 @@ void TBaluRender::TSet::PointSmooth(bool use_smooth)
 		glDisable(GL_POINT_SMOOTH);
 }
 
-void TBaluRender::TSet::ShadeModel(TShadeModel::Enum use_model)
+void TBaluRender::TSet::ShadeModel(TShadeModel use_model)
 {
-	glShadeModel(internal_shade_model[use_model]);
+	glShadeModel(internal_shade_model[(int)use_model]);
 }
 
-void TBaluRender::TSet::PolygonMode(TPolygonMode::Enum use_mode)
+void TBaluRender::TSet::PolygonMode(TPolygonMode use_mode)
 {
-	glPolygonMode(GL_FRONT_AND_BACK,internal_polygon_mode[use_mode]);
+	glPolygonMode(GL_FRONT_AND_BACK, internal_polygon_mode[(int)use_mode]);
 }
 
 void TBaluRender::TBlend::GetToken(TTokenType token)

@@ -6,9 +6,9 @@
 
 #include "..\Source\images.h"
 
-namespace TDataType
+namespace TBaluRenderEnums
 {
-	enum Enum
+	enum class TDataType
 	{
 		Double,
 		Float,
@@ -19,11 +19,8 @@ namespace TDataType
 		UShort,
 		UByte
 	};
-}
 
-namespace TStream
-{
-	enum Enum
+	enum class TStream
 	{
 		Index,
 		Vertex,
@@ -31,69 +28,49 @@ namespace TStream
 		TexCoord,
 		Normal,
 	};
-}
 
-namespace TVBType
-{
-	enum Enum
+	enum class TVBType
 	{
 		Array,
 		Index,
 	};
-}
 
-namespace TVBRefresh
-{
-	enum Enum
+	enum class TVBRefresh
 	{
 		Stream,
 		Static,
 		Dynamic
 	};
-}
 
-namespace TVBUsage
-{
-	enum Enum
+	enum class TVBUsage
 	{
 		Draw,
 		Read,
 		Copy
 	};
-}
-namespace TVBAccess
-{
-	enum Enum
+
+	enum class TVBAccess
 	{
 		Read,
 		Write,
 		ReadWrite
 	};
-}
 
-namespace TShaderType
-{
-	enum Enum
+	enum class TShaderType
 	{
 		Vertex,
 		Fragment
 	};
-}
 
-namespace TTexType
-{
-	enum Enum
+	enum class TTexType
 	{
 		TEX_1D,
 		TEX_2D,
 		TEX_3D,
 		CUBE
 	};
-}
 
-namespace TTexFilter
-{
-	enum Enum
+	enum class TTexFilter
 	{
 		Nearest,
 		Linear,
@@ -102,24 +79,18 @@ namespace TTexFilter
 		BilinearAniso,
 		TrilinearAniso
 	};
-}
 
-namespace TTexClamp
-{
-	enum Enum
+	enum class TTexClamp
 	{
-		NONE	=0,
-		S		=1,
-		T		=2,
-		R		=4,
-		ST		=1|2,
-		STR		=1|2|4
+		NONE = 0,
+		S = 1,
+		T = 2,
+		R = 4,
+		ST = 1 | 2,
+		STR = 1 | 2 | 4
 	};
-}
 
-namespace TPrimitive
-{
-	enum Enum
+	enum class TPrimitive
 	{
 		Points,
 		Lines,
@@ -131,20 +102,14 @@ namespace TPrimitive
 		Quads,
 		QuadStrip
 	};
-}
 
-namespace TShadeModel
-{
-	enum Enum
+	enum class TShadeModel
 	{
 		Flat,
 		Smooth
 	};
-}
 
-namespace TPolygonMode
-{
-	enum Enum
+	enum class TPolygonMode
 	{
 		Point,
 		Line,
@@ -168,6 +133,7 @@ void CheckGLError();
 class TBaluRenderInternal;
 class TBaluRender
 {
+private:
 	std::unique_ptr<TBaluRenderInternal> p;
 
 	void InitInfo();
@@ -187,18 +153,18 @@ class TBaluRender
 	};
 	struct TVertexBufferDesc
 	{
-			TVBType::Enum buff_type;
+		TBaluRenderEnums::TVBType buff_type;
 			void* data_pointer;
-			TVBUsage::Enum buff_usage;
+			TBaluRenderEnums::TVBUsage buff_usage;
 			int size;//TODO внести на контоль в дебаге
 	};
 	struct TTextureDesc
 	{
 		bool used;
-		TTexType::Enum type;
-		TFormat::Enum format;
-		TTexFilter::Enum filter;
-		TTexClamp::Enum clamp;
+		TBaluRenderEnums::TTexType type;
+		TFormat format;
+		TBaluRenderEnums::TTexFilter filter;
+		TBaluRenderEnums::TTexClamp clamp;
 		unsigned short width,height;
 		TTextureDesc():used(false){}
 	};
@@ -248,7 +214,7 @@ public:
 	TVec2 WindowToClipSpace(int x,int y);
 
 	void Clear(bool color=0, bool depth=1);
-	void Draw(const TStreamsDesc& use_streams,TPrimitive::Enum use_primitive, int use_vertices_count);
+	void Draw(const TStreamsDesc& use_streams, TBaluRenderEnums::TPrimitive use_primitive, int use_vertices_count);
 
 	class TSupport
 	{
@@ -300,16 +266,16 @@ public:
 		void Projection(const TMatrix4d& use_proj);
 		void PointSize(float size);
 		void PointSmooth(bool use_smooth);
-		void ShadeModel(TShadeModel::Enum use_model);
-		void PolygonMode(TPolygonMode::Enum use_mode);
+		void ShadeModel(TBaluRenderEnums::TShadeModel use_model);
+		void PolygonMode(TBaluRenderEnums::TPolygonMode use_mode);
 	}Set;
 
 	class TVertexBuffer
 	{
 		friend class TBaluRender;TBaluRender* r;
 	public:
-		TVertexBufferId Create(TVBType::Enum use_type, int size, TVBRefresh::Enum use_refresh=TVBRefresh::Static, TVBUsage::Enum use_usage=TVBUsage::Draw);
-		void* Map(TVertexBufferId use_id, TVBAccess::Enum use_access);
+		TVertexBufferId Create(TBaluRenderEnums::TVBType use_type, int size, TBaluRenderEnums::TVBRefresh use_refresh = TBaluRenderEnums::TVBRefresh::Static, TBaluRenderEnums::TVBUsage use_usage = TBaluRenderEnums::TVBUsage::Draw);
+		void* Map(TVertexBufferId use_id, TBaluRenderEnums::TVBAccess use_access);
 		void Unmap(TVertexBufferId use_id);
 		void SubData(TVertexBufferId use_id,int use_offset,int use_size,void* use_new_data);
 		void Data(TVertexBufferId use_id,int use_size,void* use_new_data);//TODO контроллировать размер и без необходимости не пересоздавать буфер
@@ -337,12 +303,12 @@ public:
 		friend class TBaluRender;TBaluRender* r;
 	public:
 		TTextureId Create(const char* fname);
-		TTextureId Create(TTexType::Enum use_type, TFormat::Enum use_format,
-			int use_width, int use_height, TTexFilter::Enum use_filter=TTexFilter::Bilinear);
+		TTextureId Create(TBaluRenderEnums::TTexType use_type, TFormat use_format,
+			int use_width, int use_height, TBaluRenderEnums::TTexFilter use_filter = TBaluRenderEnums::TTexFilter::Bilinear);
 		void Delete(TTextureId use_tex);
 		TTextureId CreateTarget();
-		void SetFilter(TTextureId use_tex, TTexFilter::Enum use_filter, 
-			TTexClamp::Enum use_clamp=TTexClamp::NONE, int use_aniso=0);
+		void SetFilter(TTextureId use_tex, TBaluRenderEnums::TTexFilter use_filter,
+			TBaluRenderEnums::TTexClamp use_clamp = TBaluRenderEnums::TTexClamp::NONE, int use_aniso = 0);
 		void Enable(bool enable);
 		void Bind(TTextureId use_tex);
 		void CopyFramebufferTo(TTextureId use_tex);
@@ -354,7 +320,7 @@ public:
 		friend class TBaluRender;TBaluRender* r;
 	private:
 		void LoadShaderGLSL(const int use_shader,const char* use_source,const char* use_defines);
-		void LoadShaderASM(const int& use_shader, const TShaderType::Enum use_type,const char* use_source,const char* use_defines);
+		void LoadShaderASM(const int& use_shader, const TBaluRenderEnums::TShaderType use_type, const char* use_source, const char* use_defines);
 	public:
 		TShaderId Create(const char* use_file_name,const char* use_defines);
 		TShaderId LoadGLSL(const char* use_vsource,const char* use_fsource,const char* use_defines);
@@ -393,7 +359,7 @@ public:
 		void Func(char* func);//funcs: "1","0","<","<=","==",">=",">","!="
 		void Func(TDepthFunc func);
 		void Mask(bool enable);
-		void PolygonOffset(bool use_offset,TPolygonMode::Enum poly,float factor=0, float units=0);
+		void PolygonOffset(bool use_offset, TBaluRenderEnums::TPolygonMode poly, float factor = 0, float units = 0);
 	}Depth;
 
 	class TBitmapFont
@@ -582,7 +548,7 @@ public:
 	struct TStreamDesc
 	{
 		int size;
-		TDataType::Enum type;
+		TBaluRenderEnums::TDataType type;
 		void* data;
 		TVertexBufferId vert_buf;
 		TTextureId tex;
@@ -598,12 +564,12 @@ private:
 	TStreamDesc index;
 	TStreamDesc tex[max_tex_units];
 	int tex_units_usage_mask;
-	void AddStream(TStream::Enum use_stream,int use_tex_unit,TDataType::Enum use_type, int use_size, void* use_data, TVertexBufferId use_buf);
+	void AddStream(TBaluRenderEnums::TStream use_stream, int use_tex_unit, TBaluRenderEnums::TDataType use_type, int use_size, void* use_data, TVertexBufferId use_buf);
 public:
-	void AddStream(TStream::Enum use_stream,int use_tex_unit,TDataType::Enum use_type, int use_size, void* use_data);
-	void AddStream(TStream::Enum use_stream,int use_tex_unit,TDataType::Enum use_type, TVertexBufferId use_buf);
-	void AddStream(TStream::Enum use_stream,TDataType::Enum use_type, int use_size, void* use_data);
-	void AddStream(TStream::Enum use_stream,TDataType::Enum use_type, int use_size, TVertexBufferId use_buf);
+	void AddStream(TBaluRenderEnums::TStream use_stream, int use_tex_unit, TBaluRenderEnums::TDataType use_type, int use_size, void* use_data);
+	void AddStream(TBaluRenderEnums::TStream use_stream, int use_tex_unit, TBaluRenderEnums::TDataType use_type, TVertexBufferId use_buf);
+	void AddStream(TBaluRenderEnums::TStream use_stream, TBaluRenderEnums::TDataType use_type, int use_size, void* use_data);
+	void AddStream(TBaluRenderEnums::TStream use_stream, TBaluRenderEnums::TDataType use_type, int use_size, TVertexBufferId use_buf);
 	void AddTexture(int use_tex_unit,TTextureId use_tex_id);
 	void Clear();
 };

@@ -2,6 +2,8 @@
 
 #include "../baluRenderCommon.h"
 
+using namespace TBaluRenderEnums;
+
 const bool mag_filter=0;      
 const bool min_filter=1;
 const GLuint tex_filters[][2]=
@@ -28,7 +30,7 @@ TTextureId TBaluRender::TTexture::Create(const char* fname)
 	}
 
 	GLuint target=GL_TEXTURE_2D;
-	GLuint format=formats[img.GetFormat()];
+	GLuint format = formats[(int)img.GetFormat()];
 
 	int width=img.GetWidth();
 	int height=img.GetHeight();
@@ -83,8 +85,8 @@ TTextureId TBaluRender::TTexture::Create(const char* fname)
 		}
 	};
 
-	glTexParameteri(target,GL_TEXTURE_MIN_FILTER,tex_filters[TTexFilter::Bilinear][min_filter]);
-	glTexParameteri(target,GL_TEXTURE_MAG_FILTER,tex_filters[TTexFilter::Bilinear][mag_filter]);
+	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, tex_filters[(int)TTexFilter::Bilinear][min_filter]);
+	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, tex_filters[(int)TTexFilter::Bilinear][mag_filter]);
 
 	desc.clamp = TTexClamp::NONE ;
 	desc.type = TTexType::TEX_2D ;
@@ -98,23 +100,23 @@ TTextureId TBaluRender::TTexture::Create(const char* fname)
 	return result;
 }
 
-TTextureId TBaluRender::TTexture::Create(TTexType::Enum use_type, TFormat::Enum use_format,
-			int use_width, int use_height, TTexFilter::Enum use_filter)
+TTextureId TBaluRender::TTexture::Create(TTexType use_type, TFormat use_format,
+			int use_width, int use_height, TTexFilter use_filter)
 {
 	TTextureId result;
 	GLuint tex_id;
-	GLuint target=targets[use_type];
-	GLuint format=formats[use_format];
+	GLuint target = targets[(int)use_type];
+	GLuint format = formats[(int)use_format];
 	int width=use_width;
 	int height=use_height;
 
 	glGenTextures(1,&tex_id);
 	glBindTexture(target,tex_id);
 
-	if(r->Support.hw_generate_mipmap&&use_filter>1)
+	if (r->Support.hw_generate_mipmap && (int)use_filter>1)
 		glTexParameteri(target,GL_GENERATE_MIPMAP_SGIS,GL_TRUE);
 
-	switch(target)
+	switch((TTexType)target)
 	{
 	case TTexType::TEX_1D:
 		glCopyTexImage1D(target,0,format,0,0,use_width,0);
@@ -141,25 +143,25 @@ void TBaluRender::TTexture::Delete(TTextureId use_tex)
 	glDeleteTextures(1,(GLuint*)&use_tex.id);
 }
 
-void TBaluRender::TTexture::SetFilter(TTextureId use_tex,TTexFilter::Enum use_filter, 
-			TTexClamp::Enum use_clamp, int use_aniso)
+void TBaluRender::TTexture::SetFilter(TTextureId use_tex,TTexFilter use_filter, 
+			TTexClamp use_clamp, int use_aniso)
 {
 	TTextureDesc& desc=r->textures[use_tex.id];
-	glBindTexture(targets[desc.type],use_tex.id);
-	glTexParameteri(targets[desc.type],GL_TEXTURE_MIN_FILTER,tex_filters[use_filter][min_filter]);
-	glTexParameteri(targets[desc.type],GL_TEXTURE_MAG_FILTER,tex_filters[use_filter][mag_filter]);
+	glBindTexture(targets[(int)desc.type], use_tex.id);
+	glTexParameteri(targets[(int)desc.type], GL_TEXTURE_MIN_FILTER, tex_filters[(int)use_filter][min_filter]);
+	glTexParameteri(targets[(int)desc.type], GL_TEXTURE_MAG_FILTER, tex_filters[(int)use_filter][mag_filter]);
 	CheckGLError();
-	if((use_clamp&TTexClamp::S))
-		glTexParameteri(targets[desc.type],GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
-	if((use_clamp&TTexClamp::T)&&desc.type!=TTexType::TEX_1D)
-		glTexParameteri(targets[desc.type],GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-	if((use_clamp&TTexClamp::R)&&desc.type==TTexType::TEX_3D)
-		glTexParameteri(targets[desc.type],GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);
+	if (((int)use_clamp&(int)TTexClamp::S))
+		glTexParameteri(targets[(int)desc.type], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	if (((int)use_clamp&(int)TTexClamp::T) && desc.type != TTexType::TEX_1D)
+		glTexParameteri(targets[(int)desc.type], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	if (((int)use_clamp&(int)TTexClamp::R) && desc.type == TTexType::TEX_3D)
+		glTexParameteri(targets[(int)desc.type], GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	CheckGLError();
 	if(use_filter>=TTexFilter::BilinearAniso&&desc.type==TTexType::TEX_2D
 		&&r->Support.anisotropic_filter)
 	{
-		glTexParameteri(targets[desc.type], GL_TEXTURE_MAX_ANISOTROPY_EXT, use_aniso <= r->p->max_aniso ? (use_aniso>0 ? use_aniso : 1) : r->p->max_aniso);
+		glTexParameteri(targets[(int)desc.type], GL_TEXTURE_MAX_ANISOTROPY_EXT, use_aniso <= r->p->max_aniso ? (use_aniso>0 ? use_aniso : 1) : r->p->max_aniso);
 	}
 	CheckGLError();
 }
