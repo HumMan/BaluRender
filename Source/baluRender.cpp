@@ -83,21 +83,27 @@ const GLenum alpha_test_funcs[] =
 	GL_GREATER
 };
 
-static const GLenum blend_equations[6] =
+static const GLenum blend_equations[6*2] =
 {
 	GL_SRC_COLOR,
+	GL_ONE_MINUS_SRC_COLOR,
 	GL_SRC_ALPHA,
+	GL_ONE_MINUS_SRC_ALPHA,
 	GL_DST_COLOR,
+	GL_ONE_MINUS_DST_COLOR,
 	GL_DST_ALPHA,
+	GL_ONE_MINUS_DST_ALPHA,
 	GL_CONSTANT_COLOR,
-	GL_CONSTANT_ALPHA
+	GL_ONE_MINUS_CONSTANT_COLOR,
+	GL_CONSTANT_ALPHA,
+	GL_ONE_MINUS_CONSTANT_ALPHA
 };
 
 //TODO добавить другие функции https://www.khronos.org/opengles/sdk/docs/man/xhtml/glBlendFunc.xml
 static const GLenum blend_funcs[6] =
 {
-	GL_ADD,
-	GL_SUBTRACT
+	GL_FUNC_ADD,
+	GL_FUNC_SUBTRACT
 };
 
 const char* GetGLErrorString(GLenum errorCode){
@@ -682,7 +688,7 @@ void TBaluRender::TBlend::Factor(int &factor)
 	{
 	case T_LPARENTH:
 		c++;GetToken(T_ONE);GetToken(T_MINUS);
-		factor=blend_equations[tokens[c]]+1;
+		factor=blend_equations[tokens[c]+1];
 		c++;
 		GetToken(T_RPARENTH);
 		break;
@@ -726,7 +732,15 @@ void TBaluRender::TBlend::GetTokens(char* c){
 		if(tokens[thigh]==T_SRCC||tokens[thigh]==T_DSTC||tokens[thigh]==T_CONSTC)
 		{
 			assert(*c=='a'||*c=='c');
-			*(char*)(&tokens[thigh])+=(*c=='a');
+			if (*c == 'a')
+			{
+				if (tokens[thigh] == T_SRCC)
+					tokens[thigh] = T_SRCA;
+				if (tokens[thigh] == T_DSTC)
+					tokens[thigh] = T_DSTA;
+				if (tokens[thigh] == T_CONSTC)
+					tokens[thigh] = T_CONSTA;
+			}
 			c++;
 		}
 		if(*c=='\0'){tokens[++thigh]=T_DONE;return;}
@@ -785,8 +799,9 @@ void TBaluRender::TBlend::Func(TVec4 blend_color,char* func){
 
 void TBaluRender::TBlend::Func(TBlendEquation left, TBlendFunc op, TBlendEquation right)
 {
-	glBlendEquation(blend_funcs[op]);
-	glBlendFunc(blend_equations[left], blend_equations[right]);
+	glBlendEquation(blend_funcs[(int)op]);
+	glBlendFunc(blend_equations[(int)left], blend_equations[(int)right]);
+	CheckGLError();
 }
 
 void TBaluRender::TAlphaTest::Enable(bool enable)
@@ -821,7 +836,7 @@ void TBaluRender::TAlphaTest::Func(char* func,float val)
 	}
 }
 
-void TBaluRender::TAlphaTest::Func(TAlphaTestFunc func, float val)
+void TBaluRender::TAlphaTest::Func(TBaluRenderEnums::TAlphaTestFunc func, float val)
 {
-	glAlphaFunc(alpha_test_funcs[func], val);
+	glAlphaFunc(alpha_test_funcs[(int)func], val);
 }

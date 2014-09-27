@@ -115,6 +115,39 @@ namespace TBaluRenderEnums
 		Line,
 		Fill
 	};
+
+	enum class TBlendFunc
+	{
+		BF_ADD,
+		BF_SUBTRACT
+	};
+	enum class TBlendEquation
+	{
+		BE_SRC_COLOR,
+		BE_ONE_MINUS_SRC_COLOR,
+		BE_SRC_ALPHA,
+		BE_ONE_MINUS_SRC_ALPHA,
+		BE_DST_COLOR,
+		BE_ONE_MINUS_DST_COLOR,
+		BE_DST_ALPHA,
+		BE_ONE_MINUS_DST_ALPHA,
+		BE_CONSTANT_COLOR,
+		BE_ONE_MINUS_CONSTANT_COLOR,
+		BE_CONSTANT_ALPHA,
+		BE_ONE_MINUS_CONSTANT_ALPHA
+	};
+
+	enum class TAlphaTestFunc
+	{
+		AT_ALWAYS,
+		AT_NEVER,
+		AT_LEQUAL,
+		AT_LESS,
+		AT_EQUAL,
+		AT_NOTEQUAL,
+		AT_GEQUAL,
+		AT_GREATER
+	};
 }
 
 struct TTextureId;
@@ -392,11 +425,17 @@ public:
 		{
 			T_UNKNOWN=-1,
 			T_SRCC=0,
+			T_ONE_MINUS_SRCC,
 			T_SRCA,
+			T_ONE_MINUS_SRCA,
 			T_DSTC,
+			T_ONE_MINUS_DSTC,
 			T_DSTA,
+			T_ONE_MINUS_DSTA,
 			T_CONSTC,
+			T_ONE_MINUS_CONSTC,
 			T_CONSTA,
+			T_ONE_MINUS_CONSTA,
 			T_ONE,
 			T_MINUS,
 			T_PLUS,
@@ -418,20 +457,7 @@ public:
 		int curr_op;
 		TVec4 curr_blend_color;
 	public:
-		enum TBlendFunc
-		{
-			BF_ADD,
-			BF_SUBTRACT
-		};
-		enum TBlendEquation
-		{
-			BE_SRC_COLOR,
-			BE_SRC_ALPHA,
-			BE_DST_COLOR,
-			BE_DST_ALPHA,
-			BE_CONSTANT_COLOR,
-			BE_CONSTANT_ALPHA
-		};
+		
 		void Enable(bool enable);
 		void Func(char* func);
 		//SetFunc: задает функцию смешивания
@@ -456,27 +482,17 @@ public:
 		//"sc*cc"
 		//"dc*sa"
 		void Func(TVec4 blend_color,char* func);
-		void Func(TBlendEquation left, TBlendFunc op, TBlendEquation right);
+		void Func(TBaluRenderEnums::TBlendEquation left, TBaluRenderEnums::TBlendFunc op, TBaluRenderEnums::TBlendEquation right);
 	}Blend;
 
 	class TAlphaTest
 	{
 		friend class TBaluRender;TBaluRender* r;
 	public:
-		enum TAlphaTestFunc
-		{
-			AT_ALWAYS,
-			AT_NEVER,
-			AT_LEQUAL,
-			AT_LESS,
-			AT_EQUAL,
-			AT_NOTEQUAL,
-			AT_GEQUAL,
-			AT_GREATER
-		};
+		
 		void Enable(bool enable);
 		void Func(char* func,float val);//funcs: "1","0","<","<=","==",">=",">","!="
-		void Func(TAlphaTestFunc func, float val);
+		void Func(TBaluRenderEnums::TAlphaTestFunc func, float val);
 	}AlphaTest;
 
 	//TODO ввести примитив pushAttrib чтобы не делать после каждого блока enable disable чтобы движок сам определял что изменилось и восстанавливал
