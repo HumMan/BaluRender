@@ -40,5 +40,7 @@ public:
 	//render info
 	int max_aniso;
 	int max_texture_units;
+	int max_vertex_texture_image_units;
+	int max_texture_image_units;
 	int major, minor;
 };

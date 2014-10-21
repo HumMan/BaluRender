@@ -218,19 +218,25 @@ void TBaluRender::InitInfo()
 	strcpy_s(ext, ext_len+1,gl_ext_string);
 
 	const char* version = (const char*)glGetString( GL_VERSION );
-	sscanf_s(version, "%d.%d", &p->major, &p->minor);
+	sscanf_s(version, "%d.%d\n", &p->major, &p->minor);
 	log_file.Write(version);
+	log_file.Write("\n");
 
 	log_file.Write((const char*)glGetString( GL_RENDERER));
+	log_file.Write("\n");
 	log_file.Write((const char*)glGetString( GL_VENDOR));
+	log_file.Write("\n");
 
 	Support.multitexturing			=TokenExists(ext,"GL_ARB_multitexture");
 	
 	if(Support.multitexturing)
 	{
-		//TODO убрать комментарии!!!!!
-		//glGetIntegerv(GL_MAX_TEXTURE_UNITS,&max_texture_units);
+		glGetIntegerv(GL_MAX_TEXTURE_UNITS, &p->max_texture_units);
 		sprintf_s(log_buff, "Max texture units = %i\n", p->max_texture_units); log_file.Write(log_buff);
+		glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &p->max_vertex_texture_image_units);
+		sprintf_s(log_buff, "Max vertex texture units = %i\n", p->max_vertex_texture_image_units); log_file.Write(log_buff);
+		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &p->max_texture_image_units);
+		sprintf_s(log_buff, "Max texture image units = %i\n", p->max_texture_image_units); log_file.Write(log_buff);
 	}
 
 	Support.vertex_array = (p->major * 10 + p->minor >= 11);
