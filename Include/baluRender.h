@@ -303,6 +303,13 @@ public:
 		void PolygonMode(TBaluRenderEnums::TPolygonMode use_mode);
 	}Set;
 
+	class TGet
+	{
+		friend class TBaluRender; TBaluRender* r;
+	public:
+		TMatrix4 ModelView();
+	}Get;
+
 	class TVertexBuffer
 	{
 		friend class TBaluRender;TBaluRender* r;

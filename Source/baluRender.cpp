@@ -279,6 +279,7 @@ void TBaluRender::Initialize(TVec2i use_size)
 	sprintf_s(log_buff,"Initialization...");log_file.Write(log_buff);
 	CheckGLError();
 	Set.r=this;
+	Get.r = this;
 	Texture.r=this;
 	Shader.r=this;
 	VertexBuffer.r=this;
@@ -607,6 +608,13 @@ void TBaluRender::TSet::Projection(const TMatrix4& use_proj)
 	glMatrixMode(GL_PROJECTION);
 	glLoadMatrixf((GLfloat*)&use_proj);
 	glMatrixMode(GL_MODELVIEW);
+}
+
+TMatrix4 TBaluRender::TGet::ModelView()
+{
+	TMatrix4 m;
+	glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat*)&m);
+	return m;
 }
 
 void TBaluRender::TDepth::Test(bool enable)
