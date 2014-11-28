@@ -10,6 +10,8 @@ TBaluRender* render;
 bool pause = false;
 bool test_broadphase = false;
 
+using namespace TBaluRenderEnums;
+
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
@@ -264,7 +266,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	//sprintf_s(render->log_buff, "Render creation..."); render->log_file.Write(render->log_buff);
 
-	render = new TBaluRender(hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top));
+	render = new TBaluRender((int)hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top));
 
 	Init();
 

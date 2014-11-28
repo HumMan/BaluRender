@@ -5,6 +5,8 @@
 
 #include <GL\GL.h>
 
+using namespace TBaluRenderEnums;
+
 TBaluRender* render;
 TTime time;
 TFPSCamera* cam;
@@ -300,7 +302,7 @@ int WINAPI WinMain (HINSTANCE hInstance,
 	RECT rect;
 	GetClientRect(hWnd,&rect);
 
-	render=new TBaluRender(hWnd,TVec2i(rect.right-rect.left,rect.bottom-rect.top));
+	render=new TBaluRender((int)hWnd,TVec2i(rect.right-rect.left,rect.bottom-rect.top));
 
 	Init();
 
