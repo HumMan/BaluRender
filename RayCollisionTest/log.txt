@@ -287,6 +287,3 @@ GL_WIN_swap_hint
 WGL_EXT_swap_control
 
 OpenGL INFO END:
-Creating threads... passed
-Render setup... passed
-Texture loading (frame_3.png)...VBuffers creation... passed
