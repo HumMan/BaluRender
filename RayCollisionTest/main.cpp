@@ -5,6 +5,8 @@
 
 #include <GL\GL.h>
 
+#include "../../BaluLib/Source/bVolumes.h"
+
 using namespace TBaluRenderEnums;
 
 TBaluRender* render;
@@ -56,6 +58,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 HWND hWnd;
 
+TVec<unsigned char, 4>* raytracer_color_buffer;
+
 void Init()
 {
 	//for(int i=0;i<1;i++)
@@ -63,10 +67,10 @@ void Init()
 	//		for(int t=0;t<1;t++)
 	//			volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TAABB<float, 3>(TVec3(i * 4, k * 4, t * 4), TVec3(1, 1, 1))));
 
-	for(int i=0;i<1;i++)
-		for(int k=0;k<1;k++)
-			for(int t=0;t<1;t++)
-				volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TSphere<float, 3>(TVec3(i * 4, k * 4, t * 4 + 6), 1)));
+	//for(int i=0;i<1;i++)
+	//	for(int k=0;k<1;k++)
+	//		for(int t=0;t<1;t++)
+	//			volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TSphere<float, 3>(TVec3(i * 4, k * 4, t * 4 + 6), 1)));
 
 	//for(int i=0;i<1;i++)
 	//	for(int k=0;k<1;k++)
@@ -82,21 +86,21 @@ void Init()
 	//			volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TOBB<float, 3>(TVec3(i * 8, k * 8, t * 8 + 15), TMatrix3(v0, v1, v0.Cross(v1).GetNormalized()), TAABB<float, 3>(TVec3(0), TVec3(1)))));
 	//		}
 
-	//for (int i = 0; i < 1; i++)
-	//{
-	//	for (int k = 0; k < 1; k++)
-	//	{
-	//		for (int t = 0; t < 1; t++)
-	//		{
-	//			TVec3 v0, v1;
-	//			v0 = TVec3(i * 8, k * 8, t * 8 + 22);
-	//			v1.MakeRandom();
-	//			v1 = v0 + v1 * 3;
-	//			volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TCapsule<float, 3>(v0, v1, 2)));
-	//			//volumes.Push(new TCapsule<float,3>(TVec3(5,0,-8),TVec3(8,0,-5),2));
-	//		}
-	//	}
-	//}
+	for (int i = 0; i < 1; i++)
+	{
+		for (int k = 0; k < 1; k++)
+		{
+			for (int t = 0; t < 1; t++)
+			{
+				TVec3 v0, v1;
+				v0 = TVec3(i * 8, k * 8, t * 8 + 22);
+				v1.MakeRandom();
+				v1 = v0 + v1 * 3;
+				volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TCapsule<float, 3>(v0, v1, 2)));
+				//volumes.Push(new TCapsule<float,3>(TVec3(5,0,-8),TVec3(8,0,-5),2));
+			}
+		}
+	}
 	rz = 0;
 	ry = 0;
 
@@ -107,7 +111,7 @@ void Init()
 	render->Set.ClearColor(0, 0, 0);
 	render->Set.Color(1, 1, 1, 1);
 	render->Blend.Func("dc+sc*sa");
-	cam = new TFPSCamera(TVec3(0, 0, 110), TVec3(0, 0, -1), TVec3(0, 1, 0));
+	cam = new TFPSCamera(TVec3(0, 0, 110), TVec3(0, 0, 1), TVec3(0, 1, 0));
 	cam->Activate(100, 100);
 	TVec2i screen_size = render->ScreenSize();
 	perspective_matrix = TMatrix4::GetPerspective(90, screen_size[0], screen_size[1], 0.01, 1000);
@@ -144,6 +148,8 @@ void Init()
 					render->VertexBuffer.SubData(prim_lines_vertex, 0, prim_lines_vertex_count*sizeof(TVec3), &vertices[0]);
 				}
 			}
+
+			raytracer_color_buffer = new TVec<unsigned char, 4>[viewport_width*viewport_height];
 }
 
 void DrawVolumes()
@@ -212,11 +218,13 @@ void MainLoop()
 			//render->Set.PointSize(1);
 			//render->Set.PointSmooth(true);
 
-			glBegin(GL_POINTS);
+			//glBegin(GL_POINTS);
 
-			for (int x = 5; x < viewport_width;x+=1)
+#pragma omp parallel for
+			for (int x = 1; x < viewport_width-1; x += 1)
 			{
-				for (int y = 5; y < viewport_height; y+=1)
+				//break;
+				for (int y = 1 ; y < viewport_height-1; y += 1)
 				{
 					float i = x*pixel_size_x - 1;
 					float j = y*pixel_size_y - 1;
@@ -228,37 +236,62 @@ void MainLoop()
 					ray.pos = v0.GetHomogen();
 					ray.dir = v1.GetHomogen() - ray.pos;
 					ray.dir.Normalize();
+					//ray.dir = -ray.dir;
 
 					//render->Set.Color(0, 0, 1, 1);
 
-					TVec3 color(0, 0, 1);
+					//TVec3 color(0, 0, 1);
+					TVec<unsigned char, 4> color(0, 0, 1);
 
 					for (int k = 0; k < volumes.size(); k++)
 					{
-						float t, t0, t1, t2, t3;
-						TVec3 n, n0, n1;
-						bool c0 = volumes[k]->CollideWith(ray);
-						bool c1 = volumes[k]->CollideWith(ray, t, n);
-						bool c2 = volumes[k]->CollideWith(ray, t0, n0, t1, n1);
-						bool c3 = volumes[k]->CollideWith(ray, t2, t3);
+						//float t, t0, t1, t2, t3;
+						//TVec3 n, n0, n1;
+						//bool c0 = volumes[k]->CollideWith(ray);
+						//bool c1 = volumes[k]->CollideWith(ray, t, n);
+						//bool c2 = volumes[k]->CollideWith(ray, t0, n0, t1, n1);
+						//bool c3 = volumes[k]->CollideWith(ray, t2, t3);
 
+						TRayCollisionInfo<float, 3> info, info2;
+
+						bool c2 = volumes[k]->RayCollide(ray);
+						//bool c1 = volumes[k]->RayCollide(ray, info);
+
+						//bool c2 = volumes[k]->SegmentCollide(TSegment<float, 3>(ray.pos, ray.pos + ray.dir * 10));
+						//bool c2 = volumes[k]->SegmentCollide(TSegment<float, 3>(ray.pos + ray.dir * 10, ray.pos));
+						//bool c3 = volumes[k]->SegmentCollide(TSegment<float, 3>(ray.pos, ray.pos + ray.dir * 10), info2);
+
+						//bool c2 = volumes[k]->LineCollide(TLine<float, 3>(ray.pos + ray.dir * 10, ray.pos));
 						
+						//assert(c0 == c1);
+
 						if (c2)
 						{
-							float col = abs(Clamp<float>(0,1,-n0*ray.dir));
-							color = TVec3(0, col, 0);
-							//render->Set.Color(0, col, 0, 1);
-						}
-						else
-						{
-							color = TVec3(0, 0.2, 0.2);
-							//render->Set.Color(0, 0.2, 0.2, 1);
-							break;
-						}
+							color = TVec<unsigned char, 4>(1*255, 1*255, 0, 255);
+						}else
+							color = TVec<unsigned char, 4>(0, 0.2*255, 0, 255);
+
+						//if (c1)
+						//{
+						//	float col;
+						//	if (info.have_in)
+						//		col = abs(Clamp<float>(0, 1, -info.in_normal*ray.dir));
+						//	else if (info.have_out)
+						//		col = abs(Clamp<float>(0, 1, info.out_normal*ray.dir));
+						//	else assert(false);
+						//	color = TVec<unsigned char,4>(0, col*255, 0,1);
+						//	//render->Set.Color(0, col, 0, 1);
+						//}
+						//else
+						//{
+						//	color = TVec<unsigned char, 4>(0, 0.2 * 255, 0.2 * 255,255);
+						//	//render->Set.Color(0, 0.2, 0.2, 1);
+						//	break;
+						//}
 
 						//if (c0&&c1&&c2&&c3)
 						//{
-						//	//render->Set.Color(0,n*TVec3(0.5,1,1).GetNormalized(),0,1);
+						//	//render->Set.Color(0,n*TVec3(0.5,1,1).GetNormalized(),0,255);
 						//	render->Set.Color(0, 1, 0, 1);
 						//	break;
 						//}
@@ -275,13 +308,18 @@ void MainLoop()
 
 					
 					//glVertex3fv((GLfloat*)&(ray.pos + ray.dir));
-					glColor3fv((GLfloat*)&color);
-					glVertex2fv((GLfloat*)&(TVec<float, 2>(i,j)));
+					//glColor3fv((GLfloat*)&color);
+					//glVertex2fv((GLfloat*)&(TVec<float, 2>(i,j)));
+					raytracer_color_buffer[y*viewport_width + x] = color;
 					
 				}
 			}
 
-			glEnd();
+			glRasterPos2d(-1, -1);
+			
+			glDrawPixels(viewport_width, viewport_height, GL_RGBA, GL_UNSIGNED_BYTE, (GLfloat*)&raytracer_color_buffer[0]);
+
+			//glEnd();
 
 			//render->Set.PointSmooth(false);
 			//render->Set.PointSize(1);
@@ -293,8 +331,8 @@ void MainLoop()
 	if (false)
 		{
 			TStreamsDesc streams;
-			TLine<float, 3> line[3];
-			TLine<unsigned char, 4> color[3];
+			TGeomLine<float, 3> line[3];
+			TGeomLine<unsigned char, 4> color[3];
 			line[0][0] = TVec3(0, 0, 0);
 			line[0][1] = TVec3(1, 0, 0);
 			color[0].Set(TVec<unsigned char, 4>(255, 0, 0, 255));

@@ -597,26 +597,26 @@ public:
 	void Clear();
 };
 
-//template <class T,int size>
-//struct TLine
-//{
-//	TVec<T,size> v[2];
-//	void Set(const TVec<T,size> &p0)
-//	{
-//		v[0]=p0;
-//		v[1]=p0;
-//	}
-//	void Set(const TVec<T,size> &p0,const TVec<T,size> &p1)
-//	{
-//		v[0]=p0;
-//		v[1]=p1;
-//	}
-//	TVec<T,size>& operator[](int id)
-//	{
-//		assert(id>=0&&id<2);
-//		return v[id];
-//	}
-//};
+template <class T,int size>
+struct TGeomLine
+{
+	TVec<T,size> v[2];
+	void Set(const TVec<T,size> &p0)
+	{
+		v[0]=p0;
+		v[1]=p0;
+	}
+	void Set(const TVec<T,size> &p0,const TVec<T,size> &p1)
+	{
+		v[0]=p0;
+		v[1]=p1;
+	}
+	TVec<T,size>& operator[](int id)
+	{
+		assert(id>=0&&id<2);
+		return v[id];
+	}
+};
 
 template <class T, int size>
 struct TQuad
