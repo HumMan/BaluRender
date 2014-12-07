@@ -220,7 +220,7 @@ void MainLoop()
 
 			//glBegin(GL_POINTS);
 
-#pragma omp parallel for
+//#pragma omp parallel for
 			for (int x = 1; x < viewport_width-1; x += 1)
 			{
 				//break;
@@ -254,40 +254,41 @@ void MainLoop()
 
 						TRayCollisionInfo<float, 3> info, info2;
 
-						bool c2 = volumes[k]->RayCollide(ray);
+						//bool c2 = volumes[k]->RayCollide(ray);
 						//bool c1 = volumes[k]->RayCollide(ray, info);
 
-						//bool c2 = volumes[k]->SegmentCollide(TSegment<float, 3>(ray.pos, ray.pos + ray.dir * 10));
-						//bool c2 = volumes[k]->SegmentCollide(TSegment<float, 3>(ray.pos + ray.dir * 10, ray.pos));
-						//bool c3 = volumes[k]->SegmentCollide(TSegment<float, 3>(ray.pos, ray.pos + ray.dir * 10), info2);
+						//bool c1 = volumes[k]->SegmentCollide(TSegment<float, 3>(ray.pos, ray.pos + ray.dir * 1000));
+						//bool c1 = volumes[k]->SegmentCollide(TSegment<float, 3>(ray.pos + ray.dir * 40, ray.pos));
+						//bool c1 = volumes[k]->SegmentCollide(TSegment<float, 3>(ray.pos, ray.pos + ray.dir * 30), info);
 
-						//bool c2 = volumes[k]->LineCollide(TLine<float, 3>(ray.pos + ray.dir * 10, ray.pos));
+						//bool c1 = volumes[k]->LineCollide(TLine<float, 3>(ray.pos + ray.dir * 40, ray.pos));
+						bool c1 = volumes[k]->LineCollide(TLine<float, 3>(ray.pos, ray.pos + ray.dir * 40), info);
 						
 						//assert(c0 == c1);
 
-						if (c2)
-						{
-							color = TVec<unsigned char, 4>(1*255, 1*255, 0, 255);
-						}else
-							color = TVec<unsigned char, 4>(0, 0.2*255, 0, 255);
+						//if (c2)
+						//{
+						//	color = TVec<unsigned char, 4>(1*255, 1*255, 0, 255);
+						//}else
+						//	color = TVec<unsigned char, 4>(0, 0.2*255, 0, 255);
 
-						//if (c1)
-						//{
-						//	float col;
-						//	if (info.have_in)
-						//		col = abs(Clamp<float>(0, 1, -info.in_normal*ray.dir));
-						//	else if (info.have_out)
-						//		col = abs(Clamp<float>(0, 1, info.out_normal*ray.dir));
-						//	else assert(false);
-						//	color = TVec<unsigned char,4>(0, col*255, 0,1);
-						//	//render->Set.Color(0, col, 0, 1);
-						//}
-						//else
-						//{
-						//	color = TVec<unsigned char, 4>(0, 0.2 * 255, 0.2 * 255,255);
-						//	//render->Set.Color(0, 0.2, 0.2, 1);
-						//	break;
-						//}
+						if (c1)
+						{
+							float col = 1;
+							if (info.have_in)
+								col = abs(Clamp<float>(0, 1, -info.in_normal*ray.dir));
+							else if (info.have_out)
+								col = abs(Clamp<float>(0, 1, info.out_normal*ray.dir));
+							//else assert(false);
+							color = TVec<unsigned char,4>(0, col*255, 0,255);
+							//render->Set.Color(0, col, 0, 1);
+						}
+						else
+						{
+							color = TVec<unsigned char, 4>(0, 0.2 * 255, 0.2 * 255,255);
+							//render->Set.Color(0, 0.2, 0.2, 1);
+							break;
+						}
 
 						//if (c0&&c1&&c2&&c3)
 						//{
