@@ -23,6 +23,13 @@ const GLuint formats[] =
 	GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
 };
 
+inline TFormat GetFormat(GLint gl_format)
+{
+	for (int i = 0; i < 8; i++)
+		if (formats[i] == gl_format)
+			return (TFormat)i;
+}
+
 #include <windows.h>
 
 class TBaluRenderInternal

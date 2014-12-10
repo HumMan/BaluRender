@@ -2,6 +2,8 @@
 
 #include "../baluRenderCommon.h"
 
+#include <IL/ilut.h>
+
 using namespace TBaluRenderEnums;
 
 const bool mag_filter=0;      
@@ -16,85 +18,128 @@ const GLuint tex_filters[][2]=
 	{GL_LINEAR,    GL_LINEAR_MIPMAP_LINEAR }
 };
 
-TTextureId TBaluRender::TTexture::Create(const char* fname)
+void HandleDevILErrors()
 {
-	sprintf_s(r->log_buff, "Texture loading (%s)...", fname); r->log_file.Write(r->log_buff);
-	TTextureId result;
-	TImage img;
+	ILenum error = ilGetError();
 
-	try{
-		img.Load(fname);
-	}catch(const char* str){
-		MessageBoxA(NULL,str,"Image load error!",MB_OK|MB_ICONERROR|MB_APPLMODAL);
-		return TTextureId();
+	if (error != IL_NO_ERROR) {
+		do {
+			const char* ch = iluErrorString(error);
+			printf("\n\n%s\n", ch);
+		} while ((error = ilGetError()));
+
+		exit(1);
 	}
+}
+
+TTextureId TBaluRender::TTexture::Create(char* fname)
+{
+	//ilutRenderer(ILUT_OPENGL);
+	ILuint ImgId;
+	ilGenImages(1, &ImgId);
+	ilBindImage(ImgId);
+
+	if (!ilLoadImage(fname))
+	{
+		HandleDevILErrors();
+	}
+
+	//glEnable(GL_TEXTURE_2D);  // Enable texturing.
+
+	// Lets ILUT know to use its OpenGL functions.
+	
+
+	GLuint id;
+	// Goes through all steps of sending the image to OpenGL.
+	id = ilutGLBindTexImage();
+	ilutGLBuildMipmaps();
+
+	// We're done with our image, so we go ahead and delete it.
+	ilDeleteImages(1, &ImgId);
+
+	HandleDevILErrors();
+
+	TTextureId result = *(TTextureId*)&id;
+	
+	//sprintf_s(r->log_buff, "Texture loading (%s)...", fname); r->log_file.Write(r->log_buff);
+	//TTextureId result;
+	//TImage img;
+
+	//try{
+	//	img.Load(fname);
+	//}catch(const char* str){
+	//	MessageBoxA(NULL,str,"Image load error!",MB_OK|MB_ICONERROR|MB_APPLMODAL);
+	//	return TTextureId();
+	//}
+
+	
 
 	GLuint target=GL_TEXTURE_2D;
-	GLuint format = formats[(int)img.GetFormat()];
+	//GLuint format = formats[(int)img.GetFormat()];
 
-	int width=img.GetWidth();
-	int height=img.GetHeight();
+	//int width=img.GetWidth();
+	//int height=img.GetHeight();
 
 
-	glGenTextures(1,(GLuint*)&result.id);
+	//glGenTextures(1,(GLuint*)&result.id);
 
-	if(r->textures.size()<=result.id)r->textures.resize(result.id+1);
-	TTextureDesc& desc=r->textures[result.id];
+	//if (r->textures.size() <= id)r->textures.resize(id + 1);
+	//TTextureDesc& desc = r->textures[id];
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(target, id);
 
-	glBindTexture(target,result.id);
-
-	glTexParameteri(target,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameteri(target,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(target,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
-	if(format==GL_COMPRESSED_RGBA_S3TC_DXT1_EXT||
-		format==GL_COMPRESSED_RGBA_S3TC_DXT3_EXT||
-		format==GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
-	{
-		//assert(GLEW_GL_ARB_texture_compression);
-		int	w    = width;
-		int	h    = height;
-		int	offs = 0;
-		int blockSize;
-		int	size;
-		if( format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT )
-			blockSize = 8;
-		else
-			blockSize = 16;
-		for ( int i = 0; i < img.GetMipMapCount(); i++ )
-		{
-			if ( w  == 0 )w  = 1;
-			if ( h == 0 )h = 1;
-			size = ((w+3)/4) * ((h+3)/4) * blockSize;
-			//TODO если не поддерживается аппаратное сжатие разжимаем в обычную текстуру
-			glCompressedTexImage2DARB ( target, i, format, w, h, 0, size, (void*)((int)img.GetPixels() + offs) );
-			offs += size;
-			w = w / 2;
-			h = h / 2;
-		}
-	}
-	else
-	{
-		if(r->Support.hw_generate_mipmap)
-		{
-			glTexParameteri(target,GL_GENERATE_MIPMAP_SGIS,GL_TRUE);//TODO добавить поддержку glGenerateMipmap из EXT_framebuffer_object
-			glTexImage2D(target,0,format,width,height,0,format,GL_UNSIGNED_BYTE,img.GetPixels());
-		}else{
-			gluBuild2DMipmaps(
-				target,format,img.GetWidth(),img.GetHeight(),
-				format,GL_UNSIGNED_BYTE,img.GetPixels());
-		}
-	};
+	//if(format==GL_COMPRESSED_RGBA_S3TC_DXT1_EXT||
+	//	format==GL_COMPRESSED_RGBA_S3TC_DXT3_EXT||
+	//	format==GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)
+	//{
+	//	//assert(GLEW_GL_ARB_texture_compression);
+	//	int	w    = width;
+	//	int	h    = height;
+	//	int	offs = 0;
+	//	int blockSize;
+	//	int	size;
+	//	if( format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT )
+	//		blockSize = 8;
+	//	else
+	//		blockSize = 16;
+	//	for ( int i = 0; i < img.GetMipMapCount(); i++ )
+	//	{
+	//		if ( w  == 0 )w  = 1;
+	//		if ( h == 0 )h = 1;
+	//		size = ((w+3)/4) * ((h+3)/4) * blockSize;
+	//		//TODO если не поддерживается аппаратное сжатие разжимаем в обычную текстуру
+	//		glCompressedTexImage2DARB ( target, i, format, w, h, 0, size, (void*)((int)img.GetPixels() + offs) );
+	//		offs += size;
+	//		w = w / 2;
+	//		h = h / 2;
+	//	}
+	//}
+	//else
+	//{
+	//	if(r->Support.hw_generate_mipmap)
+	//	{
+	//		glTexParameteri(target,GL_GENERATE_MIPMAP_SGIS,GL_TRUE);//TODO добавить поддержку glGenerateMipmap из EXT_framebuffer_object
+	//		glTexImage2D(target,0,format,width,height,0,format,GL_UNSIGNED_BYTE,img.GetPixels());
+	//	}else{
+	//		gluBuild2DMipmaps(
+	//			target,format,img.GetWidth(),img.GetHeight(),
+	//			format,GL_UNSIGNED_BYTE,img.GetPixels());
+	//	}
+	//};
 
-	glTexParameteri(target, GL_TEXTURE_MIN_FILTER, tex_filters[(int)TTexFilter::Bilinear][min_filter]);
-	glTexParameteri(target, GL_TEXTURE_MAG_FILTER, tex_filters[(int)TTexFilter::Bilinear][mag_filter]);
+	//glTexParameteri(target, GL_TEXTURE_MIN_FILTER, tex_filters[(int)TTexFilter::Bilinear][min_filter]);
+	//glTexParameteri(target, GL_TEXTURE_MAG_FILTER, tex_filters[(int)TTexFilter::Bilinear][mag_filter]);
 
-	desc.clamp = TTexClamp::NONE ;
-	desc.type = TTexType::TEX_2D ;
-	desc.height = height;
-	desc.width = width;
-	desc.format = img.GetFormat();
-	desc.used  = true;
-	desc.filter = TTexFilter::Bilinear;
+	//desc.clamp = TTexClamp::NONE ;
+	//desc.type = TTexType::TEX_2D ;
+	//desc.height = ilGetInteger(IL_IMAGE_HEIGHT);
+	//desc.width = ilGetInteger(IL_IMAGE_WIDTH);
+	//desc.format = GetFormat(ilGetInteger(IL_IMAGE_FORMAT));
+	//desc.used  = true;
+	//desc.filter = TTexFilter::Bilinear;
 	
 	sprintf_s(r->log_buff, " passed\n"); r->log_file.Write(r->log_buff);
 	return result;

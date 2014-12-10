@@ -56,9 +56,9 @@ public:
 		return format;
 	};
 private:
-	bool load_BMP(const char* fname);
-	bool load_DDS(const char* fname);
-	bool load_PNG(const char *fname);
+	//bool load_BMP(const char* fname);
+	//bool load_DDS(const char* fname);
+	//bool load_PNG(const char *fname);
 };
 
 

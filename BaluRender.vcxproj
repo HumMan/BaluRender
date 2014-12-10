@@ -13,63 +13,17 @@
   <ItemGroup>
     <ClCompile Include="Source\baluRender.cpp" />
     <ClCompile Include="Source\images.cpp" />
-    <ClCompile Include="Source\images\bmp.cpp" />
-    <ClCompile Include="Source\images\dds.cpp" />
-    <ClCompile Include="Source\images\png_load.cpp" />
-    <ClCompile Include="Source\png\png.c" />
-    <ClCompile Include="Source\png\pngerror.c" />
-    <ClCompile Include="Source\png\pnggccrd.c" />
-    <ClCompile Include="Source\png\pngget.c" />
-    <ClCompile Include="Source\png\pngmem.c" />
-    <ClCompile Include="Source\png\pngpread.c" />
-    <ClCompile Include="Source\png\pngread.c" />
-    <ClCompile Include="Source\png\pngrio.c" />
-    <ClCompile Include="Source\png\pngrtran.c" />
-    <ClCompile Include="Source\png\pngrutil.c" />
-    <ClCompile Include="Source\png\pngset.c" />
-    <ClCompile Include="Source\png\pngtrans.c" />
-    <ClCompile Include="Source\png\pngvcrd.c" />
-    <ClCompile Include="Source\png\pngwio.c" />
-    <ClCompile Include="Source\png\pngwrite.c" />
-    <ClCompile Include="Source\png\pngwtran.c" />
-    <ClCompile Include="Source\png\pngwutil.c" />
     <ClCompile Include="Source\render\bitmap_font.cpp" />
     <ClCompile Include="Source\render\frame_buffer.cpp" />
     <ClCompile Include="Source\render\shader.cpp" />
     <ClCompile Include="Source\render\texture.cpp" />
     <ClCompile Include="Source\render\tex_font.cpp" />
     <ClCompile Include="Source\render\vertex_buffer.cpp" />
-    <ClCompile Include="Source\zlib\adler32.c" />
-    <ClCompile Include="Source\zlib\compress.c" />
-    <ClCompile Include="Source\zlib\crc32.c" />
-    <ClCompile Include="Source\zlib\deflate.c" />
-    <ClCompile Include="Source\zlib\gzio.c" />
-    <ClCompile Include="Source\zlib\infback.c" />
-    <ClCompile Include="Source\zlib\inffast.c" />
-    <ClCompile Include="Source\zlib\inflate.c" />
-    <ClCompile Include="Source\zlib\inftrees.c" />
-    <ClCompile Include="Source\zlib\minigzip.c" />
-    <ClCompile Include="Source\zlib\trees.c" />
-    <ClCompile Include="Source\zlib\uncompr.c" />
-    <ClCompile Include="Source\zlib\zutil.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\baluRender.h" />
     <ClInclude Include="Source\baluRenderCommon.h" />
     <ClInclude Include="Source\images.h" />
-    <ClInclude Include="Source\png\png.h" />
-    <ClInclude Include="Source\png\pngconf.h" />
-    <ClInclude Include="Source\zlib\crc32.h" />
-    <ClInclude Include="Source\zlib\deflate.h" />
-    <ClInclude Include="Source\zlib\inffast.h" />
-    <ClInclude Include="Source\zlib\inffixed.h" />
-    <ClInclude Include="Source\zlib\inflate.h" />
-    <ClInclude Include="Source\zlib\inftrees.h" />
-    <ClInclude Include="Source\zlib\trees.h" />
-    <ClInclude Include="Source\zlib\zconf.h" />
-    <ClInclude Include="Source\zlib\zconf.in.h" />
-    <ClInclude Include="Source\zlib\zlib.h" />
-    <ClInclude Include="Source\zlib\zutil.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{304DB1F5-BE0B-481A-A517-B97EEB2EE68F}</ProjectGuid>
@@ -112,7 +66,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../BaluLib/Include;$(ProjectDir)/Include;$(ProjectDir)/../freetype-2.5.3/Include;$(ProjectDir)/Source/png;$(ProjectDir)/Source/zlib;$(ProjectDir)/../glew-1.11.0/Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../BaluLib/Include;$(ProjectDir)/Include;$(ProjectDir)/../freetype-2.5.3/Include;$(ProjectDir)/Source/png;$(ProjectDir)/Source/zlib;$(ProjectDir)/../glew-1.11.0/Include;$(ProjectDir)/../DevIL-SDK-x86-1.7.8\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
@@ -121,6 +75,12 @@
       <AdditionalLibraryDirectories>$(ProjectDir)/../glew-1.10.0/Lib/Release/Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Lib>
+      <AdditionalDependencies>DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(ProjectDir)/../DevIL-SDK-x86-1.7.8\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

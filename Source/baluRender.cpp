@@ -2,6 +2,8 @@
 
 #include "baluRenderCommon.h"
 
+#include <IL/ilut.h>
+
 using namespace TBaluRenderEnums;
 
 static const char *glErrorStrings[GL_OUT_OF_MEMORY - GL_INVALID_ENUM + 1] = {
@@ -283,6 +285,22 @@ void TBaluRender::InitInfo()
 void TBaluRender::Initialize(TVec2i use_size)
 {
 	sprintf_s(log_buff,"Initialization...");log_file.Write(log_buff);
+
+	sprintf_s(log_buff, "Loading image library..."); log_file.Write(log_buff);
+	
+	ilInit();
+	iluInit();
+	ilutInit();
+
+	ilEnable(IL_CONV_PAL);
+	ilutRenderer(ILUT_OPENGL);
+	ilSetInteger(IL_KEEP_DXTC_DATA, IL_TRUE);
+	ilutEnable(ILUT_GL_AUTODETECT_TEXTURE_TARGET);
+	ilutEnable(ILUT_OPENGL_CONV);
+	ilutEnable(ILUT_GL_USE_S3TC);
+
+	sprintf_s(log_buff, " passed\n"); log_file.Write(log_buff);
+
 	CheckGLError();
 	Set.r=this;
 	Get.r = this;
