@@ -220,7 +220,7 @@ void MainLoop()
 
 			//glBegin(GL_POINTS);
 
-//#pragma omp parallel for
+#pragma omp parallel for
 			for (int x = 1; x < viewport_width-1; x += 1)
 			{
 				//break;

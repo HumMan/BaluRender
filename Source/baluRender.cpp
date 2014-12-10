@@ -239,6 +239,12 @@ void TBaluRender::InitInfo()
 		sprintf_s(log_buff, "Max texture image units = %i\n", p->max_texture_image_units); log_file.Write(log_buff);
 	}
 
+	{
+		int actualbits;
+		glGetIntegerv(GL_DEPTH_BITS, &actualbits);
+		sprintf_s(log_buff, "Depth bits = %i\n", actualbits); log_file.Write(log_buff);
+	}
+
 	Support.vertex_array = (p->major * 10 + p->minor >= 11);
 	Support.vertex_buffer			=TokenExists(ext,"GL_ARB_vertex_buffer_object");
 	Support.frame_buffer			=TokenExists(ext,"GL_ARB_framebuffer_object");
