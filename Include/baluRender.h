@@ -342,7 +342,7 @@ public:
 	{
 		friend class TBaluRender;TBaluRender* r;
 	public:
-		TTextureId Create(char* fname);
+		TTextureId Create(const char* fname);
 		TTextureId Create(TBaluRenderEnums::TTexType use_type, TFormat use_format,
 			int use_width, int use_height, TBaluRenderEnums::TTexFilter use_filter = TBaluRenderEnums::TTexFilter::Bilinear);
 		void Delete(TTextureId use_tex);

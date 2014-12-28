@@ -288,9 +288,13 @@ void TBaluRender::Initialize(TVec2i use_size)
 
 	sprintf_s(log_buff, "Loading image library..."); log_file.Write(log_buff);
 	
+	CheckGLError();
+
 	ilInit();
 	iluInit();
 	ilutInit();
+
+	CheckGLError();
 
 	ilEnable(IL_CONV_PAL);
 	ilutRenderer(ILUT_OPENGL);

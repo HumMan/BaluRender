@@ -32,7 +32,7 @@ void HandleDevILErrors()
 	}
 }
 
-TTextureId TBaluRender::TTexture::Create(char* fname)
+TTextureId TBaluRender::TTexture::Create(const char* fname)
 {
 	//ilutRenderer(ILUT_OPENGL);
 	ILuint ImgId;
@@ -130,8 +130,8 @@ TTextureId TBaluRender::TTexture::Create(char* fname)
 	//	}
 	//};
 
-	//glTexParameteri(target, GL_TEXTURE_MIN_FILTER, tex_filters[(int)TTexFilter::Bilinear][min_filter]);
-	//glTexParameteri(target, GL_TEXTURE_MAG_FILTER, tex_filters[(int)TTexFilter::Bilinear][mag_filter]);
+	//glTexParameteri(target, GL_TEXTURE_MIN_FILTER, tex_filters[(int)TTexFilter::Nearest][min_filter]);
+	//glTexParameteri(target, GL_TEXTURE_MAG_FILTER, tex_filters[(int)TTexFilter::Nearest][mag_filter]);
 
 	//desc.clamp = TTexClamp::NONE ;
 	//desc.type = TTexType::TEX_2D ;
