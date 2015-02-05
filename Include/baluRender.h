@@ -502,6 +502,15 @@ public:
 		void Func(TBaluRenderEnums::TAlphaTestFunc func, float val);
 	}AlphaTest;
 
+	class TScissorRect
+	{
+		friend class TBaluRender; TBaluRender* r;
+	public:
+
+		void Enable(bool enable);
+		void Box(TVec2i pixel_pos, TVec2i box_size);
+	}ScissorRect;
+
 	//TODO ввести примитив pushAttrib чтобы не делать после каждого блока enable disable чтобы движок сам определял что изменилось и восстанавливал
 	//если сделать такую вещь в текстовом виде объеденив все параметры в один эффект то получится что-то наподобии directx effect
 };

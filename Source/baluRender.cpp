@@ -313,6 +313,7 @@ void TBaluRender::Initialize(TVec2i use_size)
 	VertexBuffer.r=this;
 	Support.r=this;
 	Blend.r=this;
+	ScissorRect.r = this;
 	BitmapFont.r=this;
 	TexFont.r=this;
 
@@ -881,4 +882,16 @@ void TBaluRender::TAlphaTest::Func(char* func,float val)
 void TBaluRender::TAlphaTest::Func(TBaluRenderEnums::TAlphaTestFunc func, float val)
 {
 	glAlphaFunc(alpha_test_funcs[(int)func], val);
+}
+
+void TBaluRender::TScissorRect::Enable(bool enable)
+{
+	if (enable)
+		glEnable(GL_SCISSOR_TEST);
+	else
+		glDisable(GL_SCISSOR_TEST);
+}
+void TBaluRender::TScissorRect::Box(TVec2i pixel_pos, TVec2i box_size)
+{
+	glScissor(pixel_pos[0], pixel_pos[1], box_size[0], box_size[1]);
 }
