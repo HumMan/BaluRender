@@ -26,9 +26,10 @@ void HandleDevILErrors()
 		do {
 			const char* ch = iluErrorString(error);
 			printf("\n\n%s\n", ch);
+			throw std::exception(ch);
 		} while ((error = ilGetError()));
-
-		exit(1);
+		
+		//exit(1);
 	}
 }
 
