@@ -308,6 +308,7 @@ public:
 		friend class TBaluRender; TBaluRender* r;
 	public:
 		TMatrix4 ModelView();
+		TVec2i Viewport();
 	}Get;
 
 	class TVertexBuffer

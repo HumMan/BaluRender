@@ -646,6 +646,13 @@ TMatrix4 TBaluRender::TGet::ModelView()
 	return m;
 }
 
+TVec2i TBaluRender::TGet::Viewport()
+{
+	GLint m_viewport[4];
+	glGetIntegerv(GL_VIEWPORT, m_viewport);
+	return *(TVec2i*)&m_viewport[2];
+}
+
 void TBaluRender::TDepth::Test(bool enable)
 {
 	if(enable)glEnable(GL_DEPTH_TEST);
