@@ -1,3 +1,4 @@
+
 #include "baluRender.h"
 #include "windows.h"
 
@@ -58,7 +59,7 @@ TVertexBufferId pos_buff;
 TVertexBufferId color_buff;
 #endif
 
-TTextureId tex;
+//TTextureId tex;
 
 TMatrix<float, 4> ortho_m, ortho_m_inv;
 
@@ -106,7 +107,7 @@ void Init()
 
 	sprintf_s(render->log_buff, " passed\n"); render->log_file.Write(render->log_buff);
 
-	tex = render->Texture.Create("frame_3.png");
+	//tex = render->Texture.Create("frame_3.png");
 
 	for (int i = 0; i<balls_count; i++)
 	{
@@ -167,7 +168,7 @@ void MainLoop()
 	if (time.GetDelta()<0.001)return;
 	time.Tick();
 
-	action = KeyDown(TBaluVirtKey::LButton) ? 1 : (KeyDown(TBaluVirtKey::RButton) ? -1 : 0);
+	action = KeyDown(VK_LBUTTON) ? 1 : (KeyDown(VK_RBUTTON) ? -1 : 0);
 	{
 		TVec2i temp = GetCursorPos();
 		TVec2 tt = render->ScreenToClipSpace(temp[0], temp[1]);
@@ -221,7 +222,7 @@ void MainLoop()
 			streams.AddStream(TStream::Vertex, TDataType::Float, 3, &q);
 			streams.AddStream(TStream::TexCoord, 0, TDataType::Float, 2, &t);
 			render->Texture.Enable(true);
-			render->Texture.Bind(tex);
+			//render->Texture.Bind(tex);
 			render->Set.Color(1, 1, 1, 1);
 			render->Set.Projection(TMatrix<float, 4>::GetIdentity());
 			render->Draw(streams, TPrimitive::Quads, 4);

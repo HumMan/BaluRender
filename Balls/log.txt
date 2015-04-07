@@ -1,5 +1,6 @@
 Context creation... passed
-Initialization... passed
+Initialization...Loading image library... passed
+ passed
 OpenGL INFO START:
 4.2.0
 Quadro K2000D/PCIe/SSE2
@@ -7,6 +8,7 @@ NVIDIA Corporation
 Max texture units = 4
 Max vertex texture units = 32
 Max texture image units = 32
+Depth bits = 24
 Max aniso = 16
 GL_AMD_multi_draw_indirect
 GL_AMD_seamless_cubemap_per_texture
@@ -289,4 +291,4 @@ WGL_EXT_swap_control
 OpenGL INFO END:
 Creating threads... passed
 Render setup... passed
-Texture loading (frame_3.png)...VBuffers creation... passed
+VBuffers creation... passed

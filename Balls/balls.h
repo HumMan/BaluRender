@@ -25,7 +25,7 @@ static const float ball_rad = 0.5;
 static const int block_size = 1;
 
 #define USE_COLOR
-#define D1
+#define D2
 
 #ifdef D1
 static const int room_size = 125;
