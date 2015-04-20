@@ -344,13 +344,13 @@ void TBaluRender::Initialize(TVec2i use_size)
 	CheckGLError();
 }
 
-TBaluRender::TBaluRender(TVec2i use_size) :log_file("log.txt", "w+")
+TBaluRender::TBaluRender(TVec2i use_size, std::string log_file_path) :log_file(log_file_path.c_str(), "w+")
 {
 	p.reset(new TBaluRenderInternal());
 	Initialize(use_size);
 }
 
-TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size) : log_file("log.txt", "w+")
+TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size, std::string log_file_path) : log_file(log_file_path.c_str(), "w+")
 {
 	p.reset(new TBaluRenderInternal());
 

@@ -235,8 +235,8 @@ public:
 	TFileData log_file;
 	char log_buff[102];
 
-	TBaluRender(TVec2i use_size);
-	TBaluRender(int use_window_handle,TVec2i use_size);
+	TBaluRender(TVec2i use_size, std::string log_file_path);
+	TBaluRender(int use_window_handle, TVec2i use_size, std::string log_file_path);
 	~TBaluRender();
 
 	void BeginScene();
