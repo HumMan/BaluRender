@@ -284,7 +284,7 @@ void TBaluRender::InitInfo()
 
 void TBaluRender::Initialize(TVec2i use_size)
 {
-	sprintf_s(log_buff,"Initialization...");log_file.Write(log_buff);
+	sprintf_s(log_buff,"Initialization...\n");log_file.Write(log_buff);
 
 	sprintf_s(log_buff, "Loading image library..."); log_file.Write(log_buff);
 	
@@ -325,11 +325,11 @@ void TBaluRender::Initialize(TVec2i use_size)
 	if (GLEW_OK != err)
 	{
 		/* Problem: glewInit failed, something is seriously wrong. */
-		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+		sprintf_s(log_buff, "Error: %s\n", glewGetErrorString(err)); log_file.Write(log_buff);
 	}
-	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+	sprintf_s(log_buff, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION)); log_file.Write(log_buff);
 
-	sprintf_s(log_buff," passed\n");log_file.Write(log_buff);
+	sprintf_s(log_buff,"\n");log_file.Write(log_buff);
 
 	InitInfo();
 

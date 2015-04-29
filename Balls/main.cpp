@@ -267,7 +267,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	//sprintf_s(render->log_buff, "Render creation..."); render->log_file.Write(render->log_buff);
 
-	render = new TBaluRender((int)hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top));
+	render = new TBaluRender((int)hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top), "balls.log");
 
 	Init();
 

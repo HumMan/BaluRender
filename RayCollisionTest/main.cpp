@@ -384,7 +384,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 
-	render = new TBaluRender((int)hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top));
+	render = new TBaluRender((int)hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top), "raytrace.log");
 
 	Init();
 
