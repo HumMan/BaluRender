@@ -69,6 +69,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)/../BaluLib/Include;$(ProjectDir)/Include;$(ProjectDir)/../freetype-2.5.3/Include;$(ProjectDir)/Source/png;$(ProjectDir)/Source/zlib;$(ProjectDir)/../glew-1.11.0/Include;$(ProjectDir)/../DevIL-SDK-x86-1.7.8\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
