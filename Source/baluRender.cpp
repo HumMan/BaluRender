@@ -384,6 +384,8 @@ TBaluRender::~TBaluRender()
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext((HGLRC)p->hRC);
 	ReleaseDC((HWND)p->hWnd, (HDC)p->hDC);
+
+	ilShutDown();
 }
 
 void TBaluRender::BeginScene()
