@@ -62,15 +62,15 @@ TVec<unsigned char, 4>* raytracer_color_buffer;
 
 void Init()
 {
-	//for(int i=0;i<1;i++)
-	//	for(int k=0;k<1;k++)
-	//		for(int t=0;t<1;t++)
-	//			volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TAABB<float, 3>(TVec3(i * 4, k * 4, t * 4), TVec3(1, 1, 1))));
+	for(int i=0;i<1;i++)
+		for(int k=0;k<1;k++)
+			for(int t=0;t<1;t++)
+				volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TAABB<float, 3>(TVec3(i * 4, k * 4, t * 4), TVec3(1, 1, 1))));
 
-	//for(int i=0;i<1;i++)
-	//	for(int k=0;k<1;k++)
-	//		for(int t=0;t<1;t++)
-	//			volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TSphere<float, 3>(TVec3(i * 4, k * 4, t * 4 + 6), 1)));
+	for(int i=0;i<1;i++)
+		for(int k=0;k<1;k++)
+			for(int t=0;t<1;t++)
+				volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TSphere<float, 3>(TVec3(i * 4, k * 4, t * 4 + 6), 1)));
 
 	//for(int i=0;i<1;i++)
 	//	for(int k=0;k<1;k++)
@@ -97,7 +97,6 @@ void Init()
 				v1.MakeRandom();
 				v1 = v0 + v1 * 3;
 				volumes.push_back(std::unique_ptr<TBVolume<float, 3>>(new TCapsule<float, 3>(v0, v1, 2)));
-				//volumes.Push(new TCapsule<float,3>(TVec3(5,0,-8),TVec3(8,0,-5),2));
 			}
 		}
 	}
@@ -220,7 +219,7 @@ void MainLoop()
 
 			//glBegin(GL_POINTS);
 
-#pragma omp parallel for
+//#pragma omp parallel for
 			for (int x = 1; x < viewport_width-1; x += 1)
 			{
 				//break;
@@ -242,7 +241,7 @@ void MainLoop()
 
 					//TVec3 color(0, 0, 1);
 					TVec<unsigned char, 4> color(0, 0, 1);
-
+					color = TVec<unsigned char, 4>(0, 0.2 * 255, 0.2 * 255, 255);
 					for (int k = 0; k < volumes.size(); k++)
 					{
 						//float t, t0, t1, t2, t3;
@@ -285,9 +284,9 @@ void MainLoop()
 						}
 						else
 						{
-							color = TVec<unsigned char, 4>(0, 0.2 * 255, 0.2 * 255,255);
+							//color = TVec<unsigned char, 4>(0, 0.2 * 255, 0.2 * 255,255);
 							//render->Set.Color(0, 0.2, 0.2, 1);
-							break;
+							//break;
 						}
 
 						//if (c0&&c1&&c2&&c3)
