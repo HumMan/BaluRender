@@ -4,6 +4,8 @@
 
 #include <IL/ilut.h>
 
+#include <easylogging++.h>
+
 using namespace TBaluRenderEnums;
 
 static const char *glErrorStrings[GL_OUT_OF_MEMORY - GL_INVALID_ENUM + 1] = {
@@ -124,8 +126,7 @@ void CheckGLError()
 	if((err=glGetError())!=GL_NO_ERROR)
 	{
 		const char* err_string = GetGLErrorString(err);
-		MessageBoxA(0, err_string, "OpenGL error!", MB_OK | MB_ICONERROR);
-		assert(0);
+		LOG(ERROR) << err_string;
 	}
 }
 
@@ -212,7 +213,7 @@ bool TokenExists(char* use_string,char* use_token)
 
 void TBaluRender::InitInfo()
 {
-	sprintf_s(log_buff,"OpenGL INFO START:\n");log_file.Write(log_buff);
+	LOG(INFO) << "OpenGL INFO START:";
 
 	int ext_len=strlen((char *)glGetString(GL_EXTENSIONS));
 	char* ext=new char[ext_len+1]; 
@@ -220,31 +221,32 @@ void TBaluRender::InitInfo()
 	strcpy_s(ext, ext_len+1,gl_ext_string);
 
 	const char* version = (const char*)glGetString( GL_VERSION );
-	sscanf_s(version, "%d.%d\n", &p->major, &p->minor);
-	log_file.Write(version);
-	log_file.Write("\n");
+	sscanf_s(version, "%d.%d", &p->major, &p->minor);
+	LOG(INFO) << version;
 
-	log_file.Write((const char*)glGetString( GL_RENDERER));
-	log_file.Write("\n");
-	log_file.Write((const char*)glGetString( GL_VENDOR));
-	log_file.Write("\n");
+	LOG(INFO) << (const char*)glGetString( GL_RENDERER);
+	LOG(INFO) << (const char*)glGetString( GL_VENDOR);
 
 	Support.multitexturing			=TokenExists(ext,"GL_ARB_multitexture");
 	
 	if(Support.multitexturing)
 	{
 		glGetIntegerv(GL_MAX_TEXTURE_UNITS, &p->max_texture_units);
-		sprintf_s(log_buff, "Max texture units = %i\n", p->max_texture_units); log_file.Write(log_buff);
+		sprintf_s(log_buff, "Max texture units = %i", p->max_texture_units); 
+		LOG(INFO) << log_buff;
 		glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &p->max_vertex_texture_image_units);
-		sprintf_s(log_buff, "Max vertex texture units = %i\n", p->max_vertex_texture_image_units); log_file.Write(log_buff);
+		sprintf_s(log_buff, "Max vertex texture units = %i", p->max_vertex_texture_image_units);
+		LOG(INFO) << log_buff;
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &p->max_texture_image_units);
-		sprintf_s(log_buff, "Max texture image units = %i\n", p->max_texture_image_units); log_file.Write(log_buff);
+		sprintf_s(log_buff, "Max texture image units = %i", p->max_texture_image_units);
+		LOG(INFO) << log_buff;
 	}
 
 	{
 		int actualbits;
 		glGetIntegerv(GL_DEPTH_BITS, &actualbits);
-		sprintf_s(log_buff, "Depth bits = %i\n", actualbits); log_file.Write(log_buff);
+		sprintf_s(log_buff, "Depth bits = %i", actualbits);
+		LOG(INFO) << log_buff;
 	}
 
 	Support.vertex_array = (p->major * 10 + p->minor >= 11);
@@ -259,7 +261,8 @@ void TBaluRender::InitInfo()
 	if(Support.anisotropic_filter)
 	{
 		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &p->max_aniso);
-		sprintf_s(log_buff, "Max aniso = %i\n", p->max_aniso); log_file.Write(log_buff);
+		sprintf_s(log_buff, "Max aniso = %i", p->max_aniso);
+		LOG(INFO) << log_buff;
 	}
 
 	Support.npot_texture			=TokenExists(ext,"GL_ARB_texture_non_power_of_two");
@@ -275,18 +278,22 @@ void TBaluRender::InitInfo()
 		if(*c==' ')*c='\n';
 		c++;
 	}
-	log_file.Write(ext);
+
+	LOG(INFO) << ext;
 
 	delete[] ext;
 
-	sprintf_s(log_buff,"\nOpenGL INFO END:\n");log_file.Write(log_buff);
+	sprintf_s(log_buff, "OpenGL INFO END:");
+	LOG(INFO) << log_buff;
 }
 
 void TBaluRender::Initialize(TVec2i use_size)
 {
-	sprintf_s(log_buff,"Initialization...\n");log_file.Write(log_buff);
+	sprintf_s(log_buff, "Initialization...");
+	LOG(INFO) << log_buff;
 
-	sprintf_s(log_buff, "Loading image library..."); log_file.Write(log_buff);
+	sprintf_s(log_buff, "Loading image library...");
+	LOG(INFO) << log_buff;
 	
 	CheckGLError();
 
@@ -303,7 +310,8 @@ void TBaluRender::Initialize(TVec2i use_size)
 	ilutEnable(ILUT_OPENGL_CONV);
 	ilutEnable(ILUT_GL_USE_S3TC);
 
-	sprintf_s(log_buff, " passed\n"); log_file.Write(log_buff);
+	sprintf_s(log_buff, " passed");
+	LOG(INFO) << log_buff;
 
 	CheckGLError();
 	Set.r=this;
@@ -325,11 +333,11 @@ void TBaluRender::Initialize(TVec2i use_size)
 	if (GLEW_OK != err)
 	{
 		/* Problem: glewInit failed, something is seriously wrong. */
-		sprintf_s(log_buff, "Error: %s\n", glewGetErrorString(err)); log_file.Write(log_buff);
+		sprintf_s(log_buff, "Error: %s", glewGetErrorString(err));
+		LOG(INFO) << log_buff;
 	}
-	sprintf_s(log_buff, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION)); log_file.Write(log_buff);
-
-	sprintf_s(log_buff,"\n");log_file.Write(log_buff);
+	sprintf_s(log_buff, "Status: Using GLEW %s", glewGetString(GLEW_VERSION));
+	LOG(INFO) << log_buff;
 
 	InitInfo();
 
@@ -344,17 +352,18 @@ void TBaluRender::Initialize(TVec2i use_size)
 	CheckGLError();
 }
 
-TBaluRender::TBaluRender(TVec2i use_size, std::string log_file_path) :log_file(log_file_path.c_str(), "w+")
+TBaluRender::TBaluRender(TVec2i use_size)
 {
 	p.reset(new TBaluRenderInternal());
 	Initialize(use_size);
 }
 
-TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size, std::string log_file_path) : log_file(log_file_path.c_str(), "w+")
+TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size)
 {
 	p.reset(new TBaluRenderInternal());
 
-	sprintf_s(log_buff,"Context creation...");log_file.Write(log_buff);
+	sprintf_s(log_buff, "Context creation...");
+	LOG(INFO) << log_buff;
 
 	p->hWnd=*(HWND*)&use_window_handle;
 	p->hDC = GetDC(p->hWnd);
@@ -374,7 +383,8 @@ TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size, std::string log
 	CheckGLError();
 	if (!wglMakeCurrent(p->hDC, p->hRC))assert(false);
 	CheckGLError();
-	sprintf_s(log_buff," passed\n");log_file.Write(log_buff);
+	sprintf_s(log_buff, "Context creation passed");
+	LOG(INFO) << log_buff;
 
 	Initialize(use_size);
 }

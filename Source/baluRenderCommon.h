@@ -30,6 +30,7 @@ inline TFormat GetFormat(GLint gl_format)
 			return (TFormat)i;
 }
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 class TBaluRenderInternal

@@ -4,6 +4,8 @@
 
 #include <IL/ilut.h>
 
+#include <easylogging++.h>
+
 using namespace TBaluRenderEnums;
 
 const bool mag_filter=0;      
@@ -26,15 +28,14 @@ void HandleDevILErrors()
 		do {
 			const char* ch = iluErrorString(error);
 			printf("\n\n%s\n", ch);
-			throw std::exception(ch);
+			LOG(ERROR) << ch;
 		} while ((error = ilGetError()));
-		
-		//exit(1);
 	}
 }
 
 TTextureId TBaluRender::TTexture::Create(const char* fname)
 {
+	LOG(INFO) << "Start create image: "<< fname;
 	//ilutRenderer(ILUT_OPENGL);
 	ILuint ImgId;
 	ilGenImages(1, &ImgId);
@@ -142,7 +143,7 @@ TTextureId TBaluRender::TTexture::Create(const char* fname)
 	//desc.used  = true;
 	//desc.filter = TTexFilter::Bilinear;
 	
-	sprintf_s(r->log_buff, " passed\n"); r->log_file.Write(r->log_buff);
+	LOG(INFO) << "End create image";
 	return result;
 }
 
