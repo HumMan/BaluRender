@@ -5,9 +5,26 @@
 
 #include <GL\GL.h>
 
-#include "../../BaluLib/Source/bVolumes.h"
+#include <baluLib.h>
 
+using namespace BaluRender;
+
+using namespace BaluLib;
 using namespace TBaluRenderEnums;
+
+
+
+bool KeyDown(int button)
+{
+	return (GetKeyState(button) & 0x8000);
+}
+
+TVec2i GetCursorPos()
+{
+	POINT point;
+	GetCursorPos(&point);
+	return TVec2i(point.x, point.y);
+}
 
 TBaluRender* render;
 TTime time;
@@ -182,7 +199,29 @@ void MainLoop()
 		SetWindowText(hWnd, buf);
 	}
 
-	cam->Update(time.GetTick());
+	{
+		float s = (KeyDown(VK_SHIFT) ? 3 : 1);
+		TFPSCamera::Key key(TFPSCamera::Key::None);
+		if (KeyDown('A')){
+			key = TFPSCamera::Key::Left;
+		}
+		if (KeyDown('D')){
+			key = TFPSCamera::Key::Right;
+		}
+		if (KeyDown('S')){
+			key = TFPSCamera::Key::Down;
+		}
+		if (KeyDown('W')){
+			key = TFPSCamera::Key::Up;
+		}
+
+		cam->KeyDown(key, time.GetTick(), s);
+		auto mouse_pos = GetCursorPos();
+		cam->MouseMove(mouse_pos[0], mouse_pos[1]);
+		SetCursorPos(100, 100);
+		cam->UpdateView();
+	}
+
 	CheckGLError();
 
 	render->BeginScene();
@@ -383,7 +422,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 
-	render = new TBaluRender((int)hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top), "raytrace.log");
+	render = new TBaluRender((int)hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top));
 
 	Init();
 

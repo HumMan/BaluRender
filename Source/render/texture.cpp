@@ -1,5 +1,7 @@
 #include "../../Include/baluRender.h"
 
+using namespace BaluRender;
+
 #include "../baluRenderCommon.h"
 
 #include <IL/ilut.h>

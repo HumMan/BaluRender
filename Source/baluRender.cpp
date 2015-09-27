@@ -1,5 +1,7 @@
 ﻿#include <baluRender.h>
 
+using namespace BaluRender;
+
 #include "baluRenderCommon.h"
 
 #include <IL/ilut.h>
@@ -120,7 +122,7 @@ const char* GetGLErrorString(GLenum errorCode){
 	return (const char *) "Generic error";
 }
 
-void CheckGLError()
+void BaluRender::CheckGLError()
 {
 	GLenum err;
 	if((err=glGetError())!=GL_NO_ERROR)
