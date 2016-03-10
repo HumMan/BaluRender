@@ -863,9 +863,12 @@ void TBaluRender::TBlend::Func(TVec4 blend_color,char* func){
 
 void TBaluRender::TBlend::Func(TBlendEquation left, TBlendFunc op, TBlendEquation right)
 {
-	glBlendEquation(blend_funcs[(int)op]);
-	glBlendFunc(blend_equations[(int)left], blend_equations[(int)right]);
-	CheckGLError();
+	if (GLEW_VERSION_1_4)
+	{
+		glBlendEquation(blend_funcs[(int)op]);
+		glBlendFunc(blend_equations[(int)left], blend_equations[(int)right]);
+		CheckGLError();
+	}
 }
 
 void TBaluRender::TAlphaTest::Enable(bool enable)
