@@ -25,6 +25,9 @@
     <ClInclude Include="Source\baluRenderCommon.h" />
     <ClInclude Include="Source\images.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{304DB1F5-BE0B-481A-A517-B97EEB2EE68F}</ProjectGuid>
     <RootNamespace>BaluRender</RootNamespace>
@@ -52,7 +55,9 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <NuGetPackageImportStamp>96ca7dda</NuGetPackageImportStamp>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)\Library\$(Configuration)\</OutDir>
     <IntDir>obj\$(Configuration)\</IntDir>
@@ -66,7 +71,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../BaluLib/Include;$(ProjectDir)/Include;$(ProjectDir)/../freetype-2.5.3/Include;$(ProjectDir)/Source/png;$(ProjectDir)/Source/zlib;$(ProjectDir)/../glew-1.11.0/Include;$(ProjectDir)/../DevIL-SDK-x86-1.7.8\include\;$(ProjectDir)\..\easyloggingpp\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../BaluLib/Include;$(ProjectDir)/Include;$(ProjectDir)\..\easyloggingpp\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;ELPP_WINSOCK2;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -77,10 +82,10 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>$(ProjectDir)/../DevIL-SDK-x86-1.7.8\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -90,7 +95,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../BaluLib/Include;$(ProjectDir)/Include;$(ProjectDir)/../freetype-2.5.3/Include;$(ProjectDir)/Source/png;$(ProjectDir)/Source/zlib;$(ProjectDir)/../glew-1.11.0/Include;$(ProjectDir)/../DevIL-SDK-x86-1.7.8\include\;$(ProjectDir)\..\easyloggingpp\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../BaluLib/Include;$(ProjectDir)/Include;$(ProjectDir)\..\easyloggingpp\src\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;ELPP_WINSOCK2;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
@@ -100,11 +105,28 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <Lib>
-      <AdditionalDependencies>DevIL.lib;ILU.lib;ILUT.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ProjectDir)/../DevIL-SDK-x86-1.7.8\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\glew.v140.1.12.0\build\native\glew.v140.targets" Condition="Exists('packages\glew.v140.1.12.0\build\native\glew.v140.targets')" />
+    <Import Project="packages\freetype.redist.2.6.2.1\build\native\freetype.redist.targets" Condition="Exists('packages\freetype.redist.2.6.2.1\build\native\freetype.redist.targets')" />
+    <Import Project="packages\freetype.2.6.2.1\build\native\freetype.targets" Condition="Exists('packages\freetype.2.6.2.1\build\native\freetype.targets')" />
+    <Import Project="packages\DevIL.redist.1.7.8\build\native\DevIL.redist.targets" Condition="Exists('packages\DevIL.redist.1.7.8\build\native\DevIL.redist.targets')" />
+    <Import Project="packages\DevIL.1.7.8\build\native\DevIL.targets" Condition="Exists('packages\DevIL.1.7.8\build\native\DevIL.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\glew.v140.1.12.0\build\native\glew.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\glew.v140.1.12.0\build\native\glew.v140.targets'))" />
+    <Error Condition="!Exists('packages\freetype.redist.2.6.2.1\build\native\freetype.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\freetype.redist.2.6.2.1\build\native\freetype.redist.targets'))" />
+    <Error Condition="!Exists('packages\freetype.2.6.2.1\build\native\freetype.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\freetype.2.6.2.1\build\native\freetype.targets'))" />
+    <Error Condition="!Exists('packages\DevIL.redist.1.7.8\build\native\DevIL.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\DevIL.redist.1.7.8\build\native\DevIL.redist.targets'))" />
+    <Error Condition="!Exists('packages\DevIL.1.7.8\build\native\DevIL.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\DevIL.1.7.8\build\native\DevIL.targets'))" />
+  </Target>
 </Project>

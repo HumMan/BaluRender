@@ -12,8 +12,6 @@ using namespace BaluRender;
 using namespace BaluLib;
 using namespace TBaluRenderEnums;
 
-
-
 bool KeyDown(int button)
 {
 	return (GetKeyState(button) & 0x8000);
