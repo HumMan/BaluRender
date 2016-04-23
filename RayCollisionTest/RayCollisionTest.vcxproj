@@ -46,7 +46,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../Include;$(ProjectDir)/../../BaluLib/Include;$(ProjectDir)\..\../easyloggingpp\src\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../Include;$(ProjectDir)/../BaluLib/Include;$(ProjectDir)\..\easyloggingpp\src\</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDLL;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -62,7 +62,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)/../Include;$(ProjectDir)/../../BaluLib/Include;$(ProjectDir)\..\../easyloggingpp\src\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)/../Include;$(ProjectDir)/../BaluLib/Include;$(ProjectDir)\..\easyloggingpp\src\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>

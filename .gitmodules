@@ -1,0 +1,6 @@
+[submodule "easyloggingpp"]
+	path = easyloggingpp
+	url = ../../easylogging/easyloggingpp.git
+[submodule "BaluLib"]
+	path = BaluLib
+	url = ../BaluLib.git
