@@ -1,6 +1,6 @@
 [submodule "easyloggingpp"]
 	path = easyloggingpp
-	url = ../../easylogging/easyloggingpp.git
+	url = git://github.com/easylogging/easyloggingpp.git
 [submodule "BaluLib"]
 	path = BaluLib
-	url = ../BaluLib.git
+	url = git://github.com/HumMan/BaluLib.git
