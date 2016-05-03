@@ -27,7 +27,7 @@ include_directories(${GLEW_INCLUDE_DIRS})
 find_package(DevIL REQUIRED)
 include_directories(${IL_INCLUDE_DIR})
 
-find_package(FREETYPE REQUIRED)
+find_package(Freetype REQUIRED)
 include_directories(${FREETYPE_INCLUDE_DIRS})
 
 add_library(BaluRender ${BaluRender_SRC})

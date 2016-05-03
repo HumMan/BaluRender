@@ -6,7 +6,7 @@
 
 using namespace BaluLib;
 
-#include "..\Source\images.h"
+#include "../Source/images.h"
 
 namespace TBaluRenderEnums
 {
@@ -629,11 +629,11 @@ namespace BaluRender
 		}
 	};
 
-	template <class T, int size>
+	template <class T, int Size>
 	struct TQuad
 	{
-		TVec<T, size> v[4];
-		TVec<T, size>& operator[](int id)
+		TVec<T, Size> v[4];
+		TVec<T, Size>& operator[](int id)
 		{
 			assert(id >= 0 && id < 4);
 			return v[id];

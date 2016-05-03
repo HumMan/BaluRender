@@ -10,6 +10,22 @@ using namespace BaluRender;
 
 using namespace TBaluRenderEnums;
 
+#if defined(WIN32)||defined(_WIN32)
+#else
+void strcpy_s(char* buf, char* value)
+{
+	strcpy(buf,value);
+}
+void strcpy_s(char* buf, int len, char* value)
+{
+	strcpy(buf,value);
+}
+
+#define sprintf_s sprintf
+#define sscanf_s sscanf
+#endif
+
+
 static const char *glErrorStrings[GL_OUT_OF_MEMORY - GL_INVALID_ENUM + 1] = {
 	"Invalid enumerant",
 	"Invalid value",
@@ -367,6 +383,7 @@ TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size)
 	sprintf_s(log_buff, "Context creation...");
 	LOG(INFO) << log_buff;
 
+#if defined(WIN32)||defined(_WIN32)
 	p->hWnd=*(HWND*)&use_window_handle;
 	p->hDC = GetDC(p->hWnd);
 	PIXELFORMATDESCRIPTOR pfd;
@@ -387,27 +404,33 @@ TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size)
 	CheckGLError();
 	sprintf_s(log_buff, "Context creation passed");
 	LOG(INFO) << log_buff;
+#endif
 
 	Initialize(use_size);
 }
 
 TBaluRender::~TBaluRender()
 {
+#if defined(WIN32)||defined(_WIN32)
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext((HGLRC)p->hRC);
 	ReleaseDC((HWND)p->hWnd, (HDC)p->hDC);
-
+#endif
 	ilShutDown();
 }
 
 void TBaluRender::BeginScene()
 {
+#if defined(WIN32)||defined(_WIN32)
 	if (!wglMakeCurrent((HDC)p->hDC, (HGLRC)p->hRC))assert(false);
 	CheckGLError();
+#endif
 }
 void TBaluRender::EndScene()
 {
+#if defined(WIN32)||defined(_WIN32)
 	SwapBuffers((HDC)p->hDC);
+#endif
 }
 
 TVec2i TBaluRender::ScreenSize(){
@@ -415,11 +438,13 @@ TVec2i TBaluRender::ScreenSize(){
 }
 
 TVec2 TBaluRender::ScreenToClipSpace(int x,int y){
+#if defined(WIN32)||defined(_WIN32)
 	tagPOINT point;
 	point.x = x;
 	point.y = y;
 	ScreenToClient((HWND)p->hWnd, &point);
 	return TVec2(point.x / float(p->screen_size[0]), 1.0 - point.y / float(p->screen_size[1]))*2.0 - TVec2(1.0, 1.0);
+#endif
 }
 
 TVec2 TBaluRender::WindowToClipSpace(int x,int y){
@@ -609,19 +634,23 @@ void TBaluRender::TSet::Viewport(TVec2i use_size)
 
 void TBaluRender::TSet::VSync(bool use_vsync) 
 {
+#if defined(WIN32)||defined(_WIN32)
 	PFNWGLSWAPINTERVALEXTPROC wglSwapInterval = NULL;
 	wglSwapInterval = (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress("wglSwapIntervalEXT");
 	if ( wglSwapInterval ) wglSwapInterval(use_vsync);
+#endif
 }
 
 void TBaluRender::TSet::Color(float r,float g,float b)
 {
-	glColor3fv((GLfloat*)&TVec3(r,g,b));
+	auto temp = TVec3(r,g,b);
+	glColor3fv((GLfloat*)&temp);
 }
 
 void TBaluRender::TSet::Color(float r,float g,float b,float a)
 {
-	glColor4fv((GLfloat*)&TVec4(r,g,b,a));
+	auto temp = TVec4(r,g,b,a);
+	glColor4fv((GLfloat*)&temp);
 }
 
 void TBaluRender::TSet::ClearColor(float r,float g,float b,float a)
