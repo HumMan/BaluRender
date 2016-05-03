@@ -1,4 +1,4 @@
-#include "../../Include/baluRender.h"
+п»ї#include "../../Include/baluRender.h"
 
 using namespace BaluRender;
 
@@ -18,10 +18,10 @@ struct TGlyphPacker
 	struct TGlyph
 	{
 		TVec2i pos,size;
-		TVec2 tex_coords[4]; // обход прямоугольника CCW ???
+		TVec2 tex_coords[4]; // РѕР±С…РѕРґ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРєР° CCW
 		TGlyph(TVec2i use_pos,TVec2i use_size):pos(use_pos),size(use_size)
 		{
-			TVec2i t;//TODO походу надо зеркалировать
+			TVec2i t;//TODO РїРѕС…РѕРґСѓ РЅР°РґРѕ Р·РµСЂРєР°Р»РёСЂРѕРІР°С‚СЊ
 			t=(pos+size.ComponentMul(TVec2i(0,0)))*(1.0/tex_size);
 			tex_coords[0]=TVec2(t[0],t[1]);
 			t=(pos+size.ComponentMul(TVec2i(0,1)))*(1.0/tex_size);
@@ -69,7 +69,7 @@ struct TGlyphPacker
 #if PLATFORM==PLATFORM_WIN32
 #  define FREETYPE_PLATFORM TT_PLATFORM_MICROSOFT
 #  define FREETYPE_ENCODING TT_MS_ID_UNICODE_CS
-#elif PLATFORM==PLATFORM_LINUX // не проверено - в документации по этому поводу как-то коряво написано
+#elif PLATFORM==PLATFORM_LINUX // РЅРµ РїСЂРѕРІРµСЂРµРЅРѕ - РІ РґРѕРєСѓРјРµРЅС‚Р°С†РёРё РїРѕ СЌС‚РѕРјСѓ РїРѕРІРѕРґСѓ РєР°Рє-С‚Рѕ РєРѕСЂСЏРІРѕ РЅР°РїРёСЃР°РЅРѕ
 #  define FREETYPE_PLATFORM TT_PLATFORM_APPLE_UNICODE
 #  define FREETYPE_ENCODING TT_APPLE_ID_DEFAULT
 #endif
@@ -116,8 +116,8 @@ TTexFontId TBaluRender::TTexFont::Create()
 	unsigned char* buff = new unsigned char[sqr(tex_size)*2];
 	memset(buff,0,sqr(tex_size)*2);
 
-	wchar_t text[]=L"_ абвгдеёжзиклмноНОПРСТУФХЦЧШЩЭЮЯ _abcdefg__ЯЯЯ__??????,?????????dsf;jдвыоа";
-	int len=wcslen(text);
+	char text[]=L"_abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ";
+	int len=strlen(text);
 
 	for(int i=0;i<len;i++)
 	{
