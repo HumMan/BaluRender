@@ -9,6 +9,7 @@ source_group(Balls FILES ${Balls_SRC})
 
 include_directories(${BaluRender_SOURCE_DIR}/Include)
 include_directories(${BaluLib_SOURCE_DIR}/Include)
+
 if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
 endif()

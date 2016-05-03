@@ -6,6 +6,23 @@ using namespace BaluRender;
 
 using namespace TBaluRenderEnums;
 
+#include <string.h>
+
+#if defined(WIN32)||defined(_WIN32)
+#else
+void strcpy_s(char* buf, char* value)
+{
+	strcpy(buf,value);
+}
+void strcpy_s(char* buf, int len, char* value)
+{
+	strcpy(buf,value);
+}
+
+#define sprintf_s sprintf
+#define sscanf_s sscanf
+#endif
+
 const GLenum asm_shader_type[]=
 {
 	GL_VERTEX_PROGRAM_ARB,
@@ -27,8 +44,8 @@ void TBaluRender::TShader::LoadShaderASM(const int& id, const TShaderType use_ty
     if ( glGetError () == GL_INVALID_OPERATION )
     {
 		char s[100];
-		sprintf_s(s, 100, "%s shader compile error", (int)use_type == 0 ? "Vertex" : "Fragment");
-        MessageBoxA(0,(char*)glGetString ( GL_PROGRAM_ERROR_STRING_ARB ),s,MB_OK);
+		sprintf_s(s,"%s shader compile error", (int)use_type == 0 ? "Vertex" : "Fragment");
+        //MessageBoxA(0,(char*)glGetString ( GL_PROGRAM_ERROR_STRING_ARB ),s,MB_OK);
 		exit(0);
     }
 	glBindProgramARB(type,0);
@@ -52,8 +69,8 @@ void TBaluRender::TShader::LoadShaderGLSL(const int use_shader,const char* use_s
 		int chars_written;
 		char buf[2048];
 		glGetInfoLogARB(use_shader,sizeof(buf),&chars_written,buf);
-		MessageBoxA(0,buf,"Shader compile error:",MB_OK);
-		MessageBoxA(0,use_source,"Source:",MB_OK);
+		//MessageBoxA(0,buf,"Shader compile error:",MB_OK);
+		//MessageBoxA(0,use_source,"Source:",MB_OK);
 	}
 }
 
@@ -75,7 +92,7 @@ TShaderId TBaluRender::TShader::LoadGLSL(const char* use_vsource,const char* use
 		int chars_written;
 		char buf[2048];
 		glGetInfoLogARB(program_object,sizeof(buf),&chars_written,buf);
-		MessageBoxA(0,buf,"Shader link error:",MB_OK);
+		//MessageBoxA(0,buf,"Shader link error:",MB_OK);
 	}
 	TShaderId result;
 	result.id = program_object;

@@ -116,7 +116,7 @@ TTexFontId TBaluRender::TTexFont::Create()
 	unsigned char* buff = new unsigned char[sqr(tex_size)*2];
 	memset(buff,0,sqr(tex_size)*2);
 
-	char text[]=L"_abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ";
+	char text[]="_abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ";
 	int len=strlen(text);
 
 	for(int i=0;i<len;i++)
