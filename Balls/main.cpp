@@ -1,7 +1,6 @@
 
 #include "baluRender.h"
 
-#include "balls.h"
 
 #ifdef _MSC_VER // Windows
 #include <windows.h>
@@ -12,6 +11,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #endif /*_MSC_VER*/
+
+#include "balls.h"
 
 using namespace BaluRender;
 

@@ -24,9 +24,6 @@
     <ClCompile Include="Source\images.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\render\bitmap_font.cpp">
-      <Filter>Source Files\render</Filter>
-    </ClCompile>
     <ClCompile Include="Source\render\frame_buffer.cpp">
       <Filter>Source Files\render</Filter>
     </ClCompile>

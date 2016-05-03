@@ -28,7 +28,7 @@ TBaluRender* render;
 TTime time;
 TFPSCamera* cam;
 TVec2 dsf;
-TBitmapFontId font;
+
 TMatrix4 perspective_matrix;
 
 std::vector<std::unique_ptr<TBVolume<float, 3>>> volumes;
@@ -130,8 +130,6 @@ void Init()
 	TVec2i screen_size = render->ScreenSize();
 	perspective_matrix = TMatrix4::GetPerspective(90, screen_size[0], screen_size[1], 0.01, 1000);
 	render->Set.Projection(perspective_matrix);
-
-	font = render->BitmapFont.Create();
 
 	{
 		std::vector<TVec3> vertices;

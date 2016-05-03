@@ -1,8 +1,10 @@
 #pragma once
 
 #if defined(WIN32)||defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
+
+#include <GL/glew.h>
 #include <GL/wglew.h>
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
 #include <stdio.h>
