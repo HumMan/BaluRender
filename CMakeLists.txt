@@ -15,6 +15,8 @@ add_definitions(-DILUT_USE_OPENGL)
 
 add_subdirectory("glfw")
 
+include_directories("glfw/include")
+
 include_directories("Include")
 include_directories("easyloggingpp/src")
 

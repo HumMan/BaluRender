@@ -376,75 +376,13 @@ TBaluRender::TBaluRender(TVec2i use_size)
 	Initialize(use_size);
 }
 
-TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size)
-{
-	p.reset(new TBaluRenderInternal());
-
-	sprintf_s(log_buff, "Context creation...");
-	LOG(INFO) << log_buff;
-
-#if defined(WIN32)||defined(_WIN32)
-	p->hWnd=*(HWND*)&use_window_handle;
-	p->hDC = GetDC(p->hWnd);
-	PIXELFORMATDESCRIPTOR pfd;
-	ZeroMemory (&pfd, sizeof (pfd));
-	pfd.nSize = sizeof (pfd);
-	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = 32;
-	pfd.cDepthBits = 24;
-	pfd.iLayerType = PFD_MAIN_PLANE;
-	p->pixel_format = ChoosePixelFormat(p->hDC, &pfd);
-	SetPixelFormat(p->hDC, p->pixel_format, &pfd);
-	p->hRC = wglCreateContext((HDC)p->hDC);
-	if (!wglMakeCurrent(p->hDC, p->hRC))assert(false);
-	CheckGLError();
-	if (!wglMakeCurrent(p->hDC, p->hRC))assert(false);
-	CheckGLError();
-	sprintf_s(log_buff, "Context creation passed");
-	LOG(INFO) << log_buff;
-#endif
-
-	Initialize(use_size);
-}
-
 TBaluRender::~TBaluRender()
 {
-#if defined(WIN32)||defined(_WIN32)
-	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext((HGLRC)p->hRC);
-	ReleaseDC((HWND)p->hWnd, (HDC)p->hDC);
-#endif
 	ilShutDown();
-}
-
-void TBaluRender::BeginScene()
-{
-#if defined(WIN32)||defined(_WIN32)
-	if (!wglMakeCurrent((HDC)p->hDC, (HGLRC)p->hRC))assert(false);
-	CheckGLError();
-#endif
-}
-void TBaluRender::EndScene()
-{
-#if defined(WIN32)||defined(_WIN32)
-	SwapBuffers((HDC)p->hDC);
-#endif
 }
 
 TVec2i TBaluRender::ScreenSize(){
 	return p->screen_size;
-}
-
-TVec2 TBaluRender::ScreenToClipSpace(int x,int y){
-#if defined(WIN32)||defined(_WIN32)
-	tagPOINT point;
-	point.x = x;
-	point.y = y;
-	ScreenToClient((HWND)p->hWnd, &point);
-	return TVec2(point.x / float(p->screen_size[0]), 1.0 - point.y / float(p->screen_size[1]))*2.0 - TVec2(1.0, 1.0);
-#endif
 }
 
 TVec2 TBaluRender::WindowToClipSpace(int x,int y){
@@ -630,15 +568,6 @@ void TBaluRender::TSet::Viewport(TVec2i use_size)
 {
 	r->p->screen_size = use_size;
 	glViewport(0,0,use_size[0],use_size[1]);
-}
-
-void TBaluRender::TSet::VSync(bool use_vsync) 
-{
-#if defined(WIN32)||defined(_WIN32)
-	PFNWGLSWAPINTERVALEXTPROC wglSwapInterval = NULL;
-	wglSwapInterval = (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress("wglSwapIntervalEXT");
-	if ( wglSwapInterval ) wglSwapInterval(use_vsync);
-#endif
 }
 
 void TBaluRender::TSet::Color(float r,float g,float b)

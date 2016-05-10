@@ -2,6 +2,7 @@ project(RayCollisionTest)
 
 file(GLOB RayCollisionTest_SRC
     "*.cpp"
+	${GLFW_SOURCE_DIR}/deps/tinycthread.c
 )
 
 # These are used to create visual studio folders.
@@ -9,6 +10,7 @@ source_group(RayCollisionTest FILES ${RayCollisionTest_SRC})
 
 include_directories(${BaluRender_SOURCE_DIR}/Include)
 include_directories(${BaluLib_SOURCE_DIR}/Include)
+
 if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
 endif()
@@ -26,12 +28,13 @@ if (IL_FOUND)
 	link_libraries(${IL_LIBRARIES}/ILUT.lib)
 endif()
 
-add_executable(RayCollisionTest WIN32
+add_executable(RayCollisionTest
 	${RayCollisionTest_SRC}
 )
 
 target_link_libraries ( RayCollisionTest
 	BaluLib
 	BaluRender
+	glfw
 	glu32 opengl32
 ) 

@@ -21,10 +21,16 @@
     <ClCompile Include="init.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\glfw\deps\tinycthread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="balls.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glfw\deps\tinycthread.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,16 +1,21 @@
+#if defined(_MSC_VER)
+// Make MS math.h define M_PI
+#define _USE_MATH_DEFINES
+#endif
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+extern "C" {
+#include "../glfw/deps/tinycthread.h"
+}
+
+#include <GLFW/glfw3.h>
 
 #include "baluRender.h"
-
-
-#ifdef _MSC_VER // Windows
-#include <windows.h>
-#include <direct.h>
-#include <process.h>
-#else // Linux
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif /*_MSC_VER*/
 
 #include "balls.h"
 
@@ -18,62 +23,27 @@ using namespace BaluRender;
 
 TBaluRender* render;
 
-bool KeyDown(int button)
-{
-	return (GetKeyState(button) & 0x8000);
-}
 
-TVec2i GetCursorPos()
-{
-	POINT point;
-	GetCursorPos(&point);
-	return TVec2i(point.x, point.y);
-}
+// Window dimensions
+float aspect_ratio;
+
+// Thread synchronization
+struct {
+	double    t;         // Time (s)
+	float     dt;        // Time since last frame (s)
+	cnd_t     p_done;    // Condition: particle physics done
+	cnd_t     d_done;    // Condition: particle draw done
+	mtx_t     particles_lock; // Particles data sharing mutex
+} thread_sync;
+
+TVec2 cursor_pos;
 
 bool pause = false;
 bool test_broadphase = false;
 
+TTime balu_time;
+
 using namespace TBaluRenderEnums;
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	switch (message)
-	{
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		break;
-	case WM_MOUSEWHEEL:
-	{
-		attractor_size += (GET_WHEEL_DELTA_WPARAM(wParam))*0.003;
-		Clamp(0.0f, room_size / 2.0f, attractor_size);
-		attractor_size = Clamp(0.01f, 1000.0f, attractor_size);
-	}
-		break;
-	case WM_SIZE:
-		if (render)
-			render->Set.Viewport(TVec2i(LOWORD(lParam), HIWORD(lParam)));
-		break;
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case 'P':
-			pause = !pause;
-			break;
-		case 'B':
-			test_broadphase = !test_broadphase;
-			break;
-		case VK_ESCAPE:
-			PostQuitMessage(0);
-			break;
-		}
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
-}
-
-HWND hWnd;
 
 TVertexBufferId pos_buff;
 
@@ -81,11 +51,8 @@ TVertexBufferId pos_buff;
 TVertexBufferId color_buff;
 #endif
 
-//TTextureId tex;
-
 TMatrix<float, 4> ortho_m, ortho_m_inv;
 
-TTime time;
 double draw_time;
 
 TStreamsDesc streams;
@@ -93,26 +60,21 @@ TStreamsDesc streams;
 void Init()
 {
 
-	//sprintf_s(render->log_buff, "Creating threads..."); render->log_file.Write(render->log_buff);
 	{
 		threads[0].offset = 0;
 		threads[0].is_main_thread = true;
 		threads[0].high = threads[0].offset + balls_on_thread - 1;
 
-		for (int i = 1; i<threads_count; i++)
-		{
-			threads[i].broadphase_event = CreateEvent(NULL, TRUE, false, NULL);
-			threads[i].end_broadphase_event = CreateEvent(NULL, TRUE, true, NULL);
-			threads[i].is_main_thread = false;
-			threads[i].offset = i*balls_on_thread;
-			threads[i].high = threads[i].offset + balls_on_thread - 1;
-			_beginthread(BroadPhase, 0, &threads[i]);
-		}
+		//for (int i = 1; i<threads_count; i++)
+		//{
+		//	threads[i].broadphase_event = CreateEvent(NULL, TRUE, false, NULL);
+		//	threads[i].end_broadphase_event = CreateEvent(NULL, TRUE, true, NULL);
+		//	threads[i].is_main_thread = false;
+		//	threads[i].offset = i*balls_on_thread;
+		//	threads[i].high = threads[i].offset + balls_on_thread - 1;
+		//	_beginthread(BroadPhase, 0, &threads[i]);
+		//}
 	}
-	//sprintf_s(render->log_buff, " passed\n"); render->log_file.Write(render->log_buff);
-
-	//sprintf_s(render->log_buff, "Render setup..."); render->log_file.Write(render->log_buff);
-	render->Set.VSync(false);
 
 	render->Set.ClearColor(0, 0, 0);
 	float f = powf(2, fracture_part);
@@ -185,43 +147,45 @@ void Init()
 	streams.AddStream(TStream::Vertex, TDataType::Int, 2, pos_buff);
 }
 
-void MainLoop()
+static void draw_scene(GLFWwindow* window, double tt)
 {
-	if (time.GetDelta()<0.001)return;
-	time.Tick();
 
-	action = KeyDown(VK_LBUTTON) ? 1 : (KeyDown(VK_RBUTTON) ? -1 : 0);
-	{
-		TVec2i temp = GetCursorPos();
-		TVec2 tt = render->ScreenToClipSpace(temp[0], temp[1]);
-		TVec3 mm = (ortho_m_inv*(TVec4(TVec3(tt, 0), 1))).GetHomogen();
-		float f = powf(2, fracture_part);
-		mouse_world_pos[0] = mm[0] / f;
-		mouse_world_pos[1] = mm[1] / f;
-	}
-	if (!pause)
-	{
-		UpdateBalls(time, !test_broadphase);
-	}
+	//if (balu_time.GetDelta()<0.001)return;
+	//balu_time.Tick();
 
-	UINT64 t = time.GetTime();
+	//action = KeyDown(VK_LBUTTON) ? 1 : (KeyDown(VK_RBUTTON) ? -1 : 0);
+	//{
+	//	TVec2i temp = GetCursorPos();
+	//	TVec2 tt = render->ScreenToClipSpace(temp[0], temp[1]);
+	//	TVec3 mm = (ortho_m_inv*(TVec4(TVec3(tt, 0), 1))).GetHomogen();
+	//	float f = powf(2, fracture_part);
+	//	mouse_world_pos[0] = mm[0] / f;
+	//	mouse_world_pos[1] = mm[1] / f;
+	//}
+	//if (!pause)
+	//{
+		//UpdateBalls(balu_time, !test_broadphase);
+	//}
 
-	if (time.ShowFPS())
+	UINT64 t = balu_time.GetTime();
+	//balu_time.Tick();
+	if (balu_time.ShowFPS())
 	{
 		char buf[1000];
 		sprintf_s(buf, "HumMan Balls: %d %7.1f FPS Frame: %.3f ms  Phys: %.3f  Draw: %.3f ",
 			balls_count,
-			time.GetFPS(),
-			time.GetTick() * 1000,
+			balu_time.GetFPS(),
+			balu_time.GetTick() * 1000,
 			phys_time * 1000,
 			draw_time * 1000);
-		SetWindowText(hWnd, &buf[0]);
+		glfwSetWindowTitle(window, &buf[0]);
 	}
 
-	render->BeginScene();
 	{
 		render->Clear(1, 1);		
 		{
+			while (mtx_trylock(&thread_sync.particles_lock) != thrd_success);
+
 			render->VertexBuffer.Data(pos_buff, balls_count*sizeof(TVec2_Float), &balls_pos[0]);
 			render->VertexBuffer.Data(color_buff, balls_count*sizeof(TVec<unsigned char, 4>), &balls_color[0]); //цвета тоже загружаем повторно, т.к. шары мен€ют своЄ положение в массиве в цел€х оптимизации
 			//TVec<short, 2>* points = (TVec<short, 2>*)render->VertexBuffer.Map(pos_buff, TVBAccess::Write);
@@ -231,8 +195,25 @@ void MainLoop()
 			
 			//render->Blend.Func("dc*(1-sa)+sc*sa");
 			//render->Set.Projection(ortho_m);
+
+			// Wait for particle physics thread to be done
+			
+			//mtx_lock(&thread_sync.particles_lock);
+			//while (!glfwWindowShouldClose(window) &&
+			//	thread_sync.p_frame <= thread_sync.d_frame)
+			{
+				struct timespec ts;
+				clock_gettime(CLOCK_REALTIME, &ts);
+				ts.tv_nsec += 100000000;
+				//cnd_timedwait(&thread_sync.p_done, &thread_sync.particles_lock, &ts);
+			}
+
 			render->Draw(streams, TPrimitive::Points, balls_count);
 			//streams.Clear();
+
+			// We are done with the particle data
+			mtx_unlock(&thread_sync.particles_lock);
+			//cnd_signal(&thread_sync.d_done);
 		}
 
 		if (false){
@@ -252,72 +233,169 @@ void MainLoop()
 			streams.Clear();
 		}
 
-	}render->EndScene();
+	}
 
-	draw_time = time.TimeDiff(time.GetTime(), t);
+	draw_time = balu_time.TimeDiff(balu_time.GetTime(), t);
 }
 
-int WINAPI WinMain(HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine,
-	int iCmdShow)
+static void resize_callback(GLFWwindow* window, int width, int height)
 {
-	MSG msg;
-	/* register window class */
-	WNDCLASS wc = { 0 };
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = "Sample";
-	RegisterClass(&wc);
+	glViewport(0, 0, width, height);
+	aspect_ratio = height ? width / (float)height : 1.f;
+}
 
-	/* create main window */
-	hWnd = CreateWindow(
-		wc.lpszClassName, "Sample",
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, /*| WS_POPUPWINDOW | WS_VISIBLE,*/
-		30, 30, 1000, 1000,/*0,0,GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),*/
-		NULL, NULL, hInstance, NULL);
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		switch (key)
+		{
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(window, 1);
+			break;
+		case GLFW_KEY_P:
+			pause = !pause;
+			break;
+		case GLFW_KEY_B:
+			test_broadphase = !test_broadphase;
+			break;
+		default:
+			break;
+		}
+	}
+}
 
-	RECT rect;
-	GetClientRect(hWnd, &rect);
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	cursor_pos = TVec2(xpos, ypos);
+}
 
-	//sprintf_s(render->log_buff, "Render creation..."); render->log_file.Write(render->log_buff);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+	}
+}
 
-	render = new TBaluRender((int)hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top));
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	attractor_size += (yoffset)*0.003;
+	Clamp(0.0f, room_size / 2.0f, attractor_size);
+	attractor_size = Clamp(0.01f, 1000.0f, attractor_size);
+}
+
+static int physics_thread_main(void* arg)
+{
+	GLFWwindow* window = (GLFWwindow*)arg;
+
+	for (;;)
+	{
+		//if (balu_time.GetDelta()<0.001)return 0;
+		
+
+		while (mtx_trylock(&thread_sync.particles_lock) != thrd_success);
+
+		// Wait for particle drawing to be done
+		//while (!glfwWindowShouldClose(window) &&
+		//	thread_sync.p_frame > thread_sync.d_frame)
+		{
+			struct timespec ts;
+			clock_gettime(CLOCK_REALTIME, &ts);
+			ts.tv_nsec += 100000000;
+			//cnd_timedwait(&thread_sync.d_done, &thread_sync.particles_lock, &ts);
+		}
+
+		if (glfwWindowShouldClose(window))
+			break;
+
+		balu_time.Tick();
+
+		if (!pause)
+		{
+			UpdateBalls(balu_time, !test_broadphase);
+		}
+
+		// Unlock mutex and signal drawing thread
+		mtx_unlock(&thread_sync.particles_lock);
+		//cnd_signal(&thread_sync.p_done);
+	}
+
+	return 0;
+}
+
+int main(int argc, char** argv)
+{
+	int ch, width, height;
+	thrd_t physics_thread = 0;
+	GLFWwindow* window;
+
+	if (!glfwInit())
+	{
+		fprintf(stderr, "Failed to initialize GLFW\n");
+		exit(EXIT_FAILURE);
+	}
+
+	width = 640;
+	height = 480;
+
+	window = glfwCreateWindow(width, height, "Particle Engine", NULL, NULL);
+	if (!window)
+	{
+		fprintf(stderr, "Failed to create GLFW window\n");
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+
+	glfwMakeContextCurrent(window);
+
+	glfwSwapInterval(1);
+
+	glfwSetFramebufferSizeCallback(window, resize_callback);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	// Set initial aspect ratio
+	glfwGetFramebufferSize(window, &width, &height);
+	resize_callback(window, width, height);
+
+	render = new TBaluRender(TVec2i(width, height));
 
 	Init();
 
-	time.Start();
+	balu_time.Start();
 
-	/* program main loop */
-	while (true)
+	// Set initial times
+	thread_sync.t = 0.0;
+	thread_sync.dt = 0.001f;
+
+	mtx_init(&thread_sync.particles_lock, mtx_timed);
+	cnd_init(&thread_sync.p_done);
+	cnd_init(&thread_sync.d_done);glfwSetTime(0.0);
+
+	if (thrd_create(&physics_thread, physics_thread_main, window) != thrd_success)
 	{
-		/* check for messages */
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			/* handle or dispatch messages */
-			if (msg.message == WM_QUIT)
-				break;
-			else
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-		else
-			MainLoop();
+		glfwTerminate();
+		exit(EXIT_FAILURE);
 	}
+
+	glfwSetTime(0.0);
+
+	while (!glfwWindowShouldClose(window))
+	{
+		draw_scene(window, glfwGetTime());
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
+	}
+
+	thrd_join(physics_thread, NULL);
 
 	delete render;
 
-	/* destroy the window explicitly */
-	DestroyWindow(hWnd);
+	glfwDestroyWindow(window);
+	glfwTerminate();
 
-	return 0;
+	exit(EXIT_SUCCESS);
 }

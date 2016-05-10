@@ -2,6 +2,7 @@ project(Balls)
 
 file(GLOB Balls_SRC
     "*.cpp"
+	${GLFW_SOURCE_DIR}/deps/tinycthread.c
 )
 
 # These are used to create visual studio folders.
@@ -27,13 +28,14 @@ if (IL_FOUND)
 	link_libraries(${IL_LIBRARIES}/ILUT.lib)
 endif()
 
-add_executable(Balls WIN32
+add_executable(Balls
 	${Balls_SRC}
 )
 
 target_link_libraries ( Balls
 	BaluLib
 	BaluRender
+	glfw
 	glu32 opengl32
 ) 
 

@@ -1,14 +1,14 @@
 #pragma once
 
 
-static const int threads_count = 4;
+static const int threads_count = 1;
 static struct TThreadInfo
 {
-	HANDLE broadphase_event;
-	HANDLE end_broadphase_event;
+	//HANDLE broadphase_event;
+	//HANDLE end_broadphase_event;
 
-	HANDLE integrate_event;
-	HANDLE end_integrate_event;
+	//HANDLE integrate_event;
+	//HANDLE end_integrate_event;
 
 	bool is_main_thread;
 	int offset, high;
@@ -194,10 +194,10 @@ void RedistrBalls()
 void BroadPhase(void* p)
 {
 	TThreadInfo* params = (TThreadInfo*)p;
-	do
+	//do
 	{
-		if (!params->is_main_thread)
-			WaitForSingleObject(params->broadphase_event, INFINITE);
+		//if (!params->is_main_thread)
+		//	WaitForSingleObject(params->broadphase_event, INFINITE);
 		for (int i = params->offset; i<params->high; i++)
 		{
 			int cell_x = balls_pos[i][0] + TFloat(0.5f);
@@ -214,12 +214,12 @@ void BroadPhase(void* p)
 				CollideWithCell(i, cell_id - 1);
 			CollideWithCell(i, cell_id);
 		}
-		if (!params->is_main_thread)
-		{
-			ResetEvent(params->broadphase_event);
-			SetEvent(params->end_broadphase_event);
-		}
-	} while (!params->is_main_thread);
+		//if (!params->is_main_thread)
+		//{
+		//	ResetEvent(params->broadphase_event);
+		//	SetEvent(params->end_broadphase_event);
+		//}
+	} //while (!params->is_main_thread);
 }
 
 void InitGrid()
@@ -290,20 +290,20 @@ void UpdateBalls(TTime& time, bool move)
 	}
 	InitGrid();
 
-	for (int i = 1; i<threads_count; i++)
-		SetEvent(threads[i].broadphase_event);
+	//for (int i = 1; i<threads_count; i++)
+	//	SetEvent(threads[i].broadphase_event);
 
 	BroadPhase(&threads[0]);
 
-	HANDLE events[threads_count - 1];//TODO  для одного потока не работает
-	for (int i = 0; i<threads_count - 1; i++)
-		events[i] = threads[i + 1].end_broadphase_event;
+	//HANDLE events[threads_count - 1];//TODO  для одного потока не работает
+	//for (int i = 0; i<threads_count - 1; i++)
+	//	events[i] = threads[i + 1].end_broadphase_event;
 
-	if (threads_count>1)
-		WaitForMultipleObjects(threads_count - 1, &events[0], TRUE, INFINITE);
+	//if (threads_count>1)
+	//	WaitForMultipleObjects(threads_count - 1, &events[0], TRUE, INFINITE);
 
-	for (int i = 0; i<threads_count - 1; i++)
-		ResetEvent(threads[i + 1].end_broadphase_event);
+	//for (int i = 0; i<threads_count - 1; i++)
+	//	ResetEvent(threads[i + 1].end_broadphase_event);
 
 	//перераспределяем шары
 	if (true)
