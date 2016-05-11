@@ -69,7 +69,7 @@ static TVec2_Float balls_speed[balls_count];
 
 static TVec<unsigned char, 4> balls_color[balls_count];
 
-__forceinline void Collide(int p1, int p2)
+inline void Collide(int p1, int p2)
 {
 	TVec2_Float  delta = balls_pos[p2] - balls_pos[p1];
 	TFloat quadlen = delta.SqrLength();
@@ -86,7 +86,7 @@ __forceinline void Collide(int p1, int p2)
 		balls_speed[p2] -= force;
 	}
 }
-__forceinline void CollideWithCell(int ball, int cell)
+inline void CollideWithCell(int ball, int cell)
 {
 	if (MAX_BALLS_IN_BLOCK>2)
 	{
@@ -115,7 +115,7 @@ __forceinline void CollideWithCell(int ball, int cell)
 	}
 }
 
-__forceinline void FindBallIndex(int start_block, int index, int& block, int& block_offset)
+inline void FindBallIndex(int start_block, int index, int& block, int& block_offset)
 {
 	int cell_id = int(balls_pos[index][1])*blocks_count + int(balls_pos[index][0]);
 	block = cell_id;
@@ -237,7 +237,7 @@ void InitGrid()
 
 void UpdateBalls(TTime& time, bool move)
 {
-	UINT64 t = time.GetTime();
+	auto t = time.GetTime();
 	TVec2_Float attractor_pos(mouse_world_pos[0], mouse_world_pos[1]);
 	if (move)
 	{
@@ -259,9 +259,9 @@ void UpdateBalls(TTime& time, bool move)
 					else
 					{
 						TFloat temp = attractor.SqrLength();
-						if (temp<TFloat(sqr(attractor_size)) && temp>TFloat(0.0f))
+						if (temp<TFloat((float)sqr(attractor_size)) && temp>TFloat(0.0f))
 						{
-							balls_speed[i] += attractor / TFloat(sqrt(temp))*TFloat(action*3.0f);
+							balls_speed[i] += attractor / TFloat((float)sqrt(temp))*TFloat(action*3.0f);
 
 						}
 					}

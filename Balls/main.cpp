@@ -19,6 +19,11 @@ extern "C" {
 
 #include "balls.h"
 
+#if defined(WIN32)||defined(_WIN32)
+#else
+#define sprintf_s sprintf
+#endif
+
 using namespace BaluRender;
 
 TBaluRender* render;
@@ -98,10 +103,10 @@ void Init()
 		int balls_on_line = room_size / (ball_rad * 2 + 0.01);
 		if (false)
 		{
-			balls_pos[i] = (
+			balls_pos[i] = 
 				TVec2_Float(
-				short int(i%balls_on_line),
-				short int(i / balls_on_line)) + TVec2_Float(0.5f, 0.5f)*(1 + Randfs()*0.001f));
+				(short int)(i%balls_on_line),
+				(short int)(i / balls_on_line)) + TVec2_Float(0.5f, 0.5f)*(1 + Randfs()*0.001f);
 		}
 		else
 		{
@@ -167,7 +172,7 @@ static void draw_scene(GLFWwindow* window, double tt)
 		//UpdateBalls(balu_time, !test_broadphase);
 	//}
 
-	UINT64 t = balu_time.GetTime();
+	auto t = balu_time.GetTime();
 	//balu_time.Tick();
 	if (balu_time.ShowFPS())
 	{
