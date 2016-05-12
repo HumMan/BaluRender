@@ -4,6 +4,8 @@ using namespace BaluRender;
 
 #include "../baluRenderCommon.h"
 
+#include <string.h>
+
 using namespace TBaluRenderEnums;
 
 const GLuint vert_buf_types[]=

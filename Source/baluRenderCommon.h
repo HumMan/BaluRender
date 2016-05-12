@@ -1,7 +1,13 @@
+#pragma once
 
-//#define GLEW_STATIC
-#include <GL\glew.h>
-#include <GL\wglew.h>
+#if defined(WIN32)||defined(_WIN32)
+
+#include <GL/glew.h>
+#else
+#include <stdio.h>
+#include <stdlib.h>
+#include <GL/glew.h>
+#endif
 
 namespace BaluRender
 {
@@ -33,17 +39,11 @@ namespace BaluRender
 				return (TFormat)i;
 	}
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+
 
 	class TBaluRenderInternal
 	{
 	public:
-		HDC hDC;
-		HGLRC hRC;
-		HWND hWnd;
-		int pixel_format;
-
 		TVec2i screen_size;
 		TMatrix4 modelview;
 		TMatrix4 projection;

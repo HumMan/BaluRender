@@ -10,6 +10,22 @@ using namespace BaluRender;
 
 using namespace TBaluRenderEnums;
 
+#if defined(WIN32)||defined(_WIN32)
+#else
+void strcpy_s(char* buf, char* value)
+{
+	strcpy(buf,value);
+}
+void strcpy_s(char* buf, int len, char* value)
+{
+	strcpy(buf,value);
+}
+
+#define sprintf_s sprintf
+#define sscanf_s sscanf
+#endif
+
+
 static const char *glErrorStrings[GL_OUT_OF_MEMORY - GL_INVALID_ENUM + 1] = {
 	"Invalid enumerant",
 	"Invalid value",
@@ -360,66 +376,13 @@ TBaluRender::TBaluRender(TVec2i use_size)
 	Initialize(use_size);
 }
 
-TBaluRender::TBaluRender(int use_window_handle, TVec2i use_size)
-{
-	p.reset(new TBaluRenderInternal());
-
-	sprintf_s(log_buff, "Context creation...");
-	LOG(INFO) << log_buff;
-
-	p->hWnd=*(HWND*)&use_window_handle;
-	p->hDC = GetDC(p->hWnd);
-	PIXELFORMATDESCRIPTOR pfd;
-	ZeroMemory (&pfd, sizeof (pfd));
-	pfd.nSize = sizeof (pfd);
-	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = 32;
-	pfd.cDepthBits = 24;
-	pfd.iLayerType = PFD_MAIN_PLANE;
-	p->pixel_format = ChoosePixelFormat(p->hDC, &pfd);
-	SetPixelFormat(p->hDC, p->pixel_format, &pfd);
-	p->hRC = wglCreateContext((HDC)p->hDC);
-	if (!wglMakeCurrent(p->hDC, p->hRC))assert(false);
-	CheckGLError();
-	if (!wglMakeCurrent(p->hDC, p->hRC))assert(false);
-	CheckGLError();
-	sprintf_s(log_buff, "Context creation passed");
-	LOG(INFO) << log_buff;
-
-	Initialize(use_size);
-}
-
 TBaluRender::~TBaluRender()
 {
-	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext((HGLRC)p->hRC);
-	ReleaseDC((HWND)p->hWnd, (HDC)p->hDC);
-
 	ilShutDown();
-}
-
-void TBaluRender::BeginScene()
-{
-	if (!wglMakeCurrent((HDC)p->hDC, (HGLRC)p->hRC))assert(false);
-	CheckGLError();
-}
-void TBaluRender::EndScene()
-{
-	SwapBuffers((HDC)p->hDC);
 }
 
 TVec2i TBaluRender::ScreenSize(){
 	return p->screen_size;
-}
-
-TVec2 TBaluRender::ScreenToClipSpace(int x,int y){
-	tagPOINT point;
-	point.x = x;
-	point.y = y;
-	ScreenToClient((HWND)p->hWnd, &point);
-	return TVec2(point.x / float(p->screen_size[0]), 1.0 - point.y / float(p->screen_size[1]))*2.0 - TVec2(1.0, 1.0);
 }
 
 TVec2 TBaluRender::WindowToClipSpace(int x,int y){
@@ -607,21 +570,16 @@ void TBaluRender::TSet::Viewport(TVec2i use_size)
 	glViewport(0,0,use_size[0],use_size[1]);
 }
 
-void TBaluRender::TSet::VSync(bool use_vsync) 
-{
-	PFNWGLSWAPINTERVALEXTPROC wglSwapInterval = NULL;
-	wglSwapInterval = (PFNWGLSWAPINTERVALEXTPROC) wglGetProcAddress("wglSwapIntervalEXT");
-	if ( wglSwapInterval ) wglSwapInterval(use_vsync);
-}
-
 void TBaluRender::TSet::Color(float r,float g,float b)
 {
-	glColor3fv((GLfloat*)&TVec3(r,g,b));
+	auto temp = TVec3(r,g,b);
+	glColor3fv((GLfloat*)&temp);
 }
 
 void TBaluRender::TSet::Color(float r,float g,float b,float a)
 {
-	glColor4fv((GLfloat*)&TVec4(r,g,b,a));
+	auto temp = TVec4(r,g,b,a);
+	glColor4fv((GLfloat*)&temp);
 }
 
 void TBaluRender::TSet::ClearColor(float r,float g,float b,float a)

@@ -13,7 +13,6 @@
   <ItemGroup>
     <ClCompile Include="Source\baluRender.cpp" />
     <ClCompile Include="Source\images.cpp" />
-    <ClCompile Include="Source\render\bitmap_font.cpp" />
     <ClCompile Include="Source\render\frame_buffer.cpp" />
     <ClCompile Include="Source\render\shader.cpp" />
     <ClCompile Include="Source\render\texture.cpp" />

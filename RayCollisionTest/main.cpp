@@ -1,34 +1,39 @@
 
+#if defined(_MSC_VER)
+// Make MS math.h define M_PI
+#define _USE_MATH_DEFINES
+#endif
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <time.h>
+
+extern "C" {
+#include "../glfw/deps/tinycthread.h"
+}
+
+#include <GLFW/glfw3.h>
+
 #include "baluRender.h"
-#include "windows.h"
-#include <memory>
 
-#include <GL\GL.h>
-
-#include <baluLib.h>
 
 using namespace BaluRender;
 
 using namespace BaluLib;
 using namespace TBaluRenderEnums;
 
-bool KeyDown(int button)
-{
-	return (GetKeyState(button) & 0x8000);
-}
-
-TVec2i GetCursorPos()
-{
-	POINT point;
-	GetCursorPos(&point);
-	return TVec2i(point.x, point.y);
-}
-
 TBaluRender* render;
-TTime time;
+TTime balu_time;
 TFPSCamera* cam;
 TVec2 dsf;
-TBitmapFontId font;
+
+float aspect_ratio;
+
+TVec2 cursor_pos;
+
+
 TMatrix4 perspective_matrix;
 
 std::vector<std::unique_ptr<TBVolume<float, 3>>> volumes;
@@ -42,36 +47,6 @@ int prim_lines_vertex_count;
 float rz, ry;
 
 int viewport_width, viewport_height;
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	TFPSCamera cam(TVec3(1, 1, 1), TVec3(1, 1, 1), TVec3(0, 0, 1));
-	switch (message)
-	{
-	case WM_CLOSE:
-		PostQuitMessage(0);
-		break;
-	case WM_SIZE:
-		viewport_width = LOWORD(lParam);
-		viewport_height = HIWORD(lParam);
-		if (render)
-			render->Set.Viewport(TVec2i(viewport_width, viewport_height));
-		break;
-	case WM_KEYDOWN:
-		switch (wParam)
-		{
-		case VK_ESCAPE:
-			PostQuitMessage(0);
-			break;
-		}
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
-}
-
-HWND hWnd;
 
 TVec<unsigned char, 4>* raytracer_color_buffer;
 
@@ -118,7 +93,6 @@ void Init()
 	rz = 0;
 	ry = 0;
 
-	render->Set.VSync(true);
 	render->Depth.Test(true);
 	ShowCursor(false);
 
@@ -130,8 +104,6 @@ void Init()
 	TVec2i screen_size = render->ScreenSize();
 	perspective_matrix = TMatrix4::GetPerspective(90, screen_size[0], screen_size[1], 0.01, 1000);
 	render->Set.Projection(perspective_matrix);
-
-	font = render->BitmapFont.Create();
 
 	{
 		std::vector<TVec3> vertices;
@@ -185,44 +157,21 @@ void DrawVolumesLines()
 	streams.Clear();
 }
 
-void MainLoop()
+static void draw_scene(GLFWwindow* window, double tt)
 {
-	if (time.GetDelta() < 0.001)return;
-	time.Tick();
+	balu_time.Tick();
 
-	if (time.ShowFPS())
+	if (balu_time.ShowFPS())
 	{
 		char buf[1000];
-		sprintf_s(buf, "1 - Nearest 2 - Billenear    %7.1f FPS", time.GetFPS());
-		SetWindowText(hWnd, buf);
+		sprintf_s(buf, "1 - Nearest 2 - Billenear    %7.1f FPS", balu_time.GetFPS());
+		glfwSetWindowTitle(window, buf);
 	}
 
-	{
-		float s = (KeyDown(VK_SHIFT) ? 3 : 1);
-		TFPSCamera::Key key(TFPSCamera::Key::None);
-		if (KeyDown('A')){
-			key = TFPSCamera::Key::Left;
-		}
-		if (KeyDown('D')){
-			key = TFPSCamera::Key::Right;
-		}
-		if (KeyDown('S')){
-			key = TFPSCamera::Key::Down;
-		}
-		if (KeyDown('W')){
-			key = TFPSCamera::Key::Up;
-		}
-
-		cam->KeyDown(key, time.GetTick(), s);
-		auto mouse_pos = GetCursorPos();
-		cam->MouseMove(mouse_pos[0], mouse_pos[1]);
-		SetCursorPos(100, 100);
-		cam->UpdateView();
-	}
+	cam->UpdateView();
 
 	CheckGLError();
 
-	render->BeginScene();
 	{
 		//render->Set.ClearColor(0, 0, 1);
 		render->Clear(1, 1);
@@ -387,68 +336,127 @@ void MainLoop()
 			render->Set.Color(1, 1, 1);
 
 		}
-		render->EndScene();
 }
 
-int WINAPI WinMain(HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine,
-	int iCmdShow)
+
+static void resize_callback(GLFWwindow* window, int width, int height)
 {
-	MSG msg;
-	/* register window class */
-	WNDCLASSA wc = { 0 };
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	wc.lpfnWndProc = WndProc;
-	wc.cbClsExtra = 0;
-	wc.cbWndExtra = 0;
-	wc.hInstance = hInstance;
-	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-	wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-	wc.lpszMenuName = NULL;
-	wc.lpszClassName = "Sample";
-	RegisterClassA(&wc);
+	glViewport(0, 0, width, height);
+	aspect_ratio = height ? width / (float)height : 1.f;
+	viewport_width = width;
+	viewport_height = height;
+}
 
-	/* create main window */
-	hWnd = CreateWindowA(
-		wc.lpszClassName, "Sample",
-		WS_OVERLAPPEDWINDOW | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, /*| WS_POPUPWINDOW | WS_VISIBLE,*/
-		60, 30, 1400, 1000,//GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN),
-		NULL, NULL, hInstance, NULL);
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		TFPSCamera::Key bkey(TFPSCamera::Key::None);
+		float s = mods && GLFW_MOD_SHIFT ? 3 : 1;
+		switch (key)
+		{
+		case GLFW_KEY_A:
+			bkey = TFPSCamera::Key::Left;
+			break;
+		case GLFW_KEY_D:
+			bkey = TFPSCamera::Key::Right;
+			break;
+		case GLFW_KEY_S:
+			bkey = TFPSCamera::Key::Down;
+			break;
+		case GLFW_KEY_W:
+			bkey = TFPSCamera::Key::Up;
+			break;
 
-	RECT rect;
-	GetClientRect(hWnd, &rect);
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(window, 1);
+			break;
+		default:
+			break;
+		}
 
-	render = new TBaluRender((int)hWnd, TVec2i(rect.right - rect.left, rect.bottom - rect.top));
+		cam->KeyDown(bkey, balu_time.GetTick(), s);
+	}
+}
+
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+
+	auto mouse_pos = TVec2(xpos, ypos);
+	//cam->MouseMove(mouse_pos[0], mouse_pos[1]);
+	//SetCursorPos(100, 100);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+	}
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+}
+
+int main(int argc, char** argv)
+{
+	int width, height;
+	GLFWwindow* window;
+
+	if (!glfwInit())
+	{
+		fprintf(stderr, "Failed to initialize GLFW\n");
+		exit(EXIT_FAILURE);
+	}
+
+	width = 640;
+	height = 480;
+
+	viewport_width = width;
+	viewport_height = height;	
+
+	window = glfwCreateWindow(width, height, "Particle Engine", NULL, NULL);
+	if (!window)
+	{
+		fprintf(stderr, "Failed to create GLFW window\n");
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
+
+	glfwMakeContextCurrent(window);
+
+	glfwSwapInterval(1);
+
+	glfwSetFramebufferSizeCallback(window, resize_callback);
+	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetMouseButtonCallback(window, mouse_button_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
+	// Set initial aspect ratio
+	glfwGetFramebufferSize(window, &width, &height);
+	resize_callback(window, width, height);
+
+	render = new TBaluRender(TVec2i(width, height));
 
 	Init();
 
-	time.Start();
+	balu_time.Start();
 
-	/* program main loop */
-	while (true)
+	glfwSetTime(0.0);
+
+	while (!glfwWindowShouldClose(window))
 	{
-		/* check for messages */
-		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			/* handle or dispatch messages */
-			if (msg.message == WM_QUIT)
-				break;
-			else
-			{
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-		else
-			MainLoop();
+		draw_scene(window, glfwGetTime());
+
+		glfwSwapBuffers(window);
+		glfwPollEvents();
 	}
 
 	delete render;
 
-	/* destroy the window explicitly */
-	DestroyWindow(hWnd);
+	glfwDestroyWindow(window);
+	glfwTerminate();
 
-	return 0;
+	exit(EXIT_SUCCESS);
 }

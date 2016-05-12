@@ -6,7 +6,7 @@
 
 using namespace BaluLib;
 
-#include "..\Source\images.h"
+#include "../Source/images.h"
 
 namespace TBaluRenderEnums
 {
@@ -237,14 +237,9 @@ namespace BaluRender
 		char log_buff[102];
 
 		TBaluRender(TVec2i use_size);
-		TBaluRender(int use_window_handle, TVec2i use_size);
 		~TBaluRender();
 
-		void BeginScene();
-		void EndScene();
-
 		TVec2i ScreenSize();
-		TVec2 ScreenToClipSpace(int x, int y);
 		TVec2 WindowToClipSpace(int x, int y);
 
 		void Clear(bool color = 0, bool depth = 1);
@@ -290,7 +285,6 @@ namespace BaluRender
 			friend class TBaluRender; TBaluRender* r;
 		public:
 			void Viewport(TVec2i use_size);
-			void VSync(bool use_vsync);
 			void Color(float r, float g, float b);
 			void Color(float r, float g, float b, float a);
 			void ClearColor(float r, float g, float b, float a = 1.0f);
@@ -629,11 +623,11 @@ namespace BaluRender
 		}
 	};
 
-	template <class T, int size>
+	template <class T, int Size>
 	struct TQuad
 	{
-		TVec<T, size> v[4];
-		TVec<T, size>& operator[](int id)
+		TVec<T, Size> v[4];
+		TVec<T, Size>& operator[](int id)
 		{
 			assert(id >= 0 && id < 4);
 			return v[id];
