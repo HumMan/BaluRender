@@ -26,7 +26,9 @@ include_directories("easyloggingpp/src")
 
 add_subdirectory(Balls)
 #add_subdirectory(RayCollisionTest)
-add_subdirectory(BaluLib)
+if (NOT TARGET BaluLib)
+	add_subdirectory(BaluLib)
+endif()
 include_directories(${BaluLib_SOURCE_DIR}/Include)
 
 find_package(GLEW REQUIRED)
