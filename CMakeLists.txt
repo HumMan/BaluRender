@@ -21,7 +21,7 @@ include_directories("Include")
 include_directories("easyloggingpp/src")
 
 add_subdirectory(Balls)
-add_subdirectory(RayCollisionTest)
+#add_subdirectory(RayCollisionTest)
 add_subdirectory(BaluLib)
 include_directories(${BaluLib_SOURCE_DIR}/Include)
 
