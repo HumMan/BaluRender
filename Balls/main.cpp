@@ -43,7 +43,7 @@ struct {
 
 TVec2 cursor_pos;
 
-bool pause = false;
+bool balls_pause = false;
 bool test_broadphase = false;
 
 TTime balu_time;
@@ -167,7 +167,7 @@ static void draw_scene(GLFWwindow* window, double tt)
 	//	mouse_world_pos[0] = mm[0] / f;
 	//	mouse_world_pos[1] = mm[1] / f;
 	//}
-	//if (!pause)
+	//if (!balls_pause)
 	//{
 		//UpdateBalls(balu_time, !test_broadphase);
 	//}
@@ -259,7 +259,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			glfwSetWindowShouldClose(window, 1);
 			break;
 		case GLFW_KEY_P:
-			pause = !pause;
+			balls_pause = !balls_pause;
 			break;
 		case GLFW_KEY_B:
 			test_broadphase = !test_broadphase;
@@ -315,7 +315,7 @@ static int physics_thread_main(void* arg)
 
 		balu_time.Tick();
 
-		if (!pause)
+		if (!balls_pause)
 		{
 			UpdateBalls(balu_time, !test_broadphase);
 		}
