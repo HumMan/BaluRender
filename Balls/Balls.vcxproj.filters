@@ -24,6 +24,9 @@
     <ClCompile Include="..\glfw\deps\tinycthread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="balls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="balls.h">

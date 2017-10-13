@@ -85,6 +85,7 @@
     <ClCompile Include="..\glfw\deps\tinycthread.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="balls.cpp" />
     <ClCompile Include="init.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

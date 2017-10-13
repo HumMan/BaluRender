@@ -1,0 +1,11 @@
+Ubuntu 14.04 lts setup for BaluRender
+deps:
+sudo apt-get install libglew-dev libfreetype6 libdevil-dev
+sudo apt-get install cmake
+sudo apt-get install xorg-dev libglu1-mesa-dev
+sudo apt-get update && sudo apt-get install build-essential
+
+mkdir build
+cd build
+cmake ..
+cmake --build .
