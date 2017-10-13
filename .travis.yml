@@ -13,4 +13,6 @@ addons:
       - libglew-dev
       - libfreetype6
       - libdevil-dev
+      - xorg-dev
+      - libglu1-mesa-dev
 
