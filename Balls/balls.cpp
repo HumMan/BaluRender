@@ -7,11 +7,15 @@
 #include <string.h>
 #include <math.h>
 
+#include <atomic>
+
 using namespace BaluLib;
 
 struct TThreadInfo
 {
-	std::atomic_flag processing;
+	std::atomic_flag start_pos_update;
+	std::atomic_flag start_broadphase;
+
 	volatile bool finished = false;
 
 	bool is_main_thread;
@@ -33,6 +37,8 @@ TVec<unsigned char, 4> balls_color[balls_count];
 int action = 0;
 TVec2 mouse_world_pos;
 float attractor_size = 30;
+
+bool test_broadphase = false;
 
 void SetAttractorPos(TVec2 attractor_pos)
 {
@@ -185,41 +191,26 @@ void RedistrBalls()
 	}
 }
 
-int BroadPhase(void* p)
+void BroadPhase(int offset, int high)
 {
-	TThreadInfo* params = (TThreadInfo*)p;
-	do
+	for (int i = offset; i <= high; i++)
 	{
-		if (!params->is_main_thread)
-			while (params->processing.test_and_set(std::memory_order_acquire))
-			{
-				thrd_yield();
-			}
+		int cell_x = balls_pos[i][0] + TFloat(0.5f);
+		int cell_y = balls_pos[i][1] + TFloat(0.5f);
+		int cell_id = cell_y*blocks_count + cell_x;
 
-		for (int i = params->offset; i <= params->high; i++)
+		if (cell_y>0)
 		{
-			int cell_x = balls_pos[i][0] + TFloat(0.5f);
-			int cell_y = balls_pos[i][1] + TFloat(0.5f);
-			int cell_id = cell_y*blocks_count + cell_x;
-
-			if (cell_y>0)
-			{
-				int temp = cell_id - blocks_count;
-				if (cell_x>0)CollideWithCell(i, temp - 1);
-				CollideWithCell(i, temp);
-			}
-			if (cell_x>0)
-				CollideWithCell(i, cell_id - 1);
-			CollideWithCell(i, cell_id);
+			int temp = cell_id - blocks_count;
+			if (cell_x>0)CollideWithCell(i, temp - 1);
+			CollideWithCell(i, temp);
 		}
-		if (!params->is_main_thread)
-		{
-			params->finished = true;
-		}
-	} while (!params->is_main_thread);
-
-	return 0;
+		if (cell_x>0)
+			CollideWithCell(i, cell_id - 1);
+		CollideWithCell(i, cell_id);
+	}
 }
+
 
 void InitGrid()
 {
@@ -234,66 +225,85 @@ void InitGrid()
 	}
 }
 
-void UpdateBalls(bool move)
+void UpdateBallsPos(int offset, int hight)
 {
 	TVec2_Float attractor_pos(mouse_world_pos[0], mouse_world_pos[1]);
-	if (move)
+	for (int i = offset; i<=hight; i++)
 	{
-		for (int i = 0; i<balls_count; i++)
+		balls_speed[i][1] += TFloat(-gravity);
+		if (action != 0)
 		{
-			balls_speed[i][1] += TFloat(-gravity);
-			if (action != 0)
+			TVec2_Float attractor = attractor_pos - balls_pos[i];
+			if (IsIn(attractor[0], TFloat(-attractor_size), TFloat(attractor_size))
+				&& IsIn(attractor[1], TFloat(-attractor_size), TFloat(attractor_size)))
 			{
-				TVec2_Float attractor = attractor_pos - balls_pos[i];
-				if (IsIn(attractor[0], TFloat(-attractor_size), TFloat(attractor_size))
-					&& IsIn(attractor[1], TFloat(-attractor_size), TFloat(attractor_size)))
+				if (true)
 				{
-					if (true)
+					attractor >>= 4;
+					attractor *= action;
+					balls_speed[i] += attractor;
+				}
+				else
+				{
+					TFloat temp = attractor.SqrLength();
+					if (temp<TFloat((float)sqr(attractor_size)) && temp>TFloat(0.0f))
 					{
-						attractor >>= 4;
-						attractor *= action;
-						balls_speed[i] += attractor;
-					}
-					else
-					{
-						TFloat temp = attractor.SqrLength();
-						if (temp<TFloat((float)sqr(attractor_size)) && temp>TFloat(0.0f))
-						{
-							balls_speed[i] += attractor / TFloat((float)sqrt(temp))*TFloat(action*3.0f);
+						balls_speed[i] += attractor / TFloat((float)sqrt(temp))*TFloat(action*3.0f);
 
-						}
 					}
 				}
 			}
-			balls_speed[i] -= balls_speed[i] >> 11;
+		}
+		balls_speed[i] -= balls_speed[i] >> 11;
 
-			balls_pos[i] += balls_speed[i] >> 8;
-			if (balls_pos[i][0]>TFloat(room_size - ball_rad)) {
-				balls_pos[i][0] = room_size - ball_rad - 0.01f;
-				balls_speed[i][0] = 0;
-			}
-			else if (balls_pos[i][0]<TFloat(ball_rad)) {
-				balls_pos[i][0] = ball_rad + 0.01f;
-				balls_speed[i][0] = 0;
-			}
-			if (balls_pos[i][1]>TFloat(room_size - ball_rad)) {
-				balls_pos[i][1] = room_size - ball_rad - 0.01f;
-				balls_speed[i][1] = 0;
-			}
-			else if (balls_pos[i][1]<TFloat(ball_rad)) {
-				balls_pos[i][1] = ball_rad + 0.01f;
-				balls_speed[i][1] = 0;
-			}
+		balls_pos[i] += balls_speed[i] >> 8;
+		if (balls_pos[i][0]>TFloat(room_size - ball_rad)) {
+			balls_pos[i][0] = room_size - ball_rad - 0.01f;
+			balls_speed[i][0] = 0;
+		}
+		else if (balls_pos[i][0]<TFloat(ball_rad)) {
+			balls_pos[i][0] = ball_rad + 0.01f;
+			balls_speed[i][0] = 0;
+		}
+		if (balls_pos[i][1]>TFloat(room_size - ball_rad)) {
+			balls_pos[i][1] = room_size - ball_rad - 0.01f;
+			balls_speed[i][1] = 0;
+		}
+		else if (balls_pos[i][1]<TFloat(ball_rad)) {
+			balls_pos[i][1] = ball_rad + 0.01f;
+			balls_speed[i][1] = 0;
 		}
 	}
-	InitGrid();
+}
 
-	//start all processing threads
-	for (int i = 0; i < threads_count - 1; i++)
-		threads[i + 1].processing.clear(std::memory_order_release);
 
-	BroadPhase(&threads[0]);
+int PhysThread(void* p)
+{
+	TThreadInfo* params = (TThreadInfo*)p;
+	assert(!params->is_main_thread);
+	do
+	{
+		while (params->start_pos_update.test_and_set(std::memory_order_acquire))
+			thrd_yield();
 
+		if (!test_broadphase)
+			UpdateBallsPos(params->offset, params->high);
+
+		params->finished = true;
+
+		while (params->start_broadphase.test_and_set(std::memory_order_acquire));
+
+		BroadPhase(params->offset, params->high);
+
+		params->finished = true;
+
+	} while (true);
+
+	return 0;
+}
+
+void WaitForAllFinish()
+{
 	bool finished = false;
 	do
 	{
@@ -304,6 +314,32 @@ void UpdateBalls(bool move)
 
 	for (int i = 0; i < threads_count - 1; i++)
 		threads[i + 1].finished = false;
+}
+
+void UpdateBalls(bool test_broadphase_value)
+{	
+	test_broadphase = test_broadphase_value;
+
+	//start all processing threads
+	for (int i = 0; i < threads_count - 1; i++)
+		threads[i + 1].start_pos_update.clear(std::memory_order_release);
+
+	if (!test_broadphase)
+	{
+		UpdateBallsPos(threads[0].offset, threads[0].high);
+	}
+
+	WaitForAllFinish();
+
+	InitGrid();
+
+	//start all processing threads
+	for (int i = 0; i < threads_count - 1; i++)
+		threads[i + 1].start_broadphase.clear(std::memory_order_release);
+
+	BroadPhase(threads[0].offset, threads[0].high);
+
+	WaitForAllFinish();
 
 	//перераспределяем шары для более эффективного кэширования
 	if (true)
@@ -339,7 +375,7 @@ void InitThreads()
 			threads[i].high = threads[i].offset + balls_on_thread - 1;
 
 		thrd_t physics_thread;
-		thrd_create(&physics_thread, BroadPhase, &threads[i]);
+		thrd_create(&physics_thread, PhysThread, &threads[i]);
 	}
 }
 

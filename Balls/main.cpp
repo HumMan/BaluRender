@@ -23,7 +23,7 @@ TBaluRender* render;
 
 TVec2 cursor_pos;
 bool balls_pause = false;
-bool test_broadphase = false;
+bool test_broadphase_pressed = false;
 
 TTime draw_fps, phys_fps;
 
@@ -159,7 +159,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			balls_pause = !balls_pause;
 			break;
 		case GLFW_KEY_B:
-			test_broadphase = !test_broadphase;
+			test_broadphase_pressed = !test_broadphase_pressed;
 			break;
 		default:
 			break;
@@ -209,7 +209,7 @@ static int physics_thread_main(void* arg)
 
 		if (!balls_pause)
 		{
-				UpdateBalls(!test_broadphase);
+				UpdateBalls(test_broadphase_pressed);
 				phys_fps.Tick();
 		}
 

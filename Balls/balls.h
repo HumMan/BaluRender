@@ -2,8 +2,6 @@
 
 #include <baluLib.h>
 
-#include <atomic>
-
 extern "C" {
 #include "../glfw/deps/tinycthread.h"
 }
@@ -15,7 +13,7 @@ const float ball_rad = 0.5;
 const int block_size = 1;
 
 #define USE_COLOR
-#define D3
+#define D4
 
 #ifdef D1
 const int room_size = 125;
@@ -55,8 +53,6 @@ typedef BaluLib::TVec<TFloat, 2> TVec2_Float;
 void UpdateBalls(bool move);
 
 void SendBallsPos(BaluLib::TVec<short, 2>* points);
-
-int BroadPhase(void* p);
 
 void InitBalls();
 
