@@ -42,13 +42,15 @@ TStreamsDesc streams;
 int phys_fps_value;
 double phys_time;
 
+int curr_threads_count = 3;
+
 bool volatile should_close = false;
 bool volatile draw_waiting = false;
 
 void Init()
 {
-	
-	InitBalls();
+
+	InitBalls(curr_threads_count);
 
 	render->Set.ClearColor(0, 0, 0);
 	float f = powf(2, fracture_part);
@@ -65,7 +67,7 @@ void Init()
 #ifdef USE_COLOR
 	color_buff = render->VertexBuffer.Create(TVBType::Array, balls_count * sizeof(TVec<unsigned char, 4>), TVBRefresh::Static, TVBUsage::Draw);
 	TVec<unsigned char, 4>* colors = (TVec<unsigned char, 4>*)render->VertexBuffer.Map(color_buff, TVBAccess::Write);
-	for (int i = 0; i<balls_count; i++)
+	for (int i = 0; i < balls_count; i++)
 	{
 		colors[i] = GetBallsColorArray()[i];
 	}
@@ -83,7 +85,7 @@ void Init()
 	render->VertexBuffer.Data(pos_buff, balls_count * sizeof(TVec<TFloat, 2>), GetBallsPosArray());
 	streams.AddStream(TStream::Vertex, TDataType::Int, 2, pos_buff);
 
-	
+
 }
 
 void error_callback(int error, const char* description)
@@ -109,12 +111,13 @@ static bool draw_scene(GLFWwindow* window, double tt)
 	if (draw_fps.ShowFPS())
 	{
 		char buf[1000];
-		sprintf_s(buf, "Balls: %d Draw FPS: %7.1f Frame: %.1f ms Phys FPS: %d Phys frame: %.1f ms",
+		sprintf_s(buf, "Balls: %d Thr %d Draw FPS: %7.1f Frame: %.1f ms Phys FPS: %d Phys frame: %.1f ms",
 			balls_count,
+			curr_threads_count,
 			draw_fps.GetFPS(),
 			draw_fps.GetTick() * 1000,
 			phys_fps_value,
-			phys_time*1000);
+			phys_time * 1000);
 		glfwSetWindowTitle(window, &buf[0]);
 		puts(buf);
 	}
@@ -123,13 +126,13 @@ static bool draw_scene(GLFWwindow* window, double tt)
 		{
 			draw_waiting = true;
 
-			while (balls_draw_lock.test_and_set(std::memory_order_acquire)) ;
+			while (balls_draw_lock.test_and_set(std::memory_order_acquire));
 
 			CopyPosAndColor(&local_balls_pos[0], &local_balls_color[0]);
 
 			draw_waiting = false;
 
-			balls_draw_lock.clear(std::memory_order_release);		
+			balls_draw_lock.clear(std::memory_order_release);
 
 			render->VertexBuffer.Data(pos_buff, balls_count * sizeof(TVec2_Float), &local_balls_pos[0]);
 #ifdef USE_COLOR
@@ -160,6 +163,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 			break;
 		case GLFW_KEY_B:
 			test_broadphase_pressed = !test_broadphase_pressed;
+			break;
+		case GLFW_KEY_MINUS:
+			curr_threads_count = Clamp(1, 255, curr_threads_count - 1);
+			ChangeThreadsCount(curr_threads_count);
+			break;
+		case GLFW_KEY_EQUAL:
+			curr_threads_count = Clamp(1, 255, curr_threads_count + 1);
+			ChangeThreadsCount(curr_threads_count);
 			break;
 		default:
 			break;
@@ -209,8 +220,8 @@ static int physics_thread_main(void* arg)
 
 		if (!balls_pause)
 		{
-				UpdateBalls(test_broadphase_pressed);
-				phys_fps.Tick();
+			UpdateBalls(test_broadphase_pressed);
+			phys_fps.Tick();
 		}
 
 		balls_draw_lock.clear(std::memory_order_release);
@@ -256,7 +267,7 @@ int main(int argc, char** argv)
 	glfwSetScrollCallback(window, scroll_callback);
 	// Set initial aspect ratio
 	glfwGetFramebufferSize(window, &width, &height);
-	
+
 	render = new TBaluRender(TVec2i(width, height));
 
 	resize_callback(window, width, height);
@@ -264,7 +275,7 @@ int main(int argc, char** argv)
 	Init();
 	draw_fps.Start();
 	phys_fps.Start();
-	
+
 	glfwSetTime(0.0);
 	if (thrd_create(&physics_thread, physics_thread_main, window) != thrd_success)
 	{
@@ -277,8 +288,8 @@ int main(int argc, char** argv)
 	{
 		if (draw_scene(window, glfwGetTime()))
 		{
-			glfwSwapBuffers(window);			
-		}	
+			glfwSwapBuffers(window);
+		}
 		glfwPollEvents();
 	}
 	should_close = true;

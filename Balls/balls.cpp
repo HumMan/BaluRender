@@ -16,13 +16,27 @@ struct TThreadInfo
 	std::atomic_flag start_pos_update;
 	std::atomic_flag start_broadphase;
 
-	volatile bool finished = false;
+	volatile bool finished;
 
 	bool is_main_thread;
 	int offset, high;
+
+	thrd_t physics_thread;
+
+	TThreadInfo()
+	{
+		start_pos_update.test_and_set();
+		start_broadphase.test_and_set();
+		finished = false;
+		is_main_thread = false;
+		offset = 0;
+		high = 0;
+	}
 };
 
-TThreadInfo threads[threads_count];
+TThreadInfo* threads;
+
+//TThreadInfo threads[3];
 
 unsigned char grid_count[blocks_count*blocks_count];
 
@@ -37,8 +51,12 @@ TVec<unsigned char, 4> balls_color[balls_count];
 int action = 0;
 TVec2 mouse_world_pos;
 float attractor_size = 30;
+int threads_count = 3;
+int new_threads_count = 0;
 
 bool test_broadphase = false;
+
+bool changing_threads_count = false;
 
 void SetAttractorPos(TVec2 attractor_pos)
 {
@@ -228,7 +246,7 @@ void InitGrid()
 void UpdateBallsPos(int offset, int hight)
 {
 	TVec2_Float attractor_pos(mouse_world_pos[0], mouse_world_pos[1]);
-	for (int i = offset; i<=hight; i++)
+	for (int i = offset; i <= hight; i++)
 	{
 		balls_speed[i][1] += TFloat(-gravity);
 		if (action != 0)
@@ -284,7 +302,13 @@ int PhysThread(void* p)
 	do
 	{
 		while (params->start_pos_update.test_and_set(std::memory_order_acquire))
+		{
 			thrd_yield();
+			if (changing_threads_count)
+			{
+				return 0;
+			}
+		}
 
 		if (!test_broadphase)
 			UpdateBallsPos(params->offset, params->high);
@@ -316,13 +340,37 @@ void WaitForAllFinish()
 		threads[i + 1].finished = false;
 }
 
+void InitThreads();
+
+void ChangeThreadsCount()
+{
+	changing_threads_count = true;
+	for (int i = 1; i < threads_count; i++)
+	{
+		int res;
+		thrd_join(&threads[i].physics_thread, &res);
+	}
+	changing_threads_count = false;
+
+	threads_count = new_threads_count;
+
+	delete threads;
+
+	InitThreads();
+}
+
 void UpdateBalls(bool test_broadphase_value)
-{	
+{
+	if (new_threads_count != threads_count)
+	{
+		ChangeThreadsCount();
+	}
+
 	test_broadphase = test_broadphase_value;
 
 	//start all processing threads
-	for (int i = 0; i < threads_count - 1; i++)
-		threads[i + 1].start_pos_update.clear(std::memory_order_release);
+	for (int i = 1; i < threads_count; i++)
+		threads[i].start_pos_update.clear(std::memory_order_release);
 
 	if (!test_broadphase)
 	{
@@ -334,8 +382,8 @@ void UpdateBalls(bool test_broadphase_value)
 	InitGrid();
 
 	//start all processing threads
-	for (int i = 0; i < threads_count - 1; i++)
-		threads[i + 1].start_broadphase.clear(std::memory_order_release);
+	for (int i = 1; i < threads_count; i++)
+		threads[i].start_broadphase.clear(std::memory_order_release);
 
 	BroadPhase(threads[0].offset, threads[0].high);
 
@@ -361,6 +409,10 @@ void SendBallsPos(TVec<short, 2>* points)
 
 void InitThreads()
 {
+	threads = new TThreadInfo[threads_count];
+
+	int balls_on_thread = balls_count / threads_count;
+
 	threads[0].offset = 0;
 	threads[0].is_main_thread = true;
 	threads[0].high = threads[0].offset + balls_on_thread - 1;
@@ -374,13 +426,20 @@ void InitThreads()
 		else
 			threads[i].high = threads[i].offset + balls_on_thread - 1;
 
-		thrd_t physics_thread;
-		thrd_create(&physics_thread, PhysThread, &threads[i]);
+		thrd_create(&threads[i].physics_thread, PhysThread, &threads[i]);
 	}
 }
 
-void InitBalls()
+void ChangeThreadsCount(int new_count)
 {
+	new_threads_count = Clamp(1, 255, new_count);
+}
+
+void InitBalls(int new_threads_count_value)
+{
+	new_threads_count = new_threads_count_value;
+	threads_count = new_threads_count_value;
+
 	InitThreads();
 
 	for (int i = 0; i<balls_count; i++)

@@ -6,15 +6,12 @@ extern "C" {
 #include "../glfw/deps/tinycthread.h"
 }
 
-const int threads_count = 3;
-
 const int MAX_BALLS_IN_BLOCK = 2;
 const float ball_rad = 0.5;
 const int block_size = 1;
 
 #define USE_COLOR
 #define D4
-
 #ifdef D1
 const int room_size = 125;
 const int balls_count = 7000;
@@ -39,7 +36,6 @@ const int balls_count = 200000;
 const int point_size = 1;
 #endif
 
-const int balls_on_thread = balls_count / threads_count;
 const int blocks_count = room_size / block_size + 1;
 const float gravity = 0.1;
 const float global_damp = 0.999f;
@@ -54,7 +50,7 @@ void UpdateBalls(bool move);
 
 void SendBallsPos(BaluLib::TVec<short, 2>* points);
 
-void InitBalls();
+void InitBalls(int threads_count);
 
 void CopyPosAndColor(TVec2_Float *pos, BaluLib::TVec<unsigned char, 4> *color);
 
@@ -66,3 +62,5 @@ void ChangeAttractor(double offset);
 void SetAction(int value);
 
 void SetAttractorPos(BaluLib::TVec2 mouse_world_pos);
+
+void ChangeThreadsCount(int new_count);
