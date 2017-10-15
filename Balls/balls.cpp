@@ -348,7 +348,7 @@ void ChangeThreadsCount()
 	for (int i = 1; i < threads_count; i++)
 	{
 		int res;
-		thrd_join(&threads[i].physics_thread, &res);
+		thrd_join(threads[i].physics_thread, &res);
 	}
 	changing_threads_count = false;
 
