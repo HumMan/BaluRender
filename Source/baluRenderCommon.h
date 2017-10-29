@@ -9,6 +9,8 @@
 #include <GL/glew.h>
 #endif
 
+struct TGlyphPacker;
+
 namespace BaluRender
 {
 
@@ -55,4 +57,49 @@ namespace BaluRender
 		int max_texture_image_units;
 		int major, minor;
 	};
+
+	struct TFrameBufferDesc
+	{
+		bool used;
+		int width;
+		int height;
+
+		int depth_buffer_id;
+		int color_buffer_id;
+
+		bool use_color, use_depth;
+		int current_render_face;
+		TFrameBufferDesc() :used(false) {}
+	};
+	struct TVertexBufferDesc
+	{
+		TBaluRenderEnums::TVBType buff_type;
+		void* data_pointer;
+		TBaluRenderEnums::TVBUsage buff_usage;
+		int size;//TODO внести на контоль в дебаге
+	};
+	struct TTextureDesc
+	{
+		bool used;
+		TBaluRenderEnums::TTexType type;
+		TFormat format;
+		TBaluRenderEnums::TTexFilter filter;
+		TBaluRenderEnums::TTexClamp clamp;
+		unsigned short width, height;
+		TTextureDesc() :used(false) {}
+	};
+	struct TShaderDesc
+	{
+		bool used;
+		TShaderDesc() :used(false) {}
+	};
+	struct TBitmapFontDesc
+	{
+		bool used;
+		unsigned int base;
+		int first_char;
+		int chars_count;
+		TBitmapFontDesc() :used(false) {}
+	};
+	
 }

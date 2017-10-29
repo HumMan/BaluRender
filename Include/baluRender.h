@@ -154,7 +154,10 @@ namespace TBaluRenderEnums
 
 namespace BaluRender
 {
-
+	namespace Internal
+	{
+		struct TTexFontPrivate;
+	}
 	struct TTextureId;
 	struct TVertexBufferId;
 	struct TFrameBufferId;
@@ -163,6 +166,12 @@ namespace BaluRender
 	struct TTexFontId;
 
 	class TStreamsDesc;
+
+	struct TFrameBufferDesc;
+	struct TVertexBufferDesc;
+	struct TTextureDesc;
+	struct TShaderDesc;
+	struct TBitmapFontDesc;	
 
 	void CheckGLError();
 	class TBaluRenderInternal;
@@ -173,55 +182,8 @@ namespace BaluRender
 
 		void InitInfo();
 
-		struct TFrameBufferDesc
-		{
-			bool used;
-			int width;
-			int height;
+		
 
-			int depth_buffer_id;
-			int color_buffer_id;
-
-			bool use_color, use_depth;
-			int current_render_face;
-			TFrameBufferDesc() :used(false){}
-		};
-		struct TVertexBufferDesc
-		{
-			TBaluRenderEnums::TVBType buff_type;
-			void* data_pointer;
-			TBaluRenderEnums::TVBUsage buff_usage;
-			int size;//TODO внести на контоль в дебаге
-		};
-		struct TTextureDesc
-		{
-			bool used;
-			TBaluRenderEnums::TTexType type;
-			TFormat format;
-			TBaluRenderEnums::TTexFilter filter;
-			TBaluRenderEnums::TTexClamp clamp;
-			unsigned short width, height;
-			TTextureDesc() :used(false){}
-		};
-		struct TShaderDesc
-		{
-			bool used;
-			TShaderDesc() :used(false){}
-		};
-		struct TBitmapFontDesc
-		{
-			bool used;
-			unsigned int base;
-			int first_char;
-			int chars_count;
-			TBitmapFontDesc() :used(false){}
-		};
-		struct TTexFontDesc
-		{
-			bool used;
-			int tex;
-			TTexFontDesc() :used(false){}
-		};
 		std::vector<TFrameBufferDesc>			frame_buffers;
 
 		std::vector<TVertexBufferDesc>			vertex_buffers;
@@ -230,7 +192,8 @@ namespace BaluRender
 		std::vector<TTextureDesc>				textures;
 		std::vector<TShaderDesc>				shaders;
 		std::vector<TBitmapFontDesc>			bitmap_fonts;
-		std::vector<TTexFontDesc>			tex_fonts;
+		
+		Internal::TTexFontPrivate* tex_font;
 
 		void Initialize(TVec2i use_size);
 	public:
@@ -411,12 +374,12 @@ namespace BaluRender
 
 		class TTexFont
 		{
-			friend class TBaluRender;
 			TBaluRender* r;
 		public:
-			TTexFontId Create();
+			TTexFont(TBaluRender* r);
+			TTexFontId Create(const char* font_path, unsigned int pixel_height);
 			void Delete(TTexFontId use_font);
-			void Print(TTexFontId use_font, char* text, ...);
+			void Print(TTexFontId use_font, TVec2 pos, char* text, ...);
 		}TexFont;
 
 		class TBlend

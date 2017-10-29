@@ -36,11 +36,11 @@ struct TThreadInfo
 
 TThreadInfo* threads;
 
-//TThreadInfo threads[3];
-
 unsigned char grid_count[blocks_count*blocks_count];
 
-//static std::atomic_flag grid_lock[blocks_count*blocks_count];
+#ifdef USE_GRIDLOCK
+static std::atomic_flag grid_lock[blocks_count*blocks_count];
+#endif
 
 int grid[blocks_count*blocks_count*MAX_BALLS_IN_BLOCK];
 TVec2_Float balls_pos[balls_count];
@@ -104,7 +104,9 @@ inline void Collide(int p1, int p2)
 }
 inline void CollideWithCell(int ball, int cell)
 {
-	//while (grid_lock[cell].test_and_set(std::memory_order_acquire));
+#ifdef USE_GRIDLOCK
+	while (grid_lock[cell].test_and_set(std::memory_order_acquire));
+#endif
 	if (MAX_BALLS_IN_BLOCK>2)
 	{
 		for (int s = 0; s<grid_count[cell]; s++)
@@ -130,7 +132,9 @@ inline void CollideWithCell(int ball, int cell)
 			}
 		}
 	}
-	//grid_lock[cell].clear(std::memory_order_release);
+#ifdef USE_GRIDLOCK
+	grid_lock[cell].clear(std::memory_order_release);
+#endif
 }
 
 inline void FindBallIndex(int start_block, int index, int& block, int& block_offset)

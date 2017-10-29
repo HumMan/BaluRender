@@ -42,13 +42,17 @@ TStreamsDesc streams;
 int phys_fps_value;
 double phys_time;
 
-int curr_threads_count = 3;
+int curr_threads_count = 1;
 
 bool volatile should_close = false;
 bool volatile draw_waiting = false;
 
+TTexFontId font;
+
 void Init()
 {
+
+	font = render->TexFont.Create("font.ttf",15);
 
 	InitBalls(curr_threads_count);
 
@@ -92,7 +96,7 @@ void error_callback(int error, const char* description)
 {
 	puts(description);
 }
-
+char buf[1000] = "";
 static bool draw_scene(GLFWwindow* window, double tt)
 {
 	static double t_old = 0.0;
@@ -108,9 +112,9 @@ static bool draw_scene(GLFWwindow* window, double tt)
 		t_old = t;
 
 	draw_fps.Tick();
+	
 	if (draw_fps.ShowFPS())
 	{
-		char buf[1000];
 		sprintf_s(buf, "Balls: %d Thr %d Draw FPS: %7.1f Frame: %.1f ms Phys FPS: %d Phys frame: %.1f ms",
 			balls_count,
 			curr_threads_count,
@@ -122,6 +126,7 @@ static bool draw_scene(GLFWwindow* window, double tt)
 		puts(buf);
 	}
 	{
+		render->Set.Projection(ortho_m);
 		render->Clear(1, 1);
 		{
 			draw_waiting = true;
@@ -140,6 +145,15 @@ static bool draw_scene(GLFWwindow* window, double tt)
 #endif
 
 			render->Draw(streams, TPrimitive::Points, balls_count);
+
+			auto screen_size = render->Get.Viewport();
+
+			auto ortho2 = TMatrix<float, 4>::GetOrtho(0, screen_size[0],0, screen_size[1], -10, 10);
+			render->Set.Projection(ortho2);
+			render->Blend.Enable(true);
+			render->Blend.Func("dc*(1-sa)+sc*sa");
+			
+			render->TexFont.Print(font, TVec2(10, 10), buf);
 		}
 	}
 
@@ -249,6 +263,9 @@ int main(int argc, char** argv)
 	}
 	width = 640;
 	height = 480;
+
+	
+
 	window = glfwCreateWindow(width, height, "Particle Engine", NULL, NULL);
 	if (!window)
 	{
@@ -270,9 +287,11 @@ int main(int argc, char** argv)
 
 	render = new TBaluRender(TVec2i(width, height));
 
+	Init();
+
 	resize_callback(window, width, height);
 
-	Init();
+	
 	draw_fps.Start();
 	phys_fps.Start();
 

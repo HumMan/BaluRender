@@ -11,7 +11,8 @@ const float ball_rad = 0.5;
 const int block_size = 1;
 
 #define USE_COLOR
-#define D4
+//#define USE_GRIDLOCK
+#define D3
 #ifdef D1
 const int room_size = 125;
 const int balls_count = 7000;

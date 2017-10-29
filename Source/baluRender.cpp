@@ -341,7 +341,6 @@ void TBaluRender::Initialize(TVec2i use_size)
 	Blend.r=this;
 	ScissorRect.r = this;
 	BitmapFont.r=this;
-	TexFont.r=this;
 
 	vertex_buffers_emul.New();//because in OpenGL indices start from 1
 
@@ -370,7 +369,7 @@ void TBaluRender::Initialize(TVec2i use_size)
 	CheckGLError();
 }
 
-TBaluRender::TBaluRender(TVec2i use_size)
+TBaluRender::TBaluRender(TVec2i use_size):TexFont(this)
 {
 	p.reset(new TBaluRenderInternal());
 	Initialize(use_size);
