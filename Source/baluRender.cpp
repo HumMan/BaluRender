@@ -288,6 +288,7 @@ void TBaluRender::Initialize(TVec2i use_size)
 		/* Problem: glewInit failed, something is seriously wrong. */
 		LogInfo("Error: %s", glewGetErrorString(err));
 	}
+
 	LogInfo("Status: Using GLEW %s", glewGetString(GLEW_VERSION));
 
 	InitInfo();

@@ -1,9 +1,28 @@
 #pragma once
 
-#ifdef BALURENDER_DLL_EXPORT
-#define BALUSCRIPT_DLL_INTERFACE __declspec(dllexport) 
+#if defined _WIN32 || defined __CYGWIN__ || defined __MINGW32__
+  #ifdef BALURENDER_DLL_EXPORT
+    #ifdef __GNUC__
+      #define BALURENDER_DLL_INTERFACE __attribute__ ((dllexport))
+    #else
+      #define BALURENDER_DLL_INTERFACE __declspec(dllexport) // Note: actually gcc seems to also supports this syntax.
+    #endif
+  #else
+    #ifdef __GNUC__
+      #define BALURENDER_DLL_INTERFACE __attribute__ ((dllimport))
+    #else
+      #define BALURENDER_DLL_INTERFACE __declspec(dllimport) // Note: actually gcc seems to also supports this syntax.
+    #endif
+  #endif
+  #define DLL_LOCAL
 #else
-#define BALUSCRIPT_DLL_INTERFACE __declspec(dllimport)
+  #if __GNUC__ >= 4
+    #define BALURENDER_DLL_INTERFACE __attribute__ ((visibility ("default")))
+    #define DLL_LOCAL  __attribute__ ((visibility ("hidden")))
+  #else
+    #define BALURENDER_DLL_INTERFACE
+    #define DLL_LOCAL
+  #endif
 #endif
 
 class NonAssignable {
@@ -195,9 +214,9 @@ namespace BaluRender
 	struct TShaderDesc;
 	struct TBitmapFontDesc;	
 
-	BALUSCRIPT_DLL_INTERFACE void CheckGLError();
+	BALURENDER_DLL_INTERFACE void CheckGLError();
 	
-	class BALUSCRIPT_DLL_INTERFACE TBaluRender: public NonAssignable
+	class BALURENDER_DLL_INTERFACE TBaluRender: public NonAssignable
 	{
 	private:
 		class TPrivate;
@@ -218,7 +237,7 @@ namespace BaluRender
 		void Clear(bool color = 0, bool depth = 1);
 		void Draw(const TStreamsDesc& use_streams, TBaluRenderEnums::TPrimitive use_primitive, int use_vertices_count);
 
-		class BALUSCRIPT_DLL_INTERFACE TSupport
+		class BALURENDER_DLL_INTERFACE TSupport
 		{
 			friend class TBaluRender; TBaluRender* r;
 			bool multitexturing;
@@ -247,13 +266,13 @@ namespace BaluRender
 			bool HighLevelShading();
 		}Support;
 
-		class BALUSCRIPT_DLL_INTERFACE TCapabilities
+		class BALURENDER_DLL_INTERFACE TCapabilities
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
 		}Capabilities;
 
-		class BALUSCRIPT_DLL_INTERFACE TSet
+		class BALURENDER_DLL_INTERFACE TSet
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -271,7 +290,7 @@ namespace BaluRender
 			void PolygonMode(TBaluRenderEnums::TPolygonMode use_mode);
 		}Set;
 
-		class BALUSCRIPT_DLL_INTERFACE TGet
+		class BALURENDER_DLL_INTERFACE TGet
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -279,7 +298,7 @@ namespace BaluRender
 			TVec2i Viewport();
 		}Get;
 
-		class BALUSCRIPT_DLL_INTERFACE TVertexBuffer
+		class BALURENDER_DLL_INTERFACE TVertexBuffer
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -291,7 +310,7 @@ namespace BaluRender
 			void Delete(TVertexBufferId use_id);
 		}VertexBuffer;
 
-		class BALUSCRIPT_DLL_INTERFACE TFrameBuffer
+		class BALURENDER_DLL_INTERFACE TFrameBuffer
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -308,7 +327,7 @@ namespace BaluRender
 			void DrawPixels(TVec2i pos, TVec2i size, TBaluRenderEnums::TDataType, void* pixels);
 		}FrameBuffer;
 
-		class BALUSCRIPT_DLL_INTERFACE TTexture
+		class BALURENDER_DLL_INTERFACE TTexture
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -325,7 +344,7 @@ namespace BaluRender
 			TVec2 GetRTCoords();
 		}Texture;
 
-		class BALUSCRIPT_DLL_INTERFACE TShader
+		class BALURENDER_DLL_INTERFACE TShader
 		{
 			friend class TBaluRender; TBaluRender* r;
 		private:
@@ -347,7 +366,7 @@ namespace BaluRender
 			void SetUniform(const TShaderId use_shader, int location, int count, const TMatrix4& use_mat);
 		}Shader;
 
-		class BALUSCRIPT_DLL_INTERFACE TDepth
+		class BALURENDER_DLL_INTERFACE TDepth
 		{
 			friend class TBaluRender;
 			TBaluRender* r;
@@ -359,7 +378,7 @@ namespace BaluRender
 			void PolygonOffset(bool use_offset, TBaluRenderEnums::TPolygonMode poly, float factor = 0, float units = 0);
 		}Depth;
 
-		class BALUSCRIPT_DLL_INTERFACE TTexFont
+		class BALURENDER_DLL_INTERFACE TTexFont
 		{
 			TBaluRender* r;
 			class TTexFontPrivate;
@@ -371,7 +390,7 @@ namespace BaluRender
 			void Print(TTexFontId use_font, TVec2 pos, char* text, ...);
 		}TexFont;
 
-		class BALUSCRIPT_DLL_INTERFACE TBlend
+		class BALURENDER_DLL_INTERFACE TBlend
 		{
 		private:
 			struct TBlendState;
@@ -406,7 +425,7 @@ namespace BaluRender
 			void Func(TBaluRenderEnums::TBlendEquation left, TBaluRenderEnums::TBlendFunc op, TBaluRenderEnums::TBlendEquation right);
 		}Blend;
 
-		class BALUSCRIPT_DLL_INTERFACE TAlphaTest
+		class BALURENDER_DLL_INTERFACE TAlphaTest
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -416,7 +435,7 @@ namespace BaluRender
 			void Func(TBaluRenderEnums::TAlphaTestFunc func, float val);
 		}AlphaTest;
 
-		class BALUSCRIPT_DLL_INTERFACE TScissorRect
+		class BALURENDER_DLL_INTERFACE TScissorRect
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -478,7 +497,7 @@ namespace BaluRender
 		TTexFontId() :id(0){}//TODO
 	};
 
-	class BALUSCRIPT_DLL_INTERFACE TStreamsDesc
+	class BALURENDER_DLL_INTERFACE TStreamsDesc
 	{
 		friend class TBaluRender;
 	public:
