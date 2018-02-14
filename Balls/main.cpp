@@ -7,7 +7,6 @@
 #include <atomic>
 
 #include <GLFW/glfw3.h>
-#include <IL/ilut.h>
 #include "baluRender.h"
 #include "balls.h"
 

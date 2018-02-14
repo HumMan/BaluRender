@@ -15,8 +15,9 @@ using namespace BaluRender;
 
 #include<algorithm>
 
-struct TGlyphDesc
+class TGlyphDesc
 {
+public:
 	TVec2i Size;       // Size of glyph
 	TVec2i Bearing;    // Offset from baseline to left/top of glyph
 	int     Advance;    // Offset to advance to next glyph
@@ -52,8 +53,9 @@ struct TGlyphDesc
 	}
 };
 
-struct TGlyph
+class TGlyph
 {
+public:
 	TVec2i pos, size;
 	TQuad<float, 2> tex_coords; // обход прямоугольника CCW
 	int glyph_desc_id;
@@ -66,19 +68,19 @@ struct TGlyph
 		TVec2 t;//TODO походу надо зеркалировать
 		TVec2i temp;
 		temp = (pos + size.ComponentMul(TVec2i(0, 0)));
-		t = TVec2(temp[0], temp[1])*(1.0 / tex_size);
+		t = TVec2(static_cast<float>(temp[0]), static_cast<float>(temp[1]))*(1.0f / tex_size);
 		tex_coords[1] = TVec2(t[0], t[1]);
 
 		temp = (pos + size.ComponentMul(TVec2i(0, 1)));
-		t = TVec2(temp[0], temp[1])*(1.0 / tex_size);
+		t = TVec2(temp[0], temp[1])*(1.0f / static_cast<float>(tex_size));
 		tex_coords[0] = TVec2(t[0], t[1]);
 
 		temp = (pos + size.ComponentMul(TVec2i(1, 1)));
-		t = TVec2(temp[0], temp[1])*(1.0 / tex_size);
+		t = TVec2(temp[0], temp[1])*(1.0f / static_cast<float>(tex_size));
 		tex_coords[3] = TVec2(t[0], t[1]);
 
 		temp = (pos + size.ComponentMul(TVec2i(1, 0)));
-		t = TVec2(temp[0], temp[1])*(1.0 / tex_size);
+		t = TVec2(temp[0], temp[1])*(1.0f / static_cast<float>(tex_size));
 		tex_coords[2] = TVec2(t[0], t[1]);
 	}
 };
@@ -174,7 +176,7 @@ private:
 		rows.clear();
 		max_heigh = 0;
 		curr_height = 0;
-		for (int i = 0; i < glyphs.size(); i++)
+		for (size_t i = 0; i < glyphs.size(); i++)
 		{
 			PushGlyph(glyphs[i].Size, i);
 			if (curr_height + max_heigh > tex_size)
@@ -206,7 +208,7 @@ public:
 
 	TGlyph GetGlyphByChar(char c)
 	{
-		int index;
+		size_t index;
 		if (all_chars != nullptr)
 			index = find(all_chars, strlen(all_chars), c);
 		else
@@ -257,8 +259,9 @@ public:
 
 };
 
-struct TTexFontDesc
+class TTexFontDesc
 {
+public:
 	int texture;
 
 	std::shared_ptr<TGlyphPacker> glyphs;
@@ -268,24 +271,21 @@ struct TTexFontDesc
 	}
 };
 
-namespace BaluRender
+
+class TBaluRender::TTexFont::TTexFontPrivate
 {
-	namespace Internal
+public:
+	std::vector<TTexFontDesc> fonts;
+
+	std::vector<TQuad<float, 3>> quads;
+	std::vector<TQuad<float, 2>> tex_coords;
+
+	TTexFontPrivate()
 	{
-		struct TTexFontPrivate
-		{
-			std::vector<TTexFontDesc> fonts;
 
-			std::vector<TQuad<float, 3>> quads;
-			std::vector<TQuad<float, 2>> tex_coords;
-
-			TTexFontPrivate()
-			{
-
-			}
-		};
 	}
-}
+};
+
 
 #if PLATFORM==PLATFORM_WIN32
 #  define FREETYPE_PLATFORM TT_PLATFORM_MICROSOFT
@@ -298,7 +298,7 @@ namespace BaluRender
 TBaluRender::TTexFont::TTexFont(TBaluRender* r)
 {
 	this->r = r;
-	r->tex_font = new BaluRender::Internal::TTexFontPrivate();
+	this->tex_font = new TBaluRender::TTexFont::TTexFontPrivate();
 }
 
 //const char text[] = " _abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ1234567890-=_+//*!\"№;%:?*()";
@@ -392,11 +392,11 @@ TTexFontId TBaluRender::TTexFont::Create(const char* font_path, unsigned int pix
 	//auto any_error = ilGetError();
 
 	CheckGLError();
-	r->tex_font->fonts.emplace_back();
-	r->tex_font->fonts.back().texture = tex_id;
+	this->tex_font->fonts.emplace_back();
+	this->tex_font->fonts.back().texture = tex_id;
 	TTexFontId result;
 
-	r->tex_font->fonts.back().glyphs.reset(glyph_packer);
+	this->tex_font->fonts.back().glyphs.reset(glyph_packer);
 
 	delete map;
 
@@ -451,11 +451,11 @@ void TBaluRender::TTexFont::Print(TTexFontId use_font, TVec2 pos, char* text, ..
 
 	if (length > 0)
 	{
-		auto desc = &r->tex_font->fonts[use_font.id];
+		auto desc = &this->tex_font->fonts[use_font.id];
 		glBindTexture(GL_TEXTURE_2D, desc->texture);
 
-		auto& quads = r->tex_font->quads;
-		auto& tex_coords = r->tex_font->tex_coords;
+		auto& quads = this->tex_font->quads;
+		auto& tex_coords = this->tex_font->tex_coords;
 
 		if (quads.size() < length)
 		{

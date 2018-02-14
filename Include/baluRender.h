@@ -1,5 +1,19 @@
 #pragma once
 
+#ifdef BALURENDER_DLL_EXPORT
+#define BALUSCRIPT_DLL_INTERFACE __declspec(dllexport) 
+#else
+#define BALUSCRIPT_DLL_INTERFACE __declspec(dllimport)
+#endif
+
+class NonAssignable {
+private:
+	NonAssignable(NonAssignable const&) {}
+	NonAssignable& operator=(NonAssignable const&) {}
+public:
+	NonAssignable() {}
+};
+
 #include <memory>
 
 #include <baluLib.h>
@@ -150,14 +164,22 @@ namespace TBaluRenderEnums
 		AT_GEQUAL,
 		AT_GREATER
 	};
+
+	enum TDepthFunc
+	{
+		DF_ALWAYS,
+		DF_NEVER,
+		DF_LEQUAL,
+		DF_LESS,
+		DF_EQUAL,
+		DF_NOTEQUAL,
+		DF_GEQUAL,
+		DF_GREATER
+	};
 }
 
 namespace BaluRender
 {
-	namespace Internal
-	{
-		struct TTexFontPrivate;
-	}
 	struct TTextureId;
 	struct TVertexBufferId;
 	struct TFrameBufferId;
@@ -173,34 +195,22 @@ namespace BaluRender
 	struct TShaderDesc;
 	struct TBitmapFontDesc;	
 
-	void CheckGLError();
-	class TBaluRenderInternal;
-	class TBaluRender
+	BALUSCRIPT_DLL_INTERFACE void CheckGLError();
+	
+	class BALUSCRIPT_DLL_INTERFACE TBaluRender: public NonAssignable
 	{
 	private:
-		std::unique_ptr<TBaluRenderInternal> p;
+		class TPrivate;
+		TPrivate* p;
 
 		void InitInfo();
 
-		
-
-		std::vector<TFrameBufferDesc>			frame_buffers;
-
-		std::vector<TVertexBufferDesc>			vertex_buffers;
-		BaluLib::TIndexedArray<TVertexBufferDesc>vertex_buffers_emul;
-
-		std::vector<TTextureDesc>				textures;
-		std::vector<TShaderDesc>				shaders;
-		std::vector<TBitmapFontDesc>			bitmap_fonts;
-		
-		Internal::TTexFontPrivate* tex_font;
-
 		void Initialize(TVec2i use_size);
 	public:
-		char log_buff[102];
-
 		TBaluRender(TVec2i use_size);
 		~TBaluRender();
+
+		void LogInfo(const char* text, ...);
 
 		TVec2i ScreenSize();
 		TVec2 WindowToClipSpace(int x, int y);
@@ -208,7 +218,7 @@ namespace BaluRender
 		void Clear(bool color = 0, bool depth = 1);
 		void Draw(const TStreamsDesc& use_streams, TBaluRenderEnums::TPrimitive use_primitive, int use_vertices_count);
 
-		class TSupport
+		class BALUSCRIPT_DLL_INTERFACE TSupport
 		{
 			friend class TBaluRender; TBaluRender* r;
 			bool multitexturing;
@@ -237,17 +247,17 @@ namespace BaluRender
 			bool HighLevelShading();
 		}Support;
 
-		class TCapabilities
+		class BALUSCRIPT_DLL_INTERFACE TCapabilities
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
 		}Capabilities;
 
-		class TSet
+		class BALUSCRIPT_DLL_INTERFACE TSet
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
-			void Viewport(TVec2i use_size);
+			bool Viewport(TVec2i use_size);
 			void Color(float r, float g, float b);
 			void Color(float r, float g, float b, float a);
 			void ClearColor(float r, float g, float b, float a = 1.0f);
@@ -261,7 +271,7 @@ namespace BaluRender
 			void PolygonMode(TBaluRenderEnums::TPolygonMode use_mode);
 		}Set;
 
-		class TGet
+		class BALUSCRIPT_DLL_INTERFACE TGet
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -269,7 +279,7 @@ namespace BaluRender
 			TVec2i Viewport();
 		}Get;
 
-		class TVertexBuffer
+		class BALUSCRIPT_DLL_INTERFACE TVertexBuffer
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -281,7 +291,7 @@ namespace BaluRender
 			void Delete(TVertexBufferId use_id);
 		}VertexBuffer;
 
-		class TFrameBuffer
+		class BALUSCRIPT_DLL_INTERFACE TFrameBuffer
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -295,9 +305,10 @@ namespace BaluRender
 			void Bind(TFrameBufferId use_framebuff);
 			void BindMain();
 			void SetDrawBuffersCount(int use_count);//TODO должно задаваться автоматически в зависимости от подсоединенных буферов цвета
+			void DrawPixels(TVec2i pos, TVec2i size, TBaluRenderEnums::TDataType, void* pixels);
 		}FrameBuffer;
 
-		class TTexture
+		class BALUSCRIPT_DLL_INTERFACE TTexture
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -314,16 +325,14 @@ namespace BaluRender
 			TVec2 GetRTCoords();
 		}Texture;
 
-		class TShader
+		class BALUSCRIPT_DLL_INTERFACE TShader
 		{
 			friend class TBaluRender; TBaluRender* r;
 		private:
 			void LoadShaderGLSL(const int use_shader, const char* use_source, const char* use_defines);
-			void LoadShaderASM(const int& use_shader, const TBaluRenderEnums::TShaderType use_type, const char* use_source, const char* use_defines);
 		public:
 			TShaderId Create(const char* use_file_name, const char* use_defines);
 			TShaderId LoadGLSL(const char* use_vsource, const char* use_fsource, const char* use_defines);
-			TShaderId LoadASM(const char* use_vsource, const char* use_fsource, const char* use_defines);
 			void Delete(const TShaderId use_shader);
 			void Bind(const TShaderId use_shader);
 			void Unbind(const TShaderId use_shader);
@@ -338,43 +347,23 @@ namespace BaluRender
 			void SetUniform(const TShaderId use_shader, int location, int count, const TMatrix4& use_mat);
 		}Shader;
 
-		class TDepth
+		class BALUSCRIPT_DLL_INTERFACE TDepth
 		{
 			friend class TBaluRender;
 			TBaluRender* r;
 		public:
-			enum TDepthFunc
-			{
-				DF_ALWAYS,
-				DF_NEVER,
-				DF_LEQUAL,
-				DF_LESS,
-				DF_EQUAL,
-				DF_NOTEQUAL,
-				DF_GEQUAL,
-				DF_GREATER
-			};
 			void Test(bool enable);
 			void Func(char* func);//funcs: "1","0","<","<=","==",">=",">","!="
-			void Func(TDepthFunc func);
+			void Func(TBaluRenderEnums::TDepthFunc func);
 			void Mask(bool enable);
 			void PolygonOffset(bool use_offset, TBaluRenderEnums::TPolygonMode poly, float factor = 0, float units = 0);
 		}Depth;
 
-		class TBitmapFont
-		{
-			friend class TBaluRender;
-			TBaluRender* r;
-		public:
-			TBitmapFontId Create();
-			void Delete(TBitmapFontId use_font);
-			void Print(TBitmapFontId use_font, TVec2 pos, char* text, ...);
-			void Print(TBitmapFontId use_font, TVec3 pos, char* text, ...);
-		}BitmapFont;
-
-		class TTexFont
+		class BALUSCRIPT_DLL_INTERFACE TTexFont
 		{
 			TBaluRender* r;
+			class TTexFontPrivate;
+			TTexFontPrivate* tex_font;
 		public:
 			TTexFont(TBaluRender* r);
 			TTexFontId Create(const char* font_path, unsigned int pixel_height);
@@ -382,48 +371,14 @@ namespace BaluRender
 			void Print(TTexFontId use_font, TVec2 pos, char* text, ...);
 		}TexFont;
 
-		class TBlend
+		class BALUSCRIPT_DLL_INTERFACE TBlend
 		{
-			friend class TBaluRender; TBaluRender* r;
-			//blend func script
-		public:
-			enum TTokenType
-			{
-				T_UNKNOWN = -1,
-				T_SRCC = 0,
-				T_ONE_MINUS_SRCC,
-				T_SRCA,
-				T_ONE_MINUS_SRCA,
-				T_DSTC,
-				T_ONE_MINUS_DSTC,
-				T_DSTA,
-				T_ONE_MINUS_DSTA,
-				T_CONSTC,
-				T_ONE_MINUS_CONSTC,
-				T_CONSTA,
-				T_ONE_MINUS_CONSTA,
-				T_ONE,
-				T_MINUS,
-				T_PLUS,
-				T_MUL,
-				T_LPARENTH,
-				T_RPARENTH,
-				T_DONE
-			};
 		private:
-			TTokenType tokens[15];
-			int thigh;
-			int c;
-			TBlend();
-			void GetTokens(char* c);
-			void GetToken(TTokenType token);
-			void Factor(int &factor);
-			bool FactorColor(int &factor);
-			//blend func script end
-			int curr_op;
-			TVec4 curr_blend_color;
+			struct TBlendState;
+			TBlendState* blend_state;
 		public:
-
+			TBlend(TBaluRender* render);
+			~TBlend();
 			void Enable(bool enable);
 			void Func(char* func);
 			//SetFunc: задает функцию смешивания
@@ -451,7 +406,7 @@ namespace BaluRender
 			void Func(TBaluRenderEnums::TBlendEquation left, TBaluRenderEnums::TBlendFunc op, TBaluRenderEnums::TBlendEquation right);
 		}Blend;
 
-		class TAlphaTest
+		class BALUSCRIPT_DLL_INTERFACE TAlphaTest
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -461,7 +416,7 @@ namespace BaluRender
 			void Func(TBaluRenderEnums::TAlphaTestFunc func, float val);
 		}AlphaTest;
 
-		class TScissorRect
+		class BALUSCRIPT_DLL_INTERFACE TScissorRect
 		{
 			friend class TBaluRender; TBaluRender* r;
 		public:
@@ -514,15 +469,6 @@ namespace BaluRender
 		TFrameBufferId() :id(0){}
 	};
 
-	struct TBitmapFontId
-	{
-		friend class TBaluRender::TBitmapFont;
-	private:
-		int id;
-	public:
-		TBitmapFontId() :id(0){}//TODO
-	};
-
 	struct TTexFontId
 	{
 		friend class TBaluRender::TTexFont;
@@ -532,31 +478,17 @@ namespace BaluRender
 		TTexFontId() :id(0){}//TODO
 	};
 
-	class TStreamsDesc
+	class BALUSCRIPT_DLL_INTERFACE TStreamsDesc
 	{
 		friend class TBaluRender;
 	public:
-		struct TStreamDesc
-		{
-			int size;
-			TBaluRenderEnums::TDataType type;
-			void* data;
-			TVertexBufferId vert_buf;
-			TTextureId tex;
-			TStreamDesc()
-			{
-				size = 0;
-				data = 0;
-			}
-		};
+		struct TStreamsDescState;
+		TStreamsDescState* state;
 	private:
-		const static int max_tex_units = 32;
-		TStreamDesc vertex, normal, color;
-		TStreamDesc index;
-		TStreamDesc tex[max_tex_units];
-		int tex_units_usage_mask;
 		void AddStream(TBaluRenderEnums::TStream use_stream, int use_tex_unit, TBaluRenderEnums::TDataType use_type, int use_size, void* use_data, TVertexBufferId use_buf);
 	public:
+		TStreamsDesc();
+		~TStreamsDesc();
 		void AddStream(TBaluRenderEnums::TStream use_stream, int use_tex_unit, TBaluRenderEnums::TDataType use_type, int use_size, void* use_data);
 		void AddStream(TBaluRenderEnums::TStream use_stream, int use_tex_unit, TBaluRenderEnums::TDataType use_type, TVertexBufferId use_buf);
 		void AddStream(TBaluRenderEnums::TStream use_stream, TBaluRenderEnums::TDataType use_type, int use_size, void* use_data);

@@ -34,23 +34,6 @@ TShaderId TBaluRender::TShader::Create(const char* use_file_name,const char* use
 	return TShaderId();
 }
 
-void TBaluRender::TShader::LoadShaderASM(const int& id, const TShaderType use_type,const char* use_source,const char* use_defines)
-{
-	GLenum type = asm_shader_type[(int)use_type];
-	glGenProgramsARB ( 1, (GLenum*)&id );
-	glBindProgramARB(type,id);
-    glProgramStringARB ( type, GL_PROGRAM_FORMAT_ASCII_ARB,
-                         strlen(use_source),use_source);
-    if ( glGetError () == GL_INVALID_OPERATION )
-    {
-		char s[100];
-		sprintf_s(s,"%s shader compile error", (int)use_type == 0 ? "Vertex" : "Fragment");
-        //MessageBoxA(0,(char*)glGetString ( GL_PROGRAM_ERROR_STRING_ARB ),s,MB_OK);
-		exit(0);
-    }
-	glBindProgramARB(type,0);
-}
-
 void TBaluRender::TShader::LoadShaderGLSL(const int use_shader,const char* use_source,const char* use_defines)
 {
 	const GLcharARB* shader_strings[2];
@@ -69,8 +52,6 @@ void TBaluRender::TShader::LoadShaderGLSL(const int use_shader,const char* use_s
 		int chars_written;
 		char buf[2048];
 		glGetInfoLogARB(use_shader,sizeof(buf),&chars_written,buf);
-		//MessageBoxA(0,buf,"Shader compile error:",MB_OK);
-		//MessageBoxA(0,use_source,"Source:",MB_OK);
 	}
 }
 
@@ -85,6 +66,13 @@ TShaderId TBaluRender::TShader::LoadGLSL(const char* use_vsource,const char* use
 	glAttachObjectARB(program_object,vshader);
 	glAttachObjectARB(program_object,fshader);
 	glLinkProgramARB(program_object);
+
+	glDetachObjectARB(program_object, vshader);
+	glDetachObjectARB(program_object, fshader);
+
+	glDeleteObjectARB(vshader);
+	glDeleteObjectARB(fshader);
+
 	GLint linked;
 	glGetObjectParameterivARB(program_object,GL_OBJECT_LINK_STATUS_ARB,&linked);
 	if(!linked)
@@ -92,37 +80,50 @@ TShaderId TBaluRender::TShader::LoadGLSL(const char* use_vsource,const char* use
 		int chars_written;
 		char buf[2048];
 		glGetInfoLogARB(program_object,sizeof(buf),&chars_written,buf);
-		//MessageBoxA(0,buf,"Shader link error:",MB_OK);
 	}
+
+	GLint uniforms_count;
+	glGetProgramivARB(program_object, GL_ACTIVE_UNIFORMS, &uniforms_count);
+	for (int i = 0; i < uniforms_count; i++)
+	{
+		int length, size;
+		char name[256];
+		GLenum type;
+		glGetActiveUniformARB(program_object, i, 256, &length, &size, &type, name);
+	}
+
 	TShaderId result;
 	result.id = program_object;
 	return result;
 }
 
-TShaderId TBaluRender::TShader::LoadASM(const char* use_vsource,const char* use_fsource,const char* use_defines)
-{
-	return TShaderId();
-}
-
 void TBaluRender::TShader::Delete(const TShaderId use_shader)
 {
+	glUseProgramObjectARB(0);
+	glDeleteProgram(use_shader.id);
 }
 
 void TBaluRender::TShader::Bind(const TShaderId use_shader)
 {
+	glUseProgramObjectARB(use_shader.id);
 }
 
 void TBaluRender::TShader::Unbind(const TShaderId use_shader)
 {
+	glUseProgramObjectARB(0);
 }
 
 int TBaluRender::TShader::GetUniformLocation(const TShaderId use_shader, const char* use_uniform_name)
 {
-	return -1;
+	return glGetUniformLocationARB(use_shader.id, use_uniform_name);
 }
 
 void TBaluRender::TShader::SetUniform(const TShaderId use_shader, int location,const TVec3& use_vec)
 {
+	//GLint id;
+	//glGetIntegerv(GL_CURRENT_PROGRAM, &id);
+	//TODO assert(active_program==use_shader);
+	glUniform3fvARB(location, 1, (GLfloat*) &use_vec);
 }
 
 void TBaluRender::TShader::SetUniform(const TShaderId use_shader, int location,const TVec4& use_vec)
@@ -152,3 +153,8 @@ void TBaluRender::TShader::SetUniform(const TShaderId use_shader, int location,i
 void TBaluRender::TShader::SetUniform(const TShaderId use_shader, int location,int count,const TMatrix4& use_mat)
 {
 }
+
+//void TBaluRender::TShader::SetUniform(const TShaderId use_shader, int location, int count, void* value)
+//{
+//
+//}

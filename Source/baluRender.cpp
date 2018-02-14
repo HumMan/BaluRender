@@ -25,109 +25,6 @@ void strcpy_s(char* buf, int len, char* value)
 #define sscanf_s sscanf
 #endif
 
-
-static const char *glErrorStrings[GL_OUT_OF_MEMORY - GL_INVALID_ENUM + 1] = {
-	"Invalid enumerant",
-	"Invalid value",
-	"Invalid operation",
-	"Stack overflow",
-	"Stack underflow",
-	"Out of memory",
-};
-
-const GLuint data_types[] =
-{
-	GL_DOUBLE,
-	GL_FLOAT,
-	GL_INT,
-	GL_SHORT,
-	GL_BYTE,
-	GL_UNSIGNED_INT,
-	GL_UNSIGNED_SHORT,
-	GL_UNSIGNED_BYTE,
-};
-
-
-const GLenum primitive[]=
-{
-	GL_POINTS,
-	GL_LINES,
-	GL_LINE_LOOP,
-	GL_LINE_STRIP,
-	GL_TRIANGLES,
-	GL_TRIANGLE_STRIP,
-	GL_TRIANGLE_FAN,
-	GL_QUADS,
-	GL_QUAD_STRIP
-};
-
-const GLenum internal_shade_model[]=
-{
-	GL_FLAT,
-	GL_SMOOTH
-};
-
-const GLenum internal_polygon_mode[]=
-{
-	GL_POINT,
-	GL_LINE,
-	GL_FILL
-};
-
-const GLenum internal_polygon_offset[]=
-{
-	GL_POLYGON_OFFSET_POINT,
-	GL_POLYGON_OFFSET_LINE,
-	GL_POLYGON_OFFSET_FILL
-};
-
-const GLenum depth_funcs[]=
-{
-	GL_ALWAYS,
-	GL_NEVER,
-	GL_LEQUAL,
-	GL_LESS,
-	GL_EQUAL,
-	GL_NOTEQUAL,
-	GL_GEQUAL,
-	GL_GREATER
-};
-
-const GLenum alpha_test_funcs[] =
-{
-	GL_ALWAYS,
-	GL_NEVER,
-	GL_LEQUAL,
-	GL_LESS,
-	GL_EQUAL,
-	GL_NOTEQUAL,
-	GL_GEQUAL,
-	GL_GREATER
-};
-
-static const GLenum blend_equations[6*2] =
-{
-	GL_SRC_COLOR,
-	GL_ONE_MINUS_SRC_COLOR,
-	GL_SRC_ALPHA,
-	GL_ONE_MINUS_SRC_ALPHA,
-	GL_DST_COLOR,
-	GL_ONE_MINUS_DST_COLOR,
-	GL_DST_ALPHA,
-	GL_ONE_MINUS_DST_ALPHA,
-	GL_CONSTANT_COLOR,
-	GL_ONE_MINUS_CONSTANT_COLOR,
-	GL_CONSTANT_ALPHA,
-	GL_ONE_MINUS_CONSTANT_ALPHA
-};
-
-//TODO добавить другие функции https://www.khronos.org/opengles/sdk/docs/man/xhtml/glBlendFunc.xml
-static const GLenum blend_funcs[6] =
-{
-	GL_FUNC_ADD,
-	GL_FUNC_SUBTRACT
-};
-
 const char* GetGLErrorString(GLenum errorCode){
 	if (errorCode == 0) {
 		return (const char *) "No error";
@@ -148,35 +45,72 @@ void BaluRender::CheckGLError()
 	}
 }
 
-void TStreamsDesc::AddStream(TStream use_stream,
-							 int use_tex_unit,TDataType use_type,
-							 int use_size, void* use_data, TVertexBufferId use_buf)
+struct TStreamsDesc::TStreamsDescState
 {
-	TStreamDesc t;
-	t.data = use_data;
-	t.size=use_size;
-	t.type = use_type;
-	t.vert_buf =use_buf;
-	switch(use_stream)
+	struct TStreamDesc
 	{
-	case TStream::Index:
-		index=t;
-		break;
-	case TStream::Color:
-		color=t;
-		break;
-	case TStream::Normal:
-		normal=t;
-		break;
-	case TStream::Vertex:
-		vertex=t;
-		break;
-	case TStream::TexCoord:
-		tex[use_tex_unit]=t;
-		break;
-	default:
-		assert(false);
+		int size;
+		TBaluRenderEnums::TDataType type;
+		void* data;
+		TVertexBufferId vert_buf;
+		TTextureId tex;
+		TStreamDesc()
+		{
+			size = 0;
+			data = 0;
+		}
+	};
+	const static int max_tex_units = 32;
+	TStreamDesc vertex, normal, color;
+	TStreamDesc index;
+	TStreamDesc tex[max_tex_units];
+	int tex_units_usage_mask;
+
+	void AddStream(TStream use_stream,
+		int use_tex_unit, TDataType use_type,
+		int use_size, void* use_data, TVertexBufferId use_buf)
+	{
+		TStreamDesc t;
+		t.data = use_data;
+		t.size = use_size;
+		t.type = use_type;
+		t.vert_buf = use_buf;
+		switch (use_stream)
+		{
+		case TStream::Index:
+			index = t;
+			break;
+		case TStream::Color:
+			color = t;
+			break;
+		case TStream::Normal:
+			normal = t;
+			break;
+		case TStream::Vertex:
+			vertex = t;
+			break;
+		case TStream::TexCoord:
+			tex[use_tex_unit] = t;
+			break;
+		default:
+			assert(false);
+		}
 	}
+};
+
+TStreamsDesc::TStreamsDesc()
+{
+	state = new TStreamsDesc::TStreamsDescState();
+}
+
+TStreamsDesc::~TStreamsDesc()
+{
+	delete state;
+}
+
+void TStreamsDesc::AddStream(TBaluRenderEnums::TStream use_stream, int use_tex_unit, TBaluRenderEnums::TDataType use_type, int use_size, void* use_data, TVertexBufferId use_buf)
+{
+	state->AddStream(use_stream, use_tex_unit, use_type, use_size, use_data, use_buf);
 }
 
 void TStreamsDesc::AddStream(TStream use_stream,int use_tex_unit,TDataType use_type, int use_size, void* use_data)
@@ -201,18 +135,18 @@ void TStreamsDesc::AddStream(TStream use_stream,TDataType use_type, int use_size
 
 void TStreamsDesc::AddTexture(int use_tex_unit,TTextureId use_tex_id)
 {
-	tex[use_tex_unit].tex=use_tex_id;
+	state->tex[use_tex_unit].tex=use_tex_id;
 }
 
 void TStreamsDesc::Clear()
 {
-	for(int i=0;i<max_tex_units;i++)
+	for(int i=0;i<state->max_tex_units;i++)
 	{
-		tex[i]=TStreamDesc();
+		state->tex[i]= TStreamsDescState::TStreamDesc();
 	}
-	vertex=TStreamDesc();
-	color=TStreamDesc();
-	normal=TStreamDesc();
+	state->vertex= TStreamsDescState::TStreamDesc();
+	state->color= TStreamsDescState::TStreamDesc();
+	state->normal= TStreamsDescState::TStreamDesc();
 }
 
 bool TokenExists(char* use_string,char* use_token)
@@ -229,9 +163,20 @@ bool TokenExists(char* use_string,char* use_token)
 	return strstr(use_string,use_token)!=NULL;
 }
 
+void TBaluRender::LogInfo(const char* text, ...)
+{
+	va_list args;
+	va_start(args, text);
+
+	vsprintf_s(p->log_buff, text, args);
+	LOG(INFO) << p->log_buff;
+
+	va_end(args);
+}
+
 void TBaluRender::InitInfo()
 {
-	LOG(INFO) << "OpenGL INFO START:";
+	LogInfo("OpenGL INFO START:");
 
 	int ext_len=strlen((char *)glGetString(GL_EXTENSIONS));
 	char* ext=new char[ext_len+1]; 
@@ -240,31 +185,29 @@ void TBaluRender::InitInfo()
 
 	const char* version = (const char*)glGetString( GL_VERSION );
 	sscanf_s(version, "%d.%d", &p->major, &p->minor);
-	LOG(INFO) << version;
+	LogInfo(version);
 
-	LOG(INFO) << (const char*)glGetString( GL_RENDERER);
-	LOG(INFO) << (const char*)glGetString( GL_VENDOR);
+	LogInfo((const char*)glGetString( GL_RENDERER));
+	LogInfo((const char*)glGetString( GL_VENDOR));
 
 	Support.multitexturing			=TokenExists(ext,"GL_ARB_multitexture");
 	
 	if(Support.multitexturing)
 	{
 		glGetIntegerv(GL_MAX_TEXTURE_UNITS, &p->max_texture_units);
-		sprintf_s(log_buff, "Max texture units = %i", p->max_texture_units); 
-		LOG(INFO) << log_buff;
+		LogInfo("Max texture units = %i", p->max_texture_units);
+		
 		glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, &p->max_vertex_texture_image_units);
-		sprintf_s(log_buff, "Max vertex texture units = %i", p->max_vertex_texture_image_units);
-		LOG(INFO) << log_buff;
+		LogInfo("Max vertex texture units = %i", p->max_vertex_texture_image_units);
+
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &p->max_texture_image_units);
-		sprintf_s(log_buff, "Max texture image units = %i", p->max_texture_image_units);
-		LOG(INFO) << log_buff;
+		LogInfo("Max texture image units = %i", p->max_texture_image_units);
 	}
 
 	{
 		int actualbits;
 		glGetIntegerv(GL_DEPTH_BITS, &actualbits);
-		sprintf_s(log_buff, "Depth bits = %i", actualbits);
-		LOG(INFO) << log_buff;
+		LogInfo("Depth bits = %i", actualbits);
 	}
 
 	Support.vertex_array = (p->major * 10 + p->minor >= 11);
@@ -279,8 +222,7 @@ void TBaluRender::InitInfo()
 	if(Support.anisotropic_filter)
 	{
 		glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &p->max_aniso);
-		sprintf_s(log_buff, "Max aniso = %i", p->max_aniso);
-		LOG(INFO) << log_buff;
+		LogInfo("Max aniso = %i", p->max_aniso);
 	}
 
 	Support.npot_texture			=TokenExists(ext,"GL_ARB_texture_non_power_of_two");
@@ -297,21 +239,18 @@ void TBaluRender::InitInfo()
 		c++;
 	}
 
-	LOG(INFO) << ext;
+	LogInfo(ext);
 
 	delete[] ext;
 
-	sprintf_s(log_buff, "OpenGL INFO END:");
-	LOG(INFO) << log_buff;
+	LogInfo("OpenGL INFO END:");
 }
 
 void TBaluRender::Initialize(TVec2i use_size)
 {
-	sprintf_s(log_buff, "Initialization...");
-	LOG(INFO) << log_buff;
+	LogInfo("Initialization...");
 
-	sprintf_s(log_buff, "Loading image library...");
-	LOG(INFO) << log_buff;
+	LogInfo("Loading image library...");
 	
 	CheckGLError();
 
@@ -328,8 +267,7 @@ void TBaluRender::Initialize(TVec2i use_size)
 	ilutEnable(ILUT_OPENGL_CONV);
 	ilutEnable(ILUT_GL_USE_S3TC);
 
-	sprintf_s(log_buff, " passed");
-	LOG(INFO) << log_buff;
+	LogInfo(" passed");
 
 	CheckGLError();
 	Set.r=this;
@@ -338,11 +276,9 @@ void TBaluRender::Initialize(TVec2i use_size)
 	Shader.r=this;
 	VertexBuffer.r=this;
 	Support.r=this;
-	Blend.r=this;
 	ScissorRect.r = this;
-	BitmapFont.r=this;
 
-	vertex_buffers_emul.New();//because in OpenGL indices start from 1
+	p->vertex_buffers_emul.New();//because in OpenGL indices start from 1
 
 	p->screen_size = use_size;
 
@@ -350,11 +286,9 @@ void TBaluRender::Initialize(TVec2i use_size)
 	if (GLEW_OK != err)
 	{
 		/* Problem: glewInit failed, something is seriously wrong. */
-		sprintf_s(log_buff, "Error: %s", glewGetErrorString(err));
-		LOG(INFO) << log_buff;
+		LogInfo("Error: %s", glewGetErrorString(err));
 	}
-	sprintf_s(log_buff, "Status: Using GLEW %s", glewGetString(GLEW_VERSION));
-	LOG(INFO) << log_buff;
+	LogInfo("Status: Using GLEW %s", glewGetString(GLEW_VERSION));
 
 	InitInfo();
 
@@ -369,15 +303,18 @@ void TBaluRender::Initialize(TVec2i use_size)
 	CheckGLError();
 }
 
-TBaluRender::TBaluRender(TVec2i use_size):TexFont(this)
+TBaluRender::TBaluRender(TVec2i use_size):
+	TexFont(this),
+	Blend(this)
 {
-	p.reset(new TBaluRenderInternal());
+	p = new TPrivate();
 	Initialize(use_size);
 }
 
 TBaluRender::~TBaluRender()
 {
 	ilShutDown();
+	delete p;
 }
 
 TVec2i TBaluRender::ScreenSize(){
@@ -398,61 +335,62 @@ void TBaluRender::Clear(bool color, bool depth)
 
 void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive use_primitive, int use_vertices_count)
 {
+	auto& streams = *use_streams.state;
 	if(Support.vertex_buffer)
 	{
-		if(use_streams.vertex.data||use_streams.vertex.vert_buf.id!=0)
+		if(streams.vertex.data||streams.vertex.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_VERTEX_ARRAY);
-			if(use_streams.vertex.vert_buf.id!=0)
-				glBindBufferARB(GL_ARRAY_BUFFER,use_streams.vertex.vert_buf.id);
-			glVertexPointer(use_streams.vertex.size, data_types[(int)use_streams.vertex.type], 0, use_streams.vertex.data);
+			if(streams.vertex.vert_buf.id!=0)
+				glBindBufferARB(GL_ARRAY_BUFFER,streams.vertex.vert_buf.id);
+			glVertexPointer(streams.vertex.size, data_types[(int)streams.vertex.type], 0, streams.vertex.data);
 		}
-		if(use_streams.normal.data||use_streams.normal.vert_buf.id!=0)
+		if(streams.normal.data||streams.normal.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_NORMAL_ARRAY);
-			if(use_streams.normal.vert_buf.id!=0)
-				glBindBufferARB(GL_ARRAY_BUFFER,use_streams.normal.vert_buf.id);
-			glNormalPointer(data_types[(int)use_streams.normal.type], 0, use_streams.normal.data);
+			if(streams.normal.vert_buf.id!=0)
+				glBindBufferARB(GL_ARRAY_BUFFER,streams.normal.vert_buf.id);
+			glNormalPointer(data_types[(int)streams.normal.type], 0, streams.normal.data);
 		}
-		if(use_streams.color.data||use_streams.color.vert_buf.id!=0)
+		if(streams.color.data||streams.color.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_COLOR_ARRAY);
-			if(use_streams.color.vert_buf.id!=0)
-				glBindBufferARB(GL_ARRAY_BUFFER,use_streams.color.vert_buf.id);
-			glColorPointer(use_streams.color.size, data_types[(int)use_streams.color.type], 0, use_streams.color.data);
+			if(streams.color.vert_buf.id!=0)
+				glBindBufferARB(GL_ARRAY_BUFFER,streams.color.vert_buf.id);
+			glColorPointer(streams.color.size, data_types[(int)streams.color.type], 0, streams.color.data);
 		}
 		if(Support.multitexturing)
 		{
-			for(int i=0;i<TStreamsDesc::max_tex_units;i++)
+			for(int i=0;i<TStreamsDesc::TStreamsDescState::max_tex_units;i++)
 			{
-				if(use_streams.tex[i].data||use_streams.tex[i].vert_buf.id!=0)
+				if(streams.tex[i].data||streams.tex[i].vert_buf.id!=0)
 				{
 					glClientActiveTextureARB(GL_TEXTURE0+i);
 					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-					if(use_streams.tex[i].vert_buf.id!=0)
-						glBindBufferARB(GL_ARRAY_BUFFER,use_streams.tex[i].vert_buf.id);
-					glTexCoordPointer(use_streams.tex[i].size, data_types[(int)use_streams.tex[i].type], 0, use_streams.tex[i].data);
+					if(streams.tex[i].vert_buf.id!=0)
+						glBindBufferARB(GL_ARRAY_BUFFER,streams.tex[i].vert_buf.id);
+					glTexCoordPointer(streams.tex[i].size, data_types[(int)streams.tex[i].type], 0, streams.tex[i].data);
 				}
 			}
 		}else
 		{
-			if(use_streams.tex[0].data||use_streams.tex[0].vert_buf.id!=0)
+			if(streams.tex[0].data||streams.tex[0].vert_buf.id!=0)
 			{
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				if(use_streams.tex[0].vert_buf.id!=0)
-					glBindBufferARB(GL_ARRAY_BUFFER,use_streams.tex[0].vert_buf.id);
-				glTexCoordPointer(use_streams.tex[0].size, data_types[(int)use_streams.tex[0].type], 0, use_streams.tex[0].data);
+				if(streams.tex[0].vert_buf.id!=0)
+					glBindBufferARB(GL_ARRAY_BUFFER,streams.tex[0].vert_buf.id);
+				glTexCoordPointer(streams.tex[0].size, data_types[(int)streams.tex[0].type], 0, streams.tex[0].data);
 			}
 		}
 		CheckGLError();
-		if(use_streams.index.data)
+		if(streams.index.data)
 		{
-			glDrawElements(primitive[(int)use_primitive], use_vertices_count, data_types[(int)use_streams.index.type], use_streams.index.data);
+			glDrawElements(primitive[(int)use_primitive], use_vertices_count, data_types[(int)streams.index.type], streams.index.data);
 		}
-		else if(use_streams.index.vert_buf.id!=0)
+		else if(streams.index.vert_buf.id!=0)
 		{
-			glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER,use_streams.index.vert_buf.id);
-			glDrawElements(primitive[(int)use_primitive], use_vertices_count, data_types[(int)use_streams.index.type], 0);
+			glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER,streams.index.vert_buf.id);
+			glDrawElements(primitive[(int)use_primitive], use_vertices_count, data_types[(int)streams.index.type], 0);
 		}
 		else
 			glDrawArrays(primitive[(int)use_primitive], 0, use_vertices_count);
@@ -461,17 +399,17 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive use_primitive,
 		glBindBufferARB(GL_ARRAY_BUFFER,0);
 		glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER,0);
 
-		if(use_streams.vertex.data||use_streams.vertex.vert_buf.id!=0)
+		if(streams.vertex.data||streams.vertex.vert_buf.id!=0)
 			glDisableClientState(GL_VERTEX_ARRAY);
-		if(use_streams.normal.data||use_streams.normal.vert_buf.id!=0)
+		if(streams.normal.data||streams.normal.vert_buf.id!=0)
 			glDisableClientState(GL_NORMAL_ARRAY);
-		if(use_streams.color.data||use_streams.color.vert_buf.id!=0)
+		if(streams.color.data||streams.color.vert_buf.id!=0)
 			glDisableClientState(GL_COLOR_ARRAY);
 		if(Support.multitexturing)
 		{
-			for(int i=0;i<TStreamsDesc::max_tex_units;i++)
+			for(int i=0;i<TStreamsDesc::TStreamsDescState::max_tex_units;i++)
 			{
-				if(use_streams.tex[i].data)
+				if(streams.tex[i].data)
 				{
 					glClientActiveTextureARB(GL_TEXTURE0+i);
 					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -479,77 +417,77 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive use_primitive,
 			}
 		}else
 		{
-			if(use_streams.tex[0].data)
+			if(streams.tex[0].data)
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	}else if(Support.vertex_array)
 	{
-		if(use_streams.vertex.data||use_streams.vertex.vert_buf.id!=0)
+		if(streams.vertex.data||streams.vertex.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_VERTEX_ARRAY);
-			if(use_streams.vertex.vert_buf.id!=0)
-				glVertexPointer(use_streams.vertex.size, data_types[(int)use_streams.vertex.type], 0, vertex_buffers_emul[use_streams.vertex.vert_buf.id].data_pointer);
+			if(streams.vertex.vert_buf.id!=0)
+				glVertexPointer(streams.vertex.size, data_types[(int)streams.vertex.type], 0, p->vertex_buffers_emul[streams.vertex.vert_buf.id].data_pointer);
 			else
-				glVertexPointer(use_streams.vertex.size, data_types[(int)use_streams.vertex.type], 0, use_streams.vertex.data);
+				glVertexPointer(streams.vertex.size, data_types[(int)streams.vertex.type], 0, streams.vertex.data);
 		}
-		if(use_streams.normal.data||use_streams.normal.vert_buf.id!=0)
+		if(streams.normal.data||streams.normal.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_NORMAL_ARRAY);
-			if(use_streams.normal.vert_buf.id!=0)
-				glNormalPointer(data_types[(int)use_streams.normal.type], 0, vertex_buffers_emul[use_streams.normal.vert_buf.id].data_pointer);
+			if(streams.normal.vert_buf.id!=0)
+				glNormalPointer(data_types[(int)streams.normal.type], 0, p->vertex_buffers_emul[streams.normal.vert_buf.id].data_pointer);
 			else
-				glNormalPointer(data_types[(int)use_streams.normal.type], 0, use_streams.normal.data);
+				glNormalPointer(data_types[(int)streams.normal.type], 0, streams.normal.data);
 		}
-		if(use_streams.color.data||use_streams.color.vert_buf.id!=0)
+		if(streams.color.data||streams.color.vert_buf.id!=0)
 		{
 			glEnableClientState(GL_COLOR_ARRAY);
-			if(use_streams.color.vert_buf.id!=0)
-				glColorPointer(use_streams.color.size, data_types[(int)use_streams.color.type], 0, vertex_buffers_emul[use_streams.color.vert_buf.id].data_pointer);
+			if(streams.color.vert_buf.id!=0)
+				glColorPointer(streams.color.size, data_types[(int)streams.color.type], 0, p->vertex_buffers_emul[streams.color.vert_buf.id].data_pointer);
 			else
-				glColorPointer(use_streams.color.size, data_types[(int)use_streams.color.type], 0, use_streams.color.data);
+				glColorPointer(streams.color.size, data_types[(int)streams.color.type], 0, streams.color.data);
 		}
 		if(Support.multitexturing)
 		{
-			for(int i=0;i<TStreamsDesc::max_tex_units;i++)
+			for(int i=0;i<TStreamsDesc::TStreamsDescState::max_tex_units;i++)
 			{
-				if(use_streams.tex[i].data||use_streams.tex[i].vert_buf.id!=0)
+				if(streams.tex[i].data||streams.tex[i].vert_buf.id!=0)
 				{
 					glClientActiveTextureARB(GL_TEXTURE0+i);
 					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-					if(use_streams.tex[i].vert_buf.id!=0)
-						glTexCoordPointer(use_streams.tex[i].size, data_types[(int)use_streams.tex[i].type], 0, vertex_buffers_emul[use_streams.tex[i].vert_buf.id].data_pointer);
+					if(streams.tex[i].vert_buf.id!=0)
+						glTexCoordPointer(streams.tex[i].size, data_types[(int)streams.tex[i].type], 0, p->vertex_buffers_emul[streams.tex[i].vert_buf.id].data_pointer);
 					else
-						glTexCoordPointer(use_streams.tex[i].size, data_types[(int)use_streams.tex[i].type], 0, use_streams.tex[i].data);
+						glTexCoordPointer(streams.tex[i].size, data_types[(int)streams.tex[i].type], 0, streams.tex[i].data);
 				}
 			}
 		}else
 		{
-			if(use_streams.tex[0].data||use_streams.tex[0].vert_buf.id!=0)
+			if(streams.tex[0].data||streams.tex[0].vert_buf.id!=0)
 			{
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				if(use_streams.tex[0].vert_buf.id!=0)
-					glTexCoordPointer(use_streams.tex[0].size, data_types[(int)use_streams.tex[0].type], 0, vertex_buffers_emul[use_streams.tex[0].vert_buf.id].data_pointer);
+				if(streams.tex[0].vert_buf.id!=0)
+					glTexCoordPointer(streams.tex[0].size, data_types[(int)streams.tex[0].type], 0, p->vertex_buffers_emul[streams.tex[0].vert_buf.id].data_pointer);
 				else
-					glTexCoordPointer(use_streams.tex[0].size, data_types[(int)use_streams.tex[0].type], 0, use_streams.tex[0].data);
+					glTexCoordPointer(streams.tex[0].size, data_types[(int)streams.tex[0].type], 0, streams.tex[0].data);
 			}
 		}
 		CheckGLError();
-		if(use_streams.index.data)
-			glDrawElements(primitive[(int)use_primitive], use_vertices_count, data_types[(int)use_streams.index.type], use_streams.index.data);
+		if(streams.index.data)
+			glDrawElements(primitive[(int)use_primitive], use_vertices_count, data_types[(int)streams.index.type], streams.index.data);
 		else
 			glDrawArrays(primitive[(int)use_primitive], 0, use_vertices_count);
 		CheckGLError();
-		if(use_streams.vertex.data||use_streams.vertex.vert_buf.id!=0)
+		if(streams.vertex.data||streams.vertex.vert_buf.id!=0)
 			glDisableClientState(GL_VERTEX_ARRAY);
-		if(use_streams.normal.data||use_streams.normal.vert_buf.id!=0)
+		if(streams.normal.data||streams.normal.vert_buf.id!=0)
 			glDisableClientState(GL_NORMAL_ARRAY);
-		if(use_streams.color.data||use_streams.color.vert_buf.id!=0)
+		if(streams.color.data||streams.color.vert_buf.id!=0)
 			glDisableClientState(GL_COLOR_ARRAY);
 		if(Support.multitexturing)
 		{
-			for(int i=0;i<TStreamsDesc::max_tex_units;i++)
+			for(int i=0;i<TStreamsDesc::TStreamsDescState::max_tex_units;i++)
 			{
-				if(use_streams.tex[i].data)
+				if(streams.tex[i].data)
 				{
 					glClientActiveTextureARB(GL_TEXTURE0+i);
 					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -557,16 +495,25 @@ void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive use_primitive,
 			}
 		}else
 		{
-			if(use_streams.tex[0].data)
+			if(streams.tex[0].data)
 				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	}
 }
 
-void TBaluRender::TSet::Viewport(TVec2i use_size)
+bool TBaluRender::TSet::Viewport(TVec2i use_size)
 {
-	r->p->screen_size = use_size;
-	glViewport(0,0,use_size[0],use_size[1]);
+	auto old_viewport = r->Get.Viewport();
+	if (use_size != old_viewport)
+	{
+		r->p->screen_size = use_size;
+		glViewport(0, 0, use_size[0], use_size[1]);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void TBaluRender::TSet::Color(float r,float g,float b)
@@ -669,16 +616,16 @@ void TBaluRender::TDepth::Func(char* func)
 	}
 }
 
-void TBaluRender::TDepth::Func(TDepth::TDepthFunc func)
+void TBaluRender::TDepth::Func(TDepthFunc func)
 {
 	glDepthFunc(depth_funcs[func]);
 }
-
 
 void TBaluRender::TSet::PointSize(float size)
 {
 	glPointSize(size);
 }
+
 void TBaluRender::TSet::PointSmooth(bool use_smooth)
 {
 	if(use_smooth)
@@ -697,123 +644,175 @@ void TBaluRender::TSet::PolygonMode(TPolygonMode use_mode)
 	glPolygonMode(GL_FRONT_AND_BACK, internal_polygon_mode[(int)use_mode]);
 }
 
-void TBaluRender::TBlend::GetToken(TTokenType token)
+struct TBaluRender::TBlend::TBlendState
 {
-	if(tokens[c]!=token)assert(false);
-	c++;
-}
-void TBaluRender::TBlend::Factor(int &factor)
-{
-	
-	switch(tokens[c])
+	TBaluRender* render;
+
+	enum TTokenType
 	{
-	case T_LPARENTH:
-		c++;GetToken(T_ONE);GetToken(T_MINUS);
-		factor=blend_equations[tokens[c]+1];
-		c++;
-		GetToken(T_RPARENTH);
-		break;
-	default: factor = blend_equations[tokens[c]]; c++;
+		T_UNKNOWN = -1,
+		T_SRCC = 0,
+		T_ONE_MINUS_SRCC,
+		T_SRCA,
+		T_ONE_MINUS_SRCA,
+		T_DSTC,
+		T_ONE_MINUS_DSTC,
+		T_DSTA,
+		T_ONE_MINUS_DSTA,
+		T_CONSTC,
+		T_ONE_MINUS_CONSTC,
+		T_CONSTA,
+		T_ONE_MINUS_CONSTA,
+		T_ONE,
+		T_MINUS,
+		T_PLUS,
+		T_MUL,
+		T_LPARENTH,
+		T_RPARENTH,
+		T_DONE
+	};
+
+	TTokenType tokens[15];
+	int thigh;
+	int c;
+	
+	//blend func script end
+	int curr_op;
+	TVec4 curr_blend_color;
+
+	std::vector<TTokenType> buf;
+
+	TBlendState()
+	{
+		buf.resize(256);
+		for (int i = 0; i<buf.size(); i++)buf[i] = T_UNKNOWN;
+		buf['s'] = T_SRCC;
+		buf['d'] = T_DSTC;
+		buf['c'] = T_CONSTC;
+		buf['1'] = T_ONE;
+		buf['-'] = T_MINUS;
+		buf['+'] = T_PLUS;
+		buf['*'] = T_MUL;
+		buf['('] = T_LPARENTH;
+		buf[')'] = T_RPARENTH;
+		//
+		curr_op = GL_FUNC_ADD;
+		curr_blend_color = TVec4(0, 0, 0, 0);
 	}
+
+	void GetTokens(char* c, bool support_blending_ext) {
+		thigh = -1;
+		while (true)
+		{
+			tokens[++thigh] = buf[*c];
+			assert((buf[*c] != T_CONSTC) || support_blending_ext);
+			assert((buf[*c] != T_CONSTA) || support_blending_ext);
+			assert(buf[*c] != T_UNKNOWN);
+			c++;
+			if (tokens[thigh] == T_SRCC || tokens[thigh] == T_DSTC || tokens[thigh] == T_CONSTC)
+			{
+				assert(*c == 'a' || *c == 'c');
+				if (*c == 'a')
+				{
+					if (tokens[thigh] == T_SRCC)
+						tokens[thigh] = T_SRCA;
+					if (tokens[thigh] == T_DSTC)
+						tokens[thigh] = T_DSTA;
+					if (tokens[thigh] == T_CONSTC)
+						tokens[thigh] = T_CONSTA;
+				}
+				c++;
+			}
+			if (*c == '\0') { tokens[++thigh] = T_DONE; return; }
+		}
+	}
+	void GetToken(TTokenType token)
+	{
+		if (tokens[c] != token)assert(false);
+		c++;
+	}
+	void Factor(int &factor)
+	{
+		switch (tokens[c])
+		{
+		case T_LPARENTH:
+			c++;
+			GetToken(T_ONE);
+			GetToken(T_MINUS);
+			factor = blend_equations[tokens[c] + 1];
+			c++;
+			GetToken(T_RPARENTH);
+			break;
+		default:
+			factor = blend_equations[tokens[c]]; c++;
+		}
+	}
+	bool FactorColor(int &factor)
+	{
+		bool result;
+		switch (tokens[c])
+		{
+		case T_SRCC:result = true; break;
+		case T_DSTC:result = false; break;
+		default:assert(false);
+		}
+		c++;
+		if (tokens[c] == T_MUL) { c++; Factor(factor); }
+		else factor = GL_ONE;
+		return result;
+	}
+};
+
+TBaluRender::TBlend::TBlend(TBaluRender* render)
+{
+	blend_state = new TBlendState();
+	blend_state->render = render;
+}
+
+TBaluRender::TBlend::~TBlend()
+{
+	delete blend_state;
 }
 
 void TBaluRender::TBlend::Enable(bool enable)
 {
-	if(enable)glEnable(GL_BLEND);else glDisable(GL_BLEND);
-}
-
-static TBaluRender::TBlend::TTokenType buf[256];
-
-TBaluRender::TBlend::TBlend()
-{
-	for(int i=0;i<256;i++)buf[i]=T_UNKNOWN;
-	buf['s']=T_SRCC;
-	buf['d']=T_DSTC;
-	buf['c']=T_CONSTC;
-	buf['1']=T_ONE;
-	buf['-']=T_MINUS;
-	buf['+']=T_PLUS;
-	buf['*']=T_MUL;
-	buf['(']=T_LPARENTH;
-	buf[')']=T_RPARENTH;
-	//
-	curr_op=GL_FUNC_ADD;
-	curr_blend_color=TVec4(0,0,0,0);
-}
-
-void TBaluRender::TBlend::GetTokens(char* c){
-	thigh=-1;
-	while(true)
-	{
-		tokens[++thigh]=buf[*c];
-		assert((buf[*c]!=T_CONSTC)||r->Support.blending_ext);
-		assert((buf[*c]!=T_CONSTA)||r->Support.blending_ext);
-		assert(buf[*c]!=T_UNKNOWN);
-		c++;
-		if(tokens[thigh]==T_SRCC||tokens[thigh]==T_DSTC||tokens[thigh]==T_CONSTC)
-		{
-			assert(*c=='a'||*c=='c');
-			if (*c == 'a')
-			{
-				if (tokens[thigh] == T_SRCC)
-					tokens[thigh] = T_SRCA;
-				if (tokens[thigh] == T_DSTC)
-					tokens[thigh] = T_DSTA;
-				if (tokens[thigh] == T_CONSTC)
-					tokens[thigh] = T_CONSTA;
-			}
-			c++;
-		}
-		if(*c=='\0'){tokens[++thigh]=T_DONE;return;}
-	}
-}
-
-bool TBaluRender::TBlend::FactorColor(int &factor)
-{
-	bool result;
-	switch(tokens[c])
-	{
-	case T_SRCC:result=true;break;
-	case T_DSTC:result=false;break;	
-	default:assert(false);
-	}
-	c++;
-	if(tokens[c]==T_MUL){c++;Factor(factor);}
-	else factor=GL_ONE;
-	return result;
+	if(enable)
+		glEnable(GL_BLEND);
+	else 
+		glDisable(GL_BLEND);
 }
 
 void TBaluRender::TBlend::Func(char* func)
 {
-	c=0;
+	blend_state->c=0;
 	assert(func[0]!='\0');
-	GetTokens(func);
+	blend_state->GetTokens(func, blend_state->render->Support.blending_ext);
 	int op,f1,f2;
-	bool is_srcC=FactorColor(f1);
+	bool is_srcC= blend_state->FactorColor(f1);
 	op=GL_FUNC_ADD;
-	if(tokens[c]==T_DONE){
+	if(blend_state->tokens[blend_state->c]==TBlendState::T_DONE){
 		f2=GL_ZERO;
 	}else{
-		switch(tokens[c])
+		switch(blend_state->tokens[blend_state->c])
 		{
-		case T_PLUS:op=GL_FUNC_ADD;break;
-		case T_MINUS:op=GL_FUNC_SUBTRACT;break;
+		case TBlendState::T_PLUS:op=GL_FUNC_ADD;break;
+		case TBlendState::T_MINUS:op=GL_FUNC_SUBTRACT;break;
 		default:assert(false);
 		}
-		c++;
-		if(is_srcC==FactorColor(f2))assert(false);
+		blend_state->c++;
+		if(is_srcC== blend_state->FactorColor(f2))assert(false);
 	}
 	if(is_srcC)	glBlendFunc(f1,f2);
 	else		glBlendFunc(f2,f1);
 
-	if(curr_op==op)return;
-	curr_op=op;
-	if(r->Support.blending_ext)
+	if(blend_state->curr_op==op)return;
+	blend_state->curr_op=op;
+	if(blend_state->render->Support.blending_ext)
 		glBlendEquation(op);
 
 }
 void TBaluRender::TBlend::Func(TVec4 blend_color,char* func){
-	if(!(curr_blend_color==blend_color)&&r->Support.blending_ext)
+	if(!(blend_state->curr_blend_color==blend_color)&& blend_state->render->Support.blending_ext)
 		glBlendColor(blend_color[0],blend_color[1],blend_color[2],blend_color[3]);
 	Func(func);
 }

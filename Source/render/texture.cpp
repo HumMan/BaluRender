@@ -195,7 +195,7 @@ void TBaluRender::TTexture::Delete(TTextureId use_tex)
 void TBaluRender::TTexture::SetFilter(TTextureId use_tex,TTexFilter use_filter, 
 			TTexClamp use_clamp, int use_aniso)
 {
-	TTextureDesc& desc=r->textures[use_tex.id];
+	TTextureDesc& desc=r->p->textures[use_tex.id];
 	glBindTexture(targets[(int)desc.type], use_tex.id);
 	glTexParameteri(targets[(int)desc.type], GL_TEXTURE_MIN_FILTER, tex_filters[(int)use_filter][min_filter]);
 	glTexParameteri(targets[(int)desc.type], GL_TEXTURE_MAG_FILTER, tex_filters[(int)use_filter][mag_filter]);
@@ -232,8 +232,8 @@ TTextureId TBaluRender::TTexture::CreateTarget()
 
 	glGenTextures(1,(GLuint*)&result.id);
 
-	if(r->textures.size()<=result.id)r->textures.resize(result.id+1);
-	TTextureDesc& desc=r->textures[result.id];
+	if(r->p->textures.size()<=result.id)r->p->textures.resize(result.id+1);
+	TTextureDesc& desc=r->p->textures[result.id];
 
 	glBindTexture(target,result.id);
 

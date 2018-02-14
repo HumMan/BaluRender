@@ -39,6 +39,9 @@
     <ClCompile Include="Source\render\shader.cpp">
       <Filter>Source Files\render</Filter>
     </ClCompile>
+    <ClCompile Include="RayCollisionTest\init.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\images.h">

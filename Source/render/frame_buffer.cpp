@@ -73,7 +73,7 @@ TFrameBufferId TBaluRender::TFrameBuffer::Create(int use_width,int use_height,bo
 	GLuint frame_buffer_id;
 	glGenFramebuffersEXT(1,&frame_buffer_id);
 
-	TFrameBufferDesc& desc=r->frame_buffers[frame_buffer_id];
+	TFrameBufferDesc& desc=r->p->frame_buffers[frame_buffer_id];
 	desc.used = true;
 	desc.width = use_width;
 	desc.height = use_height;
@@ -106,7 +106,7 @@ TFrameBufferId TBaluRender::TFrameBuffer::Create(int use_width,int use_height,bo
 
 void TBaluRender::TFrameBuffer::Delete(TFrameBufferId use_framebuff)
 {
-	TFrameBufferDesc& desc=r->frame_buffers[use_framebuff.id];
+	TFrameBufferDesc& desc=r->p->frame_buffers[use_framebuff.id];
 	desc.used=false;
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0);
 	glDeleteFramebuffersEXT(1,(GLuint*)&use_framebuff.id);
@@ -118,7 +118,7 @@ void TBaluRender::TFrameBuffer::Delete(TFrameBufferId use_framebuff)
 
 void TBaluRender::TFrameBuffer::Resize(TFrameBufferId use_framebuff, int use_width, int use_height)
 {
-	TFrameBufferDesc& desc=r->frame_buffers[use_framebuff.id];
+	TFrameBufferDesc& desc=r->p->frame_buffers[use_framebuff.id];
 
 	desc.width=use_width;
 	desc.height=use_height;
@@ -133,8 +133,8 @@ void TBaluRender::TFrameBuffer::Resize(TFrameBufferId use_framebuff, int use_wid
 
 void TBaluRender::TFrameBuffer::AttachTexture(TFrameBufferId use_framebuff, int use_draw_buff_index,TTextureId use_texture,int use_cube_side)
 {
-	TFrameBufferDesc& desc=r->frame_buffers[use_framebuff.id];
-	TTextureDesc& tex_desc=r->textures[use_texture.id];
+	TFrameBufferDesc& desc=r->p->frame_buffers[use_framebuff.id];
+	TTextureDesc& tex_desc=r->p->textures[use_texture.id];
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,use_framebuff.id);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,attach_types[use_draw_buff_index],//TODO check use_draw_buff_index
@@ -145,8 +145,8 @@ void TBaluRender::TFrameBuffer::AttachTexture(TFrameBufferId use_framebuff, int 
 
 void TBaluRender::TFrameBuffer::AttachDepthTexture(TFrameBufferId use_framebuff, TTextureId use_texture,int use_cube_side)
 {
-	TFrameBufferDesc& desc=r->frame_buffers[use_framebuff.id];
-	TTextureDesc& tex_desc=r->textures[use_texture.id];
+	TFrameBufferDesc& desc=r->p->frame_buffers[use_framebuff.id];
+	TTextureDesc& tex_desc=r->p->textures[use_texture.id];
 
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,use_framebuff.id);
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,
@@ -168,4 +168,11 @@ void TBaluRender::TFrameBuffer::BindMain()
 void TBaluRender::TFrameBuffer::SetDrawBuffersCount(int use_count)//TODO должно задаваться автоматически в зависимости от подсоединенных буферов цвета
 {
 	glDrawBuffers(use_count,&attach_types[0]);
+}
+
+void TBaluRender::TFrameBuffer::DrawPixels(TVec2i pos, TVec2i size, TBaluRenderEnums::TDataType data_type, void* pixels)
+{
+	//позицию может хранить т.к. больше нигде не меняется
+	glRasterPos2d(pos[0], pos[1]);
+	glDrawPixels(size[0], size[1], GL_RGBA, data_types[(int)data_type], pixels);
 }
