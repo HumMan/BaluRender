@@ -388,6 +388,7 @@ namespace BaluRender
 			TTexFontId Create(const char* font_path, unsigned int pixel_height);
 			void Delete(TTexFontId use_font);
 			void Print(TTexFontId use_font, TVec2 pos, char* text, ...);
+			~TTexFont();
 		}TexFont;
 
 		class BALURENDER_DLL_INTERFACE TBlend

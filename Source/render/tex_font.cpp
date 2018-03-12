@@ -301,6 +301,11 @@ TBaluRender::TTexFont::TTexFont(TBaluRender* r)
 	this->tex_font = new TBaluRender::TTexFont::TTexFontPrivate();
 }
 
+TBaluRender::TTexFont::~TTexFont()
+{
+	delete this->tex_font;
+}
+
 //const char text[] = " _abcdefghigklmnopqrstuvwxyzABCDEFGHIGKLMNOPQRSTUVWXYZ1234567890-=_+//*!\"№;%:?*()";
 
 TTexFontId TBaluRender::TTexFont::Create(const char* font_path, unsigned int pixel_height)
