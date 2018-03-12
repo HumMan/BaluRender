@@ -237,6 +237,8 @@ namespace BaluRender
 		void Clear(bool color = 0, bool depth = 1);
 		void Draw(const TStreamsDesc& use_streams, TBaluRenderEnums::TPrimitive use_primitive, int use_vertices_count);
 
+		static unsigned int* LoadImageData(const std::string& path, unsigned int& width, unsigned int& height);
+
 		class BALURENDER_DLL_INTERFACE TSupport
 		{
 			friend class TBaluRender; TBaluRender* r;

@@ -1,6 +1,9 @@
-﻿#include <baluRender.h>
+﻿
+#include <baluRender.h>
 
 using namespace BaluRender;
+
+#define NOMINMAX
 
 #include "baluRenderCommon.h"
 
@@ -332,6 +335,39 @@ void TBaluRender::Clear(bool color, bool depth)
 		(color?GL_COLOR_BUFFER_BIT:0)|
 		(depth?GL_DEPTH_BUFFER_BIT:0)
 		);
+}
+
+unsigned int* TBaluRender::LoadImageData(const std::string& path, unsigned int& width, unsigned int& height)
+{
+	ILuint handle;
+	ilGenImages(1, &handle);
+	ilBindImage(handle);
+	if (ilLoadImage(path.c_str()))
+	{
+		auto w = ilGetInteger(IL_IMAGE_WIDTH);
+		auto h = ilGetInteger(IL_IMAGE_HEIGHT);
+		size_t memory_needed = w * h * sizeof(unsigned int);
+		ILuint * data = new ILuint[memory_needed];
+		ilCopyPixels(0, 0, 0, w, h, 1, IL_ALPHA, IL_UNSIGNED_INT, data);
+
+
+		int temp = std::numeric_limits<unsigned int>().max() / 255;
+		for (int i = 0; i < w * h; i++)
+			data[i] = data[i] / temp;
+
+		width = w;
+		height = h;
+
+		ilDeleteImage(handle);
+		return data;
+	}
+	else
+	{
+		auto err = ilGetError();
+		auto err_string = iluErrorString(err);
+		ilDeleteImage(handle);
+		return nullptr;
+	}
 }
 
 void TBaluRender::Draw(const TStreamsDesc& use_streams,TPrimitive use_primitive, int use_vertices_count)
