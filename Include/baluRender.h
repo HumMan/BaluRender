@@ -39,10 +39,20 @@ public:
 
 using namespace BaluLib;
 
-#include "../Source/images.h"
-
 namespace TBaluRenderEnums
 {
+	enum class TFormat
+	{
+		RGB8,
+		RGBA8,
+		LUMINANCE,
+		RGB16F,
+		DEPTH24,
+		DXT1,
+		DXT3,
+		DXT5
+	};
+
 	enum class TDataType
 	{
 		Double,
@@ -203,8 +213,6 @@ namespace BaluRender
 	struct TVertexBufferId;
 	struct TFrameBufferId;
 	struct TShaderId;
-	struct TBitmapFontId;
-	struct TTexFontId;
 
 	class TStreamsDesc;
 
@@ -212,7 +220,6 @@ namespace BaluRender
 	struct TVertexBufferDesc;
 	struct TTextureDesc;
 	struct TShaderDesc;
-	struct TBitmapFontDesc;	
 
 	BALURENDER_DLL_INTERFACE void CheckGLError();
 	
@@ -334,7 +341,7 @@ namespace BaluRender
 			friend class TBaluRender; TBaluRender* r;
 		public:
 			TTextureId Create(const char* fname);
-			TTextureId Create(TBaluRenderEnums::TTexType use_type, TFormat use_format,
+			TTextureId Create(TBaluRenderEnums::TTexType use_type, TBaluRenderEnums::TFormat use_format,
 				int use_width, int use_height, TBaluRenderEnums::TTexFilter use_filter = TBaluRenderEnums::TTexFilter::Bilinear);
 			void Delete(TTextureId use_tex);
 			TTextureId CreateTarget();
@@ -379,19 +386,6 @@ namespace BaluRender
 			void Mask(bool enable);
 			void PolygonOffset(bool use_offset, TBaluRenderEnums::TPolygonMode poly, float factor = 0, float units = 0);
 		}Depth;
-
-		class BALURENDER_DLL_INTERFACE TTexFont
-		{
-			TBaluRender* r;
-			class TTexFontPrivate;
-			TTexFontPrivate* tex_font;
-		public:
-			TTexFont(TBaluRender* r);
-			TTexFontId Create(const char* font_path, unsigned int pixel_height);
-			void Delete(TTexFontId use_font);
-			void Print(TTexFontId use_font, TVec2 pos, char* text, ...);
-			~TTexFont();
-		}TexFont;
 
 		class BALURENDER_DLL_INTERFACE TBlend
 		{
@@ -489,15 +483,6 @@ namespace BaluRender
 		int id;
 	public:
 		TFrameBufferId() :id(0){}
-	};
-
-	struct TTexFontId
-	{
-		friend class TBaluRender::TTexFont;
-	private:
-		int id;
-	public:
-		TTexFontId() :id(0){}//TODO
 	};
 
 	class BALURENDER_DLL_INTERFACE TStreamsDesc

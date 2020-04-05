@@ -137,11 +137,11 @@ namespace BaluRender
 		GL_FUNC_SUBTRACT
 	};
 
-	inline TFormat GetFormat(GLint gl_format)
+	inline TBaluRenderEnums::TFormat GetFormat(GLint gl_format)
 	{
 		for (int i = 0; i < 8; i++)
 			if (formats[i] == gl_format)
-				return (TFormat)i;
+				return (TBaluRenderEnums::TFormat)i;
 	}
 
 
@@ -168,7 +168,6 @@ namespace BaluRender
 
 			std::vector<TTextureDesc>				textures;
 			std::vector<TShaderDesc>				shaders;
-			std::vector<TBitmapFontDesc>			bitmap_fonts;
 		};
 
 	struct TFrameBufferDesc
@@ -195,7 +194,7 @@ namespace BaluRender
 	{
 		bool used;
 		TBaluRenderEnums::TTexType type;
-		TFormat format;
+		TBaluRenderEnums::TFormat format;
 		TBaluRenderEnums::TTexFilter filter;
 		TBaluRenderEnums::TTexClamp clamp;
 		unsigned short width, height;
@@ -205,14 +204,5 @@ namespace BaluRender
 	{
 		bool used;
 		TShaderDesc() :used(false) {}
-	};
-	struct TBitmapFontDesc
-	{
-		bool used;
-		unsigned int base;
-		int first_char;
-		int chars_count;
-		TBitmapFontDesc() :used(false) {}
-	};
-	
+	};	
 }

@@ -333,9 +333,9 @@ TVec<unsigned char, 4> TraceRay(TRay<float, 3> ray)
 		{
 			float col = 1;
 			if (info.have_in)
-				col = abs(Clamp<float>(0, 1, -info.in_normal*ray.dir));
+				col = std::abs(Clamp<float>(0, 1, -info.in_normal*ray.dir));
 			else if (info.have_out)
-				col = abs(Clamp<float>(0, 1, info.out_normal*ray.dir));
+				col = std::abs(Clamp<float>(0, 1, info.out_normal*ray.dir));
 			//else assert(false);
 			color = TVec<unsigned char, 4>(col*(sinf(info.in_pos[0] * info.in_pos[2] / 100)>0 ? 255 : 0), col * 255, col*(sinf(info.in_pos[0] * info.in_pos[1] / 200)>0 ? 255 : 0), 255);
 			//render->Set.Color(0, col, 0, 1);
@@ -390,9 +390,9 @@ static void draw_scene(GLFWwindow* window, double tt)
 
 	render->Set.ClearColor(0, 0, 0);
 	//render->Clear(1, 1);
-	//DoRaytrace();
+	DoRaytrace();
 	//render->Clear(0, 1);
-	DrawWireframe();
+	//DrawWireframe();
 }
 
 static void resize_callback(GLFWwindow* window, int width, int height)

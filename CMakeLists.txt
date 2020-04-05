@@ -24,11 +24,12 @@ include_directories("glfw/include")
 include_directories("Include")
 include_directories("easyloggingpp/src")
 
-add_subdirectory(Balls)
-#add_subdirectory(RayCollisionTest)
 if (NOT TARGET BaluLib)
-	add_subdirectory(BaluLib)
+	add_subdirectory("Examples/BaluLib")
+	add_subdirectory("Examples/RayCollisionTest")
+	add_subdirectory("Examples/Balls")
 endif()
+
 include_directories(${BaluLib_SOURCE_DIR}/Include)
 
 find_package(GLEW REQUIRED)

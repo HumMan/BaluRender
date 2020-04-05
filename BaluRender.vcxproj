@@ -13,17 +13,14 @@
   <ItemGroup>
     <ClCompile Include="RayCollisionTest\init.cpp" />
     <ClCompile Include="Source\baluRender.cpp" />
-    <ClCompile Include="Source\images.cpp" />
     <ClCompile Include="Source\render\frame_buffer.cpp" />
     <ClCompile Include="Source\render\shader.cpp" />
     <ClCompile Include="Source\render\texture.cpp" />
-    <ClCompile Include="Source\render\tex_font.cpp" />
     <ClCompile Include="Source\render\vertex_buffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\baluRender.h" />
     <ClInclude Include="Source\baluRenderCommon.h" />
-    <ClInclude Include="Source\images.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -116,8 +113,6 @@
   <ImportGroup Label="ExtensionTargets">
     <Import Project="$(SolutionDir)\packages\DevIL.redist.1.7.8\build\native\DevIL.redist.targets" Condition="Exists('$(SolutionDir)\packages\DevIL.redist.1.7.8\build\native\DevIL.redist.targets')" />
     <Import Project="$(SolutionDir)\packages\DevIL.1.7.8\build\native\DevIL.targets" Condition="Exists('$(SolutionDir)\packages\DevIL.1.7.8\build\native\DevIL.targets')" />
-    <Import Project="$(SolutionDir)\packages\freetype.redist.2.8.0.1\build\native\freetype.redist.targets" Condition="Exists('$(SolutionDir)\packages\freetype.redist.2.8.0.1\build\native\freetype.redist.targets')" />
-    <Import Project="$(SolutionDir)\packages\freetype.2.8.0.1\build\native\freetype.targets" Condition="Exists('$(SolutionDir)\packages\freetype.2.8.0.1\build\native\freetype.targets')" />
     <Import Project="$(SolutionDir)\packages\glew.v140.1.12.0\build\native\glew.v140.targets" Condition="Exists('$(SolutionDir)\packages\glew.v140.1.12.0\build\native\glew.v140.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -126,8 +121,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('$(SolutionDir)\packages\DevIL.redist.1.7.8\build\native\DevIL.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\DevIL.redist.1.7.8\build\native\DevIL.redist.targets'))" />
     <Error Condition="!Exists('$(SolutionDir)\packages\DevIL.1.7.8\build\native\DevIL.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\DevIL.1.7.8\build\native\DevIL.targets'))" />
-    <Error Condition="!Exists('$(SolutionDir)\packages\freetype.redist.2.8.0.1\build\native\freetype.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\freetype.redist.2.8.0.1\build\native\freetype.redist.targets'))" />
-    <Error Condition="!Exists('$(SolutionDir)\packages\freetype.2.8.0.1\build\native\freetype.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\packages\freetype.2.8.0.1\build\native\freetype.targets'))" />
     <Error Condition="!Exists('$(SolutionDir)\packages\glew.v140.1.12.0\build\native\glew.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', $(SolutionDir)\'packages\glew.v140.1.12.0\build\native\glew.v140.targets'))" />
   </Target>
 </Project>

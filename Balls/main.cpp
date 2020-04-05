@@ -46,13 +46,9 @@ int curr_threads_count = 1;
 bool volatile should_close = false;
 bool volatile draw_waiting = false;
 
-TTexFontId font;
 
 void Init()
 {
-
-	font = render->TexFont.Create("font.ttf",15);
-
 	InitBalls(curr_threads_count);
 
 	render->Set.ClearColor(0, 0, 0);
@@ -151,8 +147,6 @@ static bool draw_scene(GLFWwindow* window, double tt)
 			render->Set.Projection(ortho2);
 			render->Blend.Enable(true);
 			render->Blend.Func("dc*(1-sa)+sc*sa");
-			
-			render->TexFont.Print(font, TVec2(10, 10), buf);
 		}
 	}
 

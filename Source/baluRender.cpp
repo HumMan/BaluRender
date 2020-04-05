@@ -308,7 +308,6 @@ void TBaluRender::Initialize(TVec2i use_size)
 }
 
 TBaluRender::TBaluRender(TVec2i use_size):
-	TexFont(this),
 	Blend(this)
 {
 	p = new TPrivate();
@@ -326,7 +325,7 @@ TVec2i TBaluRender::ScreenSize(){
 }
 
 TVec2 TBaluRender::WindowToClipSpace(int x,int y){
-	return TVec2(x / float(p->screen_size[0]), 1.0 - y / float(p->screen_size[1]))*2.0 - TVec2(1.0, 1.0);
+	return TVec2(x / float(p->screen_size[0]), 1.0f - y / float(p->screen_size[1]))*2.0 - TVec2(1.0f, 1.0f);
 }
 
 void TBaluRender::Clear(bool color, bool depth)
@@ -722,7 +721,7 @@ struct TBaluRender::TBlend::TBlendState
 	TBlendState()
 	{
 		buf.resize(256);
-		for (int i = 0; i<buf.size(); i++)buf[i] = T_UNKNOWN;
+		for (size_t i = 0; i<buf.size(); i++)buf[i] = T_UNKNOWN;
 		buf['s'] = T_SRCC;
 		buf['d'] = T_DSTC;
 		buf['c'] = T_CONSTC;

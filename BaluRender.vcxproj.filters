@@ -21,13 +21,7 @@
     <ClCompile Include="Source\baluRender.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\images.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\render\frame_buffer.cpp">
-      <Filter>Source Files\render</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\render\tex_font.cpp">
       <Filter>Source Files\render</Filter>
     </ClCompile>
     <ClCompile Include="Source\render\texture.cpp">
@@ -44,9 +38,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\images.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\baluRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
