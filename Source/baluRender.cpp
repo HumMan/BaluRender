@@ -10,6 +10,7 @@ using namespace BaluRender;
 #include <IL/ilut.h>
 
 #include <easylogging++.h>
+INITIALIZE_EASYLOGGINGPP;
 
 using namespace TBaluRenderEnums;
 
