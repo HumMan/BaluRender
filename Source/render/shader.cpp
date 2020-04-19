@@ -10,15 +10,6 @@ using namespace TBaluRenderEnums;
 
 #if defined(WIN32)||defined(_WIN32)
 #else
-void strcpy_s(char* buf, char* value)
-{
-	strcpy(buf,value);
-}
-void strcpy_s(char* buf, int len, char* value)
-{
-	strcpy(buf,value);
-}
-
 #define sprintf_s sprintf
 #define sscanf_s sscanf
 #endif
