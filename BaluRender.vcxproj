@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="RayCollisionTest\init.cpp" />
     <ClCompile Include="Source\baluRender.cpp" />
     <ClCompile Include="Source\render\frame_buffer.cpp" />
     <ClCompile Include="Source\render\shader.cpp" />

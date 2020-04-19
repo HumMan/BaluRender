@@ -27,6 +27,7 @@ void strcpy_s(char* buf, int len, char* value)
 
 #define sprintf_s sprintf
 #define sscanf_s sscanf
+#define vsprintf_s vsprintf
 #endif
 
 const char* GetGLErrorString(GLenum errorCode){
